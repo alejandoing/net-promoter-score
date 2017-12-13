@@ -1,16 +1,26 @@
-<template lang="pug">
-	v-toolbar(fixed='', app='', :clipped-left='clipped')
-		v-toolbar-side-icon(@click.stop='cool_event_name')
-		v-btn(icon='', @click.stop='miniVariant = !miniVariant')
-			v-icon(v-html="miniVariant ? 'chevron_right' : 'chevron_left'")
-		v-btn(icon='', @click.stop='clipped = !clipped')
-			v-icon web
-		v-btn(icon='', @click.stop='fixed = !fixed')
-			v-icon remove
-		v-toolbar-title(v-text='title')
-		v-spacer
-		v-btn(icon='', @click.stop='rightDrawer = !rightDrawer')
-			v-icon menu
+<template>
+	<v-toolbar fixed app dark color="primary">
+		<v-toolbar-title v-text='title'></v-toolbar-title>
+		<v-spacer></v-spacer>
+		<v-toolbar-items>
+			<v-btn flat> Dashboard
+				<v-icon class="pl-2">dashboard</v-icon>
+			</v-btn>
+			<v-btn flat> Resultados
+				<v-icon class="pl-2">pie_chart</v-icon>
+			</v-btn>
+			<v-menu offset-y>
+				<v-btn flat slot="activator"> Alejandro Uray
+					<v-icon class="pl-2">account_circle</v-icon>
+				</v-btn>
+				<v-list>
+					<v-list-tile v-for="item in items" :key="item.title" @click="">
+						<v-list-tile-title>{{ item.title }}</v-list-tile-title>
+					</v-list-tile>
+				</v-list>
+			</v-menu>
+		</v-toolbar-items>
+	</v-toolbar>
 </template>
 
 <script>
@@ -18,35 +28,12 @@
     name: 'HeaderApp',
     data () {
       return {
-        clipped: true,
-        drawer: true,
-        fixed: false,
-        items: [{
-          icon: 'bubble_chart',
-          title: 'Inspire'
-        }],
-        miniVariant: false,
-        right: true,
-        rightDrawer: false,
-        title: 'Vuetify.js'
+				title: 'Net Promoter Score - Carrefour Express',
+				items: [
+					{ title: 'Mi perfil' },
+					{ title: 'Cerrar sesión' },
+				],
       }
     }
   }
 </script>
-
-<style scoped>
-  h1, h2 {
-    font-weight: normal;
-  }
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  li {
-    display: inline-block;
-    margin: 0 10px;
-  }
-  a {
-    color: #42b983;
-  }
-</style>
