@@ -14,12 +14,20 @@ import {
   VToolbar,
   VMenu,
   VBtnToggle,
+  VCard,
+  VForm,
+  VTextField,
+  VSelect,
+  VCheckbox,
   transitions
 } from 'vuetify'
 import '../node_modules/vuetify/src/stylus/app.styl'
 
 import App from './App'
 import router from './router'
+import Firebase from './plugins/Firebase.js'
+
+Vue.use(Firebase)
 
 Vue.use(Vuetify, {
   components: {
@@ -33,6 +41,11 @@ Vue.use(Vuetify, {
     VToolbar,
     VMenu,
     VBtnToggle,
+    VCard,
+    VForm,
+    VTextField,
+    VSelect,
+    VCheckbox,
     transitions
   },
   theme: {

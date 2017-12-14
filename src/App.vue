@@ -1,17 +1,8 @@
-<template>
-  <v-app>
-    <header-app></header-app>
-    <dashboard></dashboard>
-  </v-app>
+<template lang="pug">
+  v-app
+    router-view
 </template>
 
 <script>
-  import HeaderApp from './components/layout/HeaderApp'
-  import Dashboard from './components/dashboard/Dashboard'
-  export default {
-    components: {
-      HeaderApp,
-      Dashboard
-    }
-  }
+  export default {}
 </script>

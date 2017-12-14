@@ -1,15 +1,9 @@
-<template>
-	<v-content class="py-4">
-		<a>
-			<v-container grid-list-md text-md-center>
-				<v-layout row wrap>
-					<v-flex md4 xs4 v-for="option in options[user]" :key="option.src">
-						<img class="img-responsive" :src="option.src" />
-					</v-flex>
-				</v-layout>
-			</v-container>
-		</a>
-	</v-content>
+<template lang="pug">
+	v-content.py-4
+		v-container(grid-list-md text-md-center)
+			v-layout(row wrap)
+				v-flex(md4 xs4 v-for="option in options[user]" :key="option.src")
+					img(:src="option.src")
 </template>
 
 <script>
@@ -50,7 +44,7 @@
 		margin-bottom: 30px
 		height: $size-image
 		width: $size-image
-		cursor: pointer;
+		cursor: pointer
 		&:hover
 			filter: gray
 			-webkit-filter: grayscale(1)
