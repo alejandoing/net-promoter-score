@@ -10,9 +10,12 @@ Vue.use(Router)
 export default new Router({
   mode: 'history',
   routes: [
-    { path: '/dashboard', name: 'Dashboard', component: Layout, children: [{ path: '', component: Dashboard }]},
+    { path: '/dashboard', component: Layout, 
+      children: [
+        { path: '', component: Dashboard }
+      ]
+    },
     { path: '/auth', name: 'Auth', component: Auth },
-    { path: '/', redirect: { name: 'Dashboard' } },
-    { path: '*', redirect: { name: 'Dashboard' } }
+    { path: '*', redirect: '/dashboard' },
   ]
 })

@@ -19,6 +19,7 @@ import {
   VTextField,
   VSelect,
   VCheckbox,
+  VSnackbar,
   transitions
 } from 'vuetify'
 import '../node_modules/vuetify/src/stylus/app.styl'
@@ -46,6 +47,7 @@ Vue.use(Vuetify, {
     VTextField,
     VSelect,
     VCheckbox,
+    VSnackbar,
     transitions
   },
   theme: {
