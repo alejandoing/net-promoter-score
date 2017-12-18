@@ -1,7 +1,8 @@
 <template lang="pug">
 	v-layout(row wrap)
 		v-flex(md4 xs4 v-for="option in options[user]" :key="option.src")
-			img(:src="option.src")
+			router-link(:to="'/polls/new/'")
+				img(:src="option.src")
 </template>
 
 <script>
@@ -12,7 +13,7 @@
 				user: 'admin',
 				options: {
 					admin: [
-						{ src: 'static/dashboard/new-poll.png' },
+						{ src: 'static/dashboard/new-poll.png', route: '/polls/new/' },
 						{ src: 'static/dashboard/new-local.png' },
 						{ src: 'static/dashboard/my-locals.png' },
 						{ src: 'static/dashboard/my-polls.png' },
@@ -30,7 +31,7 @@
 	}
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 	$radius-image: 0px 1px 6px 1px rgba(0,0,0,0.75)
 	$size-image: 350px
 	$size-image-big: 500px

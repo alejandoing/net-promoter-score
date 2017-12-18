@@ -1,7 +1,8 @@
 <template lang="pug">
 	div
 		header-app
-		router-view
+		v-content.py-4
+			router-view
 </template>
 
 <script>

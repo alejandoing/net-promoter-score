@@ -1,40 +1,5 @@
 <template lang="pug">
-	//- v-app.app
-	//- 	v-container(fluid fill-height)
-	//- 		v-layout(flex align-center justify-center)
-	//- 			v-card.grey.lighten-4(height="350px")
-	//- 				v-card-media.white--text.darken-4.primary(height="70px") NPS ADMIN
-	//- 				form.text-xs-center.ml-5.mr-5
-	//- 					v-text-field(
-	//- 						label="E-mail"
-	//- 						v-model="email"
-	//- 						:error-messages="emailErrors"
-	//- 						@input="$v.email.$touch()"
-	//- 						@blur="$v.email.$touch()"
-	//- 						required
-	//- 					)
-	//- 					v-text-field(
-	//- 						label="Contraseña"
-	//- 						v-model="password"
-	//- 						:error-messages="passwordErrors"
-	//- 						@input="$v.password.$touch()"
-	//- 						@blur="$v.password.$touch()"
-	//- 						required
-	//- 					)
-	//- 					v-btn(:loading="loading" @click.native="signIn" :disabled="loading || $v.$invalid" block color="primary") Iniciar Sesión
-	//- 						span.custom-loader(slot="loader")
-	//- 							v-icon(light) cached
-	//- 					v-snackbar(top right :timeout="timeout" v-model="snackbar")
-	//- 						v-btn(dark flat @click.native="snackbar = false") Close
-	//- 						|  {{ text }}
-	// Mixins
 	v-app.app
-		mixin input(type, label)
-			.input-container
-					input(type='#{type}' id='#{label}' required)
-					label(for='#{label}')=label
-					.bar
-			
 		.container
 			.card
 			.card
@@ -100,9 +65,7 @@
       signIn () {
 				this.loader = 'loading'
         this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-        .then((user) => { 
-					router.push('/dashboard')
-				})
+        .then((user) => { router.push('/dashboard') })
 				.catch((error) => {
 					console.log(error)
 					this.showSnackbar(error)

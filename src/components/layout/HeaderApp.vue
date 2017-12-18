@@ -13,21 +13,27 @@
 				v-list
 					v-list-tile(v-for="item in items" :key="item.title" @click="")
 						v-list-tile-title
-							router-link(:to="item.route") {{ item.title }}
+							a(@click="signOut") {{ item.title }}
 </template>
 
 <script>
+	import router from '@/router/'
   export default {
     name: 'HeaderApp',
     data () {
       return {
 				title: 'Net Promoter Score - Carrefour Express',
 				items: [
-					{ title: 'Mi perfil', route: '/' },
-					{ title: 'Cerrar sesión', route: '/auth' },
+					{ title: 'Cerrar sesión', route: '/auth', method: 'signOut' },
 				],
       }
-    }
+		},
+		methods: {
+			signOut() {
+				this.$firebase.auth().signOut()
+				router.push('/auth')
+			}
+		}
   }
 </script>
 

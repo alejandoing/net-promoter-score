@@ -1,7 +1,6 @@
 <template lang="pug">
-	v-content.py-4
-		v-container(grid-list-md text-md-center)
-			item
+	v-container(grid-list-md text-md-center)
+		item
 </template>
 
 <script>
