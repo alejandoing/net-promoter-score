@@ -1,7 +1,7 @@
 <template lang="pug">
 	v-layout(row wrap)
 		v-flex(md4 xs4 v-for="option in options[user]" :key="option.src")
-			router-link(:to="'/polls/new/'")
+			router-link(:to="option.route")
 				img(:src="option.src")
 </template>
 
@@ -14,15 +14,15 @@
 				options: {
 					admin: [
 						{ src: 'static/dashboard/new-poll.png', route: '/polls/new/' },
-						{ src: 'static/dashboard/new-local.png' },
-						{ src: 'static/dashboard/my-locals.png' },
-						{ src: 'static/dashboard/my-polls.png' },
-						{ src: 'static/dashboard/settings.png' },
-						{ src: 'static/dashboard/back-to-home.png' }
+						{ src: 'static/dashboard/new-local.png', route: '/locals/new/' },
+						{ src: 'static/dashboard/my-locals.png', route: '/locals/new/' },
+						{ src: 'static/dashboard/my-polls.png', route: '/locals/new/' },
+						{ src: 'static/dashboard/settings.png', route: '/locals/new/' },
+						{ src: 'static/dashboard/back-to-home.png', route: '/locals/new/' }
 					],
 					employee: [
-						{ src: 'static/dashboard/new-poll.png' },
-						{ src: 'static/dashboard/new-local.png' },
+						{ src: 'static/dashboard/new-poll.png', route: '/polls/new/' },
+						{ src: 'static/dashboard/new-local.png', route: '/locals/new/' },
 						{ src: 'static/dashboard/my-locals.png' }					
 					]
 				}
