@@ -10,13 +10,13 @@
 		name: 'Dashboard',
 		data() {
 			return {
-				user: 'admin',
+				user: 'administrador',
 				options: {
-					admin: [
+					administrador: [
 						{ src: 'static/dashboard/new-poll.png', route: '/polls/new/' },
 						{ src: 'static/dashboard/new-local.png', route: '/locals/new/' },
 						{ src: 'static/dashboard/my-locals.png', route: '/locals/new/' },
-						{ src: 'static/dashboard/my-polls.png', route: '/locals/new/' },
+						{ src: 'static/dashboard/my-polls.png', route: '/polls/' },
 						{ src: 'static/dashboard/settings.png', route: '/locals/new/' },
 						{ src: 'static/dashboard/back-to-home.png', route: '/locals/new/' }
 					],

@@ -6,7 +6,9 @@ import Layout from '@/components/layout/Layout'
 import Dashboard from '@/components/dashboard/Dashboard'
 import CreatePoll from '@/components/poll/CreatePoll'
 import ViewPoll from '@/components/poll/ViewPoll'
+import ConsultPolls from '@/components/poll/ConsultPolls'
 import CreateLocal from '@/components/local/CreateLocal'
+import ViewLocal from '@/components/local/ViewLocal'
 
 
 Vue.use(Router)
@@ -19,7 +21,9 @@ export default new Router({
         { path: '', component: Dashboard },
         { path: '/polls/new', component: CreatePoll },
         { path: '/polls/:id', component: ViewPoll },
+        { path: '/polls/', component: ConsultPolls },
         { path: '/locals/new', component: CreateLocal },
+        { path: '/locals/:id', component: ViewLocal },
       ]
     },
     { path: '/auth', name: 'Auth', component: Auth },

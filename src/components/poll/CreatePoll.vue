@@ -4,8 +4,8 @@
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Nueva Encuesta
-					hr
-			v-flex(xs12)
+					v-divider
+			v-flex(xs12 md6)
 				v-text-field(
 					label="Pregunta Principal"
 					v-model.trim="question"
@@ -15,22 +15,50 @@
 				v-select(
 					label="Elegir un Local"
 					v-model="local"
-					:items="items"
+					:items="localsSelect"
 					required
 				)
 			v-flex(xs12 md6)
 				v-select(
 					label="Elegir un Contexto"
 					v-model="context"
-					:items="items"
+					:items="contextsSelect"
 					required
 				)
-			v-flex(xs12 md6)
+			v-flex(xs12 md6).mb-5
 				v-text-field#background.hidden(type="file" @change.native="writeFile($event)")
 				v-btn#uploadFile(block color="primary" @click="uploadClick") Elegir background
+		v-layout(row wrap)
+			v-flex(xs12)
+				span.display-1.my-5 Justificación
+				v-divider
+			v-flex(xs12)
+				v-tabs(fixed icons centered)
+					v-tabs-bar(dark color="primary")
+						v-tabs-slider(color="yellow")
+						v-tabs-item(v-for="justification in justifications" :key="justification.id" :href="'#' + justification.id")
+							v-icon(large) {{ justification.icon }}
+							| {{ justification.title }}
+					v-tabs-items
+						v-tabs-content(v-for="justification in justifications" :key="justification.id" :id="justification.id")
+							v-card(flat)
+								v-card-text
+									v-flex(xs12)
+										v-text-field(
+											:label="'Pregunta principal: ' + justification.title"
+											v-model.trim="justificationsValues[justification.id].question"
+											:id="justificationsValues[justification.id].question"
+											required
+										)
+										div(v-for="(option, index) in 4")
+											v-text-field(
+												:label="'Opción ' + (index + 1)"
+												v-model.trim="justificationsValues[justification.id].options[index]"
+												:required="index <= 1"
+											)
 		v-layout(row child-flex justify-center align-center wrap)
-			v-flex.py-5(fill-height xs12 offset-xs5)
-				v-btn#submit(large outline :loading="loading" @click.native="createPoll" color="primary") CREAR ENCUESTA
+			v-flex(fill-height xs12 offset-xs5)
+				v-btn#submit(large outline :loading="loading" :disabled="loading || $v.$invalid" @click.native="createPoll" color="primary") CREAR ENCUESTA
 					span.custom-loader(slot="loader")
 						v-icon(light) cached
 		v-dialog(v-model="dialog" persistent max-width="500")
@@ -48,7 +76,6 @@
 <script>
 	import { validationMixin } from 'vuelidate'
 	import { required, maxLength, email } from 'vuelidate/lib/validators'
-	import router from '@/router/'
 	export default {
 		name: 'Auth',
 		mixins: [validationMixin],
@@ -62,28 +89,72 @@
 			return {
 				question: null,
 				local: null,
+				localId: null,
+				localsSelect: [],
+				locals: [],
 				context: null,
+				contextsSelect: [],
 				background: null,
 				loader: null,
 				loading: false,
-				snackbar: false,
-				timeout: 6000,
 				selectedFile: false,
 				text: 'Encuesta creada satisfactoriamente',
-        items: [
-          'Item 1',
-          'Item 2',
-          'Item 3',
-          'Item 4'
-				],
 				dialog: false,
-				poll: null
-			}
+				poll: null,
+				justificationsValues: {
+					veryGood: { question: null, options: [] },
+					good: { question: null, options: [] },
+					bad: { question: null, options: [] },
+					veryBad: { question: null, options: [] },
+				},
+				justifications: [{
+					id: 'veryGood',
+					icon: 'mood',
+					title: 'Muy Bueno',
+					display: 'block',
+				}, {
+					id: 'good',
+					icon: 'fa-smile-o',
+					title: 'Bueno',
+					display: 'none',
+				}, {
+					id: 'bad',
+					icon: 'fa-meh-o',
+					title: 'Malo',
+					display: 'none',
+				}, {
+					id: 'veryBad',
+					icon: 'fa-frown-o',
+					title: 'Muy Malo',
+					display: 'none',
+				}
+			]}
+		},
+		created() {
+			let locals = this.$firebase.firestore().collection("locals")
+			locals.onSnapshot(querySnapshot => {
+				this.locals = []
+				querySnapshot.forEach(doc => {
+					let local = doc.data()
+					local.id = doc.id
+					this.locals.unshift(local)
+					this.localsSelect.push(local.title)
+				})
+			})
 		},
 		watch: {
 			loader () {
 				const l = this.loader
 				this[l] = !this[l]
+			},
+			local() {
+				const INDEX = this.locals.findIndex(local => local.title == this.local)
+				const LOCAL = this.locals[INDEX]
+				this.localId = this.locals[INDEX].id
+				const GET_LOCAL = this.$firebase.firestore().doc("locals/" + LOCAL.id).get()
+				GET_LOCAL.then((doc) => {
+					this.contextsSelect = doc.data().contexts
+				})
 			}
 		},
 		methods: {
@@ -92,9 +163,10 @@
 			},
 
 			writeFile(event) {
-				this.background = event.srcElement.files[0]
 				const BACKGROUND = document.getElementById('background')
 				const UPLOAD_FILE = document.getElementById('uploadFile')
+
+				this.background = event.srcElement.files[0]
 				if (!background.value.length) return false
 				UPLOAD_FILE.innerHTML = background.files[0].name
 				this.selectedFile = true
@@ -102,11 +174,13 @@
 
 			createPoll() {
 				const POLLS_COLLECTION = this.$firebase.firestore().collection('polls')
+				
 				this.loader = 'loading'
 				POLLS_COLLECTION.add({
 					question: this.question,
-					local: this.local,
+					local: { title: this.local, id: this.localId },
 					context: this.context,
+					justifications: this.justificationsValues
 				})
 				.then((poll) => {
 					this.uploadFile(poll.id)
@@ -121,7 +195,7 @@
 				const METADATA = { contentType: FILE.type }
 				const UPLOAD = STORAGE_REF.child("polls/backgrounds/" + id).put(FILE, METADATA)
 				
-				UPLOAD.then(async () => {
+				UPLOAD.then(() => {
 					this['loading'] = false
 					this.loader = null
 					this.poll = id
@@ -130,23 +204,14 @@
 				UPLOAD.catch((error) => { console.log(error) })
 			},
 
-			showSnackbar() {
-				this.snackbar = true
-			}
-		},
-		computed: {
-			emailErrors () {
-				const errors = []
-				if (!this.$v.email.$dirty) return errors
-				!this.$v.email.email && errors.push('El email es inválido')
-				!this.$v.email.required && errors.push('El email es obligatorio')
-				return errors
-			},
-			passwordErrors () {
-				const errors = []
-				if (!this.$v.password.$dirty) return errors
-				!this.$v.password.required && errors.push('La contraseña es obligatoria')
-				return errors
+			loadContexts(local) {
+				console.log(local)
+				// let locals = this.$firebase.firestore().doc("locals/" id)
+				// locals.get()
+				// .then((doc) => {
+				// 	this.contexts = doc.data().contexts
+				// 	console.log(doc.data())
+				// })
 			}
 		}
 	}

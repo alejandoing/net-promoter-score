@@ -21,6 +21,13 @@ import {
   VCheckbox,
   VSnackbar,
   VDialog,
+  VChip,
+  VAvatar,
+  VSubheader,
+  VDivider,
+  VBadge,
+  VExpansionPanel,
+  VTabs,
   transitions
 } from 'vuetify'
 import '../node_modules/vuetify/src/stylus/app.styl'
@@ -50,6 +57,13 @@ Vue.use(Vuetify, {
     VCheckbox,
     VSnackbar,
     VDialog,
+    VChip,
+    VAvatar,
+    VSubheader,
+    VDivider,
+    VBadge,
+    VExpansionPanel,
+    VTabs,
     transitions
   },
   theme: {
