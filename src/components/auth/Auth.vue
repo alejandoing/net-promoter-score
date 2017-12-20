@@ -65,11 +65,19 @@
       signIn () {
 				this.loader = 'loading'
         this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-        .then((user) => { router.push('/dashboard') })
+        .then((user) => {
+					console.log(user)
+					const GET_USER = this.$firebase.firestore().doc('users/' + user.uid).get()
+					GET_USER.then((doc) => {
+						let user = doc.data()
+						user.id = doc.id
+						localStorage.setItem('user', JSON.stringify(user))
+						router.push('/dashboard')
+					})
+				})
 				.catch((error) => {
 					console.log(error)
 					this.showSnackbar(error)
-					return true
 				})
 			},
 			showSnackbar(error) {

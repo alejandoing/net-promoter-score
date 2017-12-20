@@ -17,7 +17,7 @@
 						{ src: 'static/dashboard/new-local.png', route: '/locals/new/' },
 						{ src: 'static/dashboard/my-locals.png', route: '/locals/new/' },
 						{ src: 'static/dashboard/my-polls.png', route: '/polls/' },
-						{ src: 'static/dashboard/settings.png', route: '/locals/new/' },
+						{ src: 'static/dashboard/settings.png', route: '/settings/' },
 						{ src: 'static/dashboard/back-to-home.png', route: '/locals/new/' }
 					],
 					employee: [

@@ -28,6 +28,7 @@ import {
   VBadge,
   VExpansionPanel,
   VTabs,
+  VTooltip,
   transitions
 } from 'vuetify'
 import '../node_modules/vuetify/src/stylus/app.styl'
@@ -64,6 +65,7 @@ Vue.use(Vuetify, {
     VBadge,
     VExpansionPanel,
     VTabs,
+    VTooltip,
     transitions
   },
   theme: {

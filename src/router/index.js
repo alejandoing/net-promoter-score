@@ -9,6 +9,7 @@ import ViewPoll from '@/components/poll/ViewPoll'
 import ConsultPolls from '@/components/poll/ConsultPolls'
 import CreateLocal from '@/components/local/CreateLocal'
 import ViewLocal from '@/components/local/ViewLocal'
+import Settings from '@/components/Settings'
 
 
 Vue.use(Router)
@@ -24,6 +25,7 @@ export default new Router({
         { path: '/polls/', component: ConsultPolls },
         { path: '/locals/new', component: CreateLocal },
         { path: '/locals/:id', component: ViewLocal },
+        { path: '/settings', component: Settings },
       ]
     },
     { path: '/auth', name: 'Auth', component: Auth },

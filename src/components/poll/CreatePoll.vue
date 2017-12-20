@@ -101,6 +101,7 @@
 				text: 'Encuesta creada satisfactoriamente',
 				dialog: false,
 				poll: null,
+				userStorage: JSON.parse(localStorage.getItem('user')),
 				justificationsValues: {
 					veryGood: { question: null, options: [] },
 					good: { question: null, options: [] },
@@ -131,7 +132,7 @@
 			]}
 		},
 		created() {
-			let locals = this.$firebase.firestore().collection("locals")
+			let locals = this.$firebase.firestore().collection("locals").where("business", "==", this.userStorage.business)
 			locals.onSnapshot(querySnapshot => {
 				this.locals = []
 				querySnapshot.forEach(doc => {
@@ -141,21 +142,26 @@
 					this.localsSelect.push(local.title)
 				})
 			})
+
+			let business = this.$firebase.firestore().doc("business/" + this.userStorage.business)
+			business.onSnapshot(doc => {
+				this.contextsSelect = doc.data().contexts
+			})
 		},
 		watch: {
 			loader () {
 				const l = this.loader
 				this[l] = !this[l]
 			},
-			local() {
-				const INDEX = this.locals.findIndex(local => local.title == this.local)
-				const LOCAL = this.locals[INDEX]
-				this.localId = this.locals[INDEX].id
-				const GET_LOCAL = this.$firebase.firestore().doc("locals/" + LOCAL.id).get()
-				GET_LOCAL.then((doc) => {
-					this.contextsSelect = doc.data().contexts
-				})
-			}
+			// local() {
+			// 	const INDEX = this.locals.findIndex(local => local.title == this.local)
+			// 	const LOCAL = this.locals[INDEX]
+			// 	this.localId = this.locals[INDEX].id
+			// 	const GET_LOCAL = this.$firebase.firestore().doc("locals/" + LOCAL.id).get()
+			// 	GET_LOCAL.then((doc) => {
+			// 		this.contextsSelect = doc.data().contexts
+			// 	})
+			// }
 		},
 		methods: {
 			uploadClick() {
@@ -180,11 +186,10 @@
 					question: this.question,
 					local: { title: this.local, id: this.localId },
 					context: this.context,
-					justifications: this.justificationsValues
+					justifications: this.justificationsValues,
+					business: this.userStorage.business
 				})
-				.then((poll) => {
-					this.uploadFile(poll.id)
-				})
+				.then((poll) => { this.uploadFile(poll.id) })
 				.catch((error) => { console.log(error) })
 			},
 
@@ -203,16 +208,6 @@
 				})
 				UPLOAD.catch((error) => { console.log(error) })
 			},
-
-			loadContexts(local) {
-				console.log(local)
-				// let locals = this.$firebase.firestore().doc("locals/" id)
-				// locals.get()
-				// .then((doc) => {
-				// 	this.contexts = doc.data().contexts
-				// 	console.log(doc.data())
-				// })
-			}
 		}
 	}
 </script>

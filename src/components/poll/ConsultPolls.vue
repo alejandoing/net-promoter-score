@@ -35,10 +35,11 @@
     data () {
       return {
 				polls: [],
+				userStorage: JSON.parse(localStorage.getItem('user'))
       }
 		},
 		created() {
-			let polls = this.$firebase.firestore().collection("polls")
+			let polls = this.$firebase.firestore().collection("polls").where('business', '==', this.userStorage.business)
 			polls.onSnapshot(querySnapshot => {
 				this.polls = []
 				querySnapshot.forEach(doc => {
@@ -46,7 +47,6 @@
 					poll.id = doc.id
 					this.polls.unshift(poll)
 				})
-				console.log(this.polls)
 			})
 		},
 		methods: {

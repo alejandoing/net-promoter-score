@@ -4,7 +4,7 @@
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Nuevo Local
-					hr
+					v-divider
 			v-flex(xs12 md6)
 				v-text-field(
 					label="Título"
@@ -15,7 +15,7 @@
 				v-select(
 					label="Elegí una provincia"
 					v-model="province"
-					:items="items"
+					:items="provinces"
 					required
 				)
 			v-flex(xs12 md6)
@@ -36,7 +36,7 @@
 					label="Elegí contextos"
 					chips
 					tags
-					:items="items"
+					:items="provinces"
 				)
 					template(slot="selection" slot-scope="data")
 						v-chip(
@@ -86,11 +86,13 @@
 				loader: null,
 				loading: false,
 				select: [],
-				items: [
-					'Programming',
-					'Design',
-					'Vue',
-					'Vuetify'
+				provinces: [
+					'Buenos Aires - GBA', 'Capital Federal', 'Catamarca',
+					'Chaco', 'Chubut', 'Córdoba', 'Corrientes', 'Entre Ríos',
+					'Formosa', 'Jujuy', 'La Pampa', 'La Rioja', 'Mendoza',
+					'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan',
+					'San Luis', 'Santa Cruz', 'Santa Fe', 'Santiago del Estero',
+					'Tierra del Fuego', 'Tucumán' 
 				],
 				dialog: false,
 				local: false,

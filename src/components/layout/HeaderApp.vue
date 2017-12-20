@@ -1,6 +1,6 @@
 <template lang="pug">
 	v-toolbar(fixed app dark color="primary")
-		v-toolbar-title(v-text='title')
+		v-toolbar-title Net Promoter Score - {{ title }}
 		v-spacer
 		v-toolbar-items
 			v-btn(flat to="/dashboard") Dashboard
@@ -22,7 +22,7 @@
     name: 'HeaderApp',
     data () {
       return {
-				title: 'Net Promoter Score - Carrefour Express',
+				title: 'Carrefour Express',
 				items: [
 					{ title: 'Cerrar sesión', route: '/auth', method: 'signOut' },
 				],
