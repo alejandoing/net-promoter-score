@@ -153,15 +153,15 @@
 				const l = this.loader
 				this[l] = !this[l]
 			},
-			// local() {
-			// 	const INDEX = this.locals.findIndex(local => local.title == this.local)
-			// 	const LOCAL = this.locals[INDEX]
-			// 	this.localId = this.locals[INDEX].id
-			// 	const GET_LOCAL = this.$firebase.firestore().doc("locals/" + LOCAL.id).get()
+			 local() {
+				const INDEX = this.locals.findIndex(local => local.title == this.local)
+				const LOCAL = this.locals[INDEX]
+				this.localId = this.locals[INDEX].id
+			// const GET_LOCAL = this.$firebase.firestore().doc("locals/" + LOCAL.id).get()
 			// 	GET_LOCAL.then((doc) => {
 			// 		this.contextsSelect = doc.data().contexts
 			// 	})
-			// }
+			}
 		},
 		methods: {
 			uploadClick() {

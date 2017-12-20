@@ -85,8 +85,8 @@
 			}
 		},
 		created() {
-			let business = this.$firebase.firestore().doc("business/" + this.userStorage.business).get()
-			business.then((doc) => {
+			let business = this.$firebase.firestore().doc("business/" + this.userStorage.business)
+			business.onSnapshot(doc => {
 				this.business = doc.data().title
 				this.contextsLoad = doc.data().contexts
 				this.context = doc.data().contexts

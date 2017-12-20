@@ -22,7 +22,8 @@
     name: 'HeaderApp',
     data () {
       return {
-				title: 'Carrefour Express',
+				title: null,
+				userStorage: JSON.parse(localStorage.getItem('user')),
 				items: [
 					{ title: 'Cerrar sesión', route: '/auth', method: 'signOut' },
 				],
@@ -33,6 +34,12 @@
 				this.$firebase.auth().signOut()
 				router.push('/auth')
 			}
+		},
+		created() {
+			let business = this.$firebase.firestore().doc("business/" + this.userStorage.business)
+			business.onSnapshot(doc => {
+				this.title = doc.data().title
+			})
 		}
   }
 </script>
