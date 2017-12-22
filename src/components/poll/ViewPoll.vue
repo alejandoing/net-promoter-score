@@ -28,9 +28,19 @@
 			v-flex(xs12 md6).mb-5
 				v-text-field#background.hidden(type="file" @change.native="writeFile($event)")
 				v-btn#uploadFile(block color="primary" @click="uploadClick") Elegir nuevo background
+			v-flex(xs12 md4)
+				v-text-field(
+					label="Permalink Encuesta"
+					v-model="permalink"
+					required
+					readonly
+				)
+			v-flex(xs12 md4).mb-5
+				router-link(:to="permalink")
+					v-btn(block color="primary") Ir a encuesta
 			v-flex(xs12)
 				img(height="500" width="100%" :src="background")
-		v-layout(row wrap)
+		v-layout.my-5(row wrap)
 			v-flex(xs12)
 				span.display-1.my-5 Justificación
 				v-divider
@@ -91,6 +101,7 @@
 				question: null,
 				local: null,
 				context: null,
+				permalink: null,
 				locals: [],
 				localsSelect: [],
 				contextsSelect: [],
@@ -152,6 +163,7 @@
 				this.localId = doc.data().local.id
 				this.context = doc.data().context
 				this.justificationsValues = doc.data().justifications
+				this.permalink = '/assessment/' + this.$route.params.id
 			})
 
 			let imageRef = this.$firebase.storage().ref().child('polls/backgrounds/' + this.$route.params.id)

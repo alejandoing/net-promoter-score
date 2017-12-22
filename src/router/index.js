@@ -10,6 +10,7 @@ import ConsultPolls from '@/components/poll/ConsultPolls'
 import CreateLocal from '@/components/local/CreateLocal'
 import ViewLocal from '@/components/local/ViewLocal'
 import ConsultLocals from '@/components/local/ConsultLocals'
+import ViewAssessment from '@/components/assessment/ViewAssessment'
 import Settings from '@/components/Settings'
 
 
@@ -32,5 +33,6 @@ export default new Router({
     },
     { path: '/auth', name: 'Auth', component: Auth },
     { path: '*', redirect: '/dashboard' },
+    { path: '/assessment/:id', component: ViewAssessment }
   ]
 })
