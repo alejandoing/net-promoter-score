@@ -66,7 +66,7 @@
 		v-dialog(v-model="dialog" persistent max-width="500")
 			v-card
 				v-card-title(class="headline") ¡Enhorabuena!
-				v-card-text La encuesta se ha registrado correctamente
+				v-card-text Se han guardado todos los cambios
 				v-card-actions
 					v-spacer
 						v-btn(color="green darken-1" flat @click.native="dialog = false") Permanecer aquí
@@ -141,10 +141,6 @@
 					const LOCAL = this.locals[INDEX]
 					this.localId = this.locals[INDEX].id
 				}
-			// const GET_LOCAL = this.$firebase.firestore().doc("locals/" + LOCAL.id).get()
-			// 	GET_LOCAL.then((doc) => {
-			// 		this.contextsSelect = doc.data().contexts
-			// 	})
 			}
 		},
 		async created() {

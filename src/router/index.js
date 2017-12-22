@@ -9,6 +9,7 @@ import ViewPoll from '@/components/poll/ViewPoll'
 import ConsultPolls from '@/components/poll/ConsultPolls'
 import CreateLocal from '@/components/local/CreateLocal'
 import ViewLocal from '@/components/local/ViewLocal'
+import ConsultLocals from '@/components/local/ConsultLocals'
 import Settings from '@/components/Settings'
 
 
@@ -25,6 +26,7 @@ export default new Router({
         { path: '/polls/', component: ConsultPolls },
         { path: '/locals/new', component: CreateLocal },
         { path: '/locals/:id', component: ViewLocal },
+        { path: '/locals/', component: ConsultLocals },
         { path: '/settings', component: Settings },
       ]
     },

@@ -30,24 +30,6 @@
 					v-model.trim="street"
 					required
 				)
-			v-flex(xs12)
-				v-select(
-					v-model="contexts"
-					label="Elegí contextos"
-					chips
-					tags
-					:items="provinces"
-				)
-					template(slot="selection" slot-scope="data")
-						v-chip(
-							@input="data.parent.selectItem(data.item)"
-							class="chip--select-multi"
-							:selected="data.selected"
-							:disabled="data.disabled"
-							:key="JSON.stringify(data.item)"
-						)
-							v-avatar.accent {{ data.item.slice(0, 1).toUpperCase() }}
-							|	{{ data.item }}
 		v-layout(row child-flex justify-center align-center wrap)
 			v-flex.py-5(fill-height xs12 offset-xs5)
 				v-btn#submit(large outline :loading="loading" :disabled="loading || $v.$invalid" @click.native="createLocal" color="primary") CREAR LOCAL
@@ -82,7 +64,6 @@
 				province: null,
 				location: null,
 				street: null,
-				contexts: null,
 				loader: null,
 				loading: false,
 				select: [],
@@ -113,7 +94,6 @@
 					province: this.province,
 					location: this.location,
 					street: this.street,
-					contexts: this.contexts
 				})
 				.then((local) => {
 					this['loading'] = false
