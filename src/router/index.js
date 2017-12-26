@@ -12,6 +12,7 @@ import ViewLocal from '@/components/local/ViewLocal'
 import ConsultLocals from '@/components/local/ConsultLocals'
 import ViewAssessment from '@/components/assessment/ViewAssessment'
 import Settings from '@/components/Settings'
+import Stats from '@/components/stats/Stats'
 
 
 Vue.use(Router)
@@ -28,7 +29,8 @@ export default new Router({
         { path: '/locals/new', component: CreateLocal },
         { path: '/locals/:id', component: ViewLocal },
         { path: '/locals/', component: ConsultLocals },
-        { path: '/settings', component: Settings },
+        { path: '/settings/', component: Settings },
+        { path: '/stats/', component: Stats }
       ]
     },
     { path: '/auth', name: 'Auth', component: Auth },

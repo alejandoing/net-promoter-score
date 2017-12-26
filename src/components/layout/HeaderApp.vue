@@ -5,7 +5,7 @@
 		v-toolbar-items
 			v-btn(flat to="/dashboard") Dashboard
 				v-icon.pl-2 dashboard
-			v-btn(flat) Resultados
+			v-btn(flat to="/stats") Resultados
 				v-icon.pl-2 pie_chart
 			v-menu(offset-y)
 				v-btn(flat slot="activator") Alejandro Uray

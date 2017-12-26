@@ -50,7 +50,7 @@
 		v-dialog(v-model="dialog" persistent max-width="500")
 			v-card
 				v-card-title(class="headline") ¡Enhorabuena!
-				v-card-text Gracias por tu colaboración
+				v-card-text Gracias por tu colaboración. Tu valoración está ayudando a que brindemos un mejor servicio cada día.
 				v-card-actions
 					v-spacer
 						v-btn(color="green darken-1" flat @click.native="finalize") Entendido
@@ -243,7 +243,7 @@ export default {
 			bottom: 0
 			left: 0
 			right: 0
-			height: 550px
+			height: 400px
 			margin: auto
 			.question
 				display: block
