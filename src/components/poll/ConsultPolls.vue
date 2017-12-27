@@ -1,6 +1,10 @@
 <template lang="pug">
 	v-container(v-if='polls.length')
 		v-layout(row)
+		v-flex(xs12)
+			div.pb-5
+				span.display-1 Encuestas
+				v-divider
 			v-flex(xs12 sm12)
 				v-card
 					v-list
@@ -8,19 +12,19 @@
 							v-list-tile(avatar @click="viewPoll(poll.id)")
 								v-list-tile-avatar.pr-5
 									v-badge(overlay left color="primary" overlap medium)
-										span(slot="badge") 6
+										span(slot="badge") {{ poll.assessments.veryGood }}
 										v-icon(large color="light-green accent-3") mood
 								v-list-tile-avatar
 									v-badge(overlay left color="primary" overlap)
-										span(slot="badge") 6
+										span(slot="badge") {{ poll.assessments.good }}
 										v-icon(large color="green accent-3") fa-smile-o
 								v-list-tile-avatar
 									v-badge(overlay left color="primary" overlap)
-										span(slot="badge") 6
+										span(slot="badge") {{ poll.assessments.bad }}
 										v-icon(large color="warning") fa-meh-o
 								v-list-tile-avatar
 									v-badge(overlay left color="primary" overlap)
-										span(slot="badge") 6
+										span(slot="badge") {{ poll.assessments.veryBad }}
 										v-icon(large color="red darken-4") fa-frown-o
 								v-list-tile-content
 									v-list-tile-title(v-html="poll.question")
@@ -45,7 +49,13 @@
 				querySnapshot.forEach(doc => {
 					let poll = doc.data()
 					poll.id = doc.id
-					this.polls.unshift(poll)
+					
+					let assessments = this.$firebase.firestore().collection("assessments").where('poll', '==', poll.id)
+					assessments.onSnapshot(querySnapshot => {
+						poll.assessments = { veryGood: 0, good: 0, bad: 0, veryBad: 0 }
+						querySnapshot.forEach(doc => poll.assessments[doc.data().face]++)
+						if (!this.polls.length) this.polls.unshift(poll)
+					})
 				})
 			})
 		},
