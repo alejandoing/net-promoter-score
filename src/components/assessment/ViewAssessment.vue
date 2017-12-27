@@ -61,6 +61,7 @@ export default {
 	data() {
 		return {
 			i: 0,
+			userStorage: JSON.parse(localStorage.getItem('user')),
 			timer: null,
 			loader: null,
 			loading: false,
@@ -145,7 +146,9 @@ export default {
 				date: new Date(),
 				flow: this.flow,
 				justification: this.justification,
-				poll: this.$route.params.id
+				poll: this.$route.params.id,
+				business: this.userStorage.business,
+				local: this.poll.local
 			})
 			.then(() => {
 				if (this.flow.contact) this.createTicket()
