@@ -30,6 +30,7 @@ import {
   VTabs,
   VTooltip,
   VStepper,
+  VProgressLinear,
   transitions
 } from 'vuetify'
 import '../node_modules/vuetify/src/stylus/app.styl'
@@ -68,6 +69,7 @@ Vue.use(Vuetify, {
     VTabs,
     VTooltip,
     VStepper,
+    VProgressLinear,
     transitions
   },
   theme: {

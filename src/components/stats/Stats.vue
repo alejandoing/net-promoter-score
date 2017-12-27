@@ -7,22 +7,40 @@
 					v-divider
 			v-flex(xs12 v-if="assessments")
 				highcharts(:options="optionsChartGlobal" ref="highcharts")
+			v-flex(xs6)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media(class="white--text primary" height="75px")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.display-1.headline Satisfacción de Cliente {{ indicatorsGlobal.satisfaction }} %
+					v-card-title
+						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
+			v-flex(xs6)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media(class="white--text primary" height="75px")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.display-1.headline Intención de Justificación {{ indicatorsGlobal.justification }} %
+					v-card-title
+						v-progress-linear(:value="indicatorsGlobal.justification" height="20" color="info")
 			v-tabs(fixed centered)
-					v-tabs-bar(class="primary" dark)
-						v-tabs-slider(class="yellow")
-						v-tabs-item(href="#hour" ripple) Por hora
-						v-tabs-item(href="#day" ripple) Por día
-						v-tabs-item(href="#month" ripple) Por mes
-					v-tabs-items
-						v-tabs-content(id="hour")
-							v-flex.py-5(xs12 v-if="assessments")
-								highcharts(:options="optionsChartGlobalDatesHour" ref="highcharts")
-						v-tabs-content(id="day")
-							v-flex.py-5(xs12 v-if="assessments")
-								highcharts(:options="optionsChartGlobalDatesDay" ref="highcharts")
-						v-tabs-content(id="month")
-							v-flex.py-5(xs12 v-if="assessments")
-								highcharts(:options="optionsChartGlobalDatesMonth" ref="highcharts")
+				v-tabs-bar(class="primary" dark)
+					v-tabs-slider(class="yellow")
+					v-tabs-item(href="#hour" ripple) Por hora
+					v-tabs-item(href="#day" ripple) Por día
+					v-tabs-item(href="#month" ripple) Por mes
+				v-tabs-items
+					v-tabs-content(id="hour")
+						v-flex.py-5(xs12 v-if="assessments")
+							highcharts(:options="optionsChartGlobalDatesHour" ref="highcharts")
+					v-tabs-content(id="day")
+						v-flex.py-5(xs12 v-if="assessments")
+							highcharts(:options="optionsChartGlobalDatesDay" ref="highcharts")
+					v-tabs-content(id="month")
+						v-flex.py-5(xs12 v-if="assessments")
+							highcharts(:options="optionsChartGlobalDatesMonth" ref="highcharts")
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Resultados por Local
@@ -36,9 +54,17 @@
 									span.display-1.headline {{ local.title }}
 									v-divider
 					v-card-title
-						v-badge(right color="red")
-							span(slot="badge") {{ local.assessments.total }}
-							span Valoraciones
+						v-layout(row wrap)
+							v-flex(xs12)
+								v-badge(right color="blue")
+									span(slot="badge") {{ local.assessments.total }}
+									span Valoraciones
+							v-flex.my-2(xs12 v-if="local.assessments.total")
+								span Satisfacción de Cliente {{ local.indicators.satisfaction }} %
+								v-progress-linear(:value="local.indicators.satisfaction" height="20" color="info")
+							v-flex.my-2(xs12 v-if="local.assessments.total")
+								span Indice de Justificación {{ local.indicators.justification }} %
+								v-progress-linear(:value="local.indicators.justification" height="20" color="info")
 					v-card-actions
 						v-btn(flat color="primary" @click.native="selectLocal(local)" :disabled="!local.assessments.total") Ver Resultados
 						v-btn(:to="'/locals/' + local.id" flat color="primary") Ir al Local
@@ -84,6 +110,8 @@
 				locals: [],
 				currentLocal: { title: null },
 				assessments: [],
+				indicatorsGlobal: { satisfaction: null, justification: null },
+				indicatorsLocal: [],
 				dialog: false,
 				userStorage: JSON.parse(localStorage.getItem('user')),
 				optionsChartGlobal: {
@@ -343,6 +371,7 @@
 				this.getChartGlobalDatesHour()
 				this.getChartGlobalDatesDay()
 				this.getChartGlobalDatesMonth()
+				this.getIndicatorsGlobal()
 			})
 
 			this.$firebase.firestore().collection('locals').where('business','==', this.userStorage.business)
@@ -352,10 +381,12 @@
 					let local = doc.data()
 					local.id = doc.id
 					local.assessments = { total: 0, veryGood: 0, good: 0, bad: 0, veryBad: 0 }
+					local.indicators = { satisfaction: null, justification: null }
 					this.locals.unshift(local)
 				})
 				this.getChartLocal()
 				this.getChartLocalDatesHour()
+				this.getIndicatorsLocal()
 			})
 		},
 		methods: {
@@ -398,6 +429,43 @@
 				this.optionsChartGlobal.series[0].data[1].y = numGood
 				this.optionsChartGlobal.series[0].data[2].y = numBad
 				this.optionsChartGlobal.series[0].data[3].y = numVeryBad
+				this.assessments.stats = { veryGood: numVeryGood, good: numGood, bad: numBad, veryBad: numVeryBad }
+			},
+
+			getIndicatorsGlobal() {
+				let total = this.assessments.length
+				let justification = 0
+				let partialsGood = (this.assessments.stats.veryGood * 2) + this.assessments.stats.good
+				let partialsBad =  (this.assessments.stats.veryBad * 2) + this.assessments.stats.bad
+				let partials = partialsGood + partialsBad
+
+				for (let assessment of this.assessments) {
+					if (assessment.flow.justification) justification++
+				}
+
+				this.indicatorsGlobal.satisfaction = ((partialsGood * 100) / partials).toFixed(2)
+				this.indicatorsGlobal.justification = ((justification * 100) / total).toFixed(2)
+			},
+
+			getIndicatorsLocal() {
+				for (const [index, local] of this.locals.entries()) {
+					console.log('index: ' + index)
+					console.log(local)
+					let total = local.assessments.total
+					let justification = 0
+					let partialsGood = (local.assessments.veryGood * 2) + local.assessments.good
+					let partialsBad =  (local.assessments.veryBad * 2) + local.assessments.bad
+					let partials = partialsGood + partialsBad
+
+					for (let assessment of this.assessments) {
+						if (assessment.local.id == local.id) {
+							if (assessment.flow.justification) justification++
+						}
+					}
+
+					local.indicators.satisfaction = ((partialsGood * 100) / partials).toFixed(2)
+					local.indicators.justification = ((justification * 100) / total).toFixed(2)
+				}
 			},
 
 			getChartGlobalDatesHour() {
@@ -613,4 +681,8 @@
 <style lang="sass" scoped>
 	a
 		text-decoration: none
+	.progress-linear
+		margin-top: 0
+		margin-bottom: 0
 </style>
+

@@ -103,6 +103,7 @@ export default {
 			STEPPER.style.height = '400px'
 			if (this.step == 1) {
 				clearInterval(this.timer)
+				this.timer = null
 				this.i = 0
 			}
 			else {
