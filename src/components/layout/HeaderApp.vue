@@ -7,6 +7,8 @@
 				v-icon.pl-2 dashboard
 			v-btn(flat to="/stats") Resultados
 				v-icon.pl-2 pie_chart
+			v-btn(flat to="/tickets") Tickets
+				v-icon.pl-2 assignment
 			v-menu(offset-y)
 				v-btn(flat slot="activator") Alejandro Uray
 					v-icon.pl-2 account_circle

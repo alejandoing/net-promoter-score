@@ -4,7 +4,6 @@
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Configuración
-					
 					v-divider
 			v-flex(xs12)
 				v-tabs(fixed icons centered)

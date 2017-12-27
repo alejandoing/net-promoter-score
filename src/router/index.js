@@ -13,6 +13,8 @@ import ConsultLocals from '@/components/local/ConsultLocals'
 import ViewAssessment from '@/components/assessment/ViewAssessment'
 import Settings from '@/components/Settings'
 import Stats from '@/components/stats/Stats'
+import ConsultTickets from '@/components/tickets/ConsultTickets'
+import ViewTicket from '@/components/tickets/ViewTicket'
 
 
 Vue.use(Router)
@@ -30,7 +32,9 @@ export default new Router({
         { path: '/locals/:id', component: ViewLocal },
         { path: '/locals/', component: ConsultLocals },
         { path: '/settings/', component: Settings },
-        { path: '/stats/', component: Stats }
+        { path: '/stats/', component: Stats },
+        { path: '/tickets/', component: ConsultTickets },
+        { path: '/ticket/:id', component: ViewTicket },
       ]
     },
     { path: '/auth', name: 'Auth', component: Auth },

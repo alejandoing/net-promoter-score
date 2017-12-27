@@ -169,7 +169,10 @@ export default {
 				description: this.ticket.description,
 				email: this.ticket.email,
 				telephone: this.ticket.telephone,
-				status: 'No Leído'
+				leido: false,
+				business: this.userStorage.business,
+				local: this.poll.local,
+				poll: this.$route.params.id
 			})
 			.then(() => {
 					this['loading'] = false
