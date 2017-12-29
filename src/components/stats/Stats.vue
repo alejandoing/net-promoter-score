@@ -68,6 +68,125 @@
 					v-card-actions
 						v-btn(flat color="primary" @click.native="selectLocal(local)" :disabled="!local.assessments.total") Ver Resultados
 						v-btn(:to="'/locals/' + local.id" flat color="primary") Ir al Local
+			v-flex(xs12)
+				div.pb-5
+					span.display-1 Resultados Personalizados
+					v-divider
+			v-flex(xs12 sm4 offset-sm2)
+				v-menu(
+					lazy
+					:close-on-click="false"
+					v-model="menuDateSince"
+					transition="scale-transition"
+					offset-y
+					full-width
+					:nudge-right="40"
+					max-width="290px"
+					min-width="290px"
+				)
+					v-text-field(
+						slot="activator" 
+						label="Fecha Desde" 
+						v-model="dateSinceFormatted" 
+						prepend-icon="event" 
+						@click="activeDateMenus"
+					)
+					v-date-picker(
+						locale="es-sp"
+						v-model="dateSince"
+						@input="dateSinceFormatted = formatDate($event)"
+						no-title
+						scrollable
+						actions
+					)
+						template(slot-scope="{ save, cancel }")
+							v-card-actions
+								v-spacer
+								v-btn(flat color="primary" @click="save") Seleccionar
+								v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
+			v-flex(xs12 sm4)
+				v-menu(
+					lazy
+					:close-on-click="false"
+					v-model="menuDateUntil"
+					transition="scale-transition"
+					offset-y
+					full-width
+					:nudge-right="40"
+					max-width="290px"
+					min-width="290px"
+				)
+					v-text-field(
+						slot="activator" 
+						label="Fecha Hasta" 
+						v-model="dateUntilFormatted" 
+						prepend-icon="event"
+					)
+					v-date-picker(
+						locale="es-sp" 
+						v-model="dateUntil" 
+						@input="dateUntilFormatted = formatDate($event)" 
+						no-title 
+						scrollable
+						actions
+					)
+						template(slot-scope="{ save, cancel }")
+							v-card-actions
+								v-spacer
+								v-btn(flat color="primary" @click="save") Seleccionar
+								v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
+			v-flex(xs12 sm4 offset-sm2)
+				v-menu(
+					lazy
+					:close-on-content-click="false"
+					v-model="menuTimeSince"
+					transition="scale-transition"
+					offset-y
+					full-width
+					:nudge-right="40"
+					max-width="290px"
+					min-width="290px"
+				)
+					v-text-field(
+						slot="activator"
+						label="Hora Desde"
+						v-model="timeSince"
+						prepend-icon="access_time"
+						readonly
+					)
+					v-time-picker(v-model="timeSince" autosave format="24hr")
+						template(slot-scope="{ save, cancel }")
+							v-card-actions
+								v-btn(flat color="primary" @click="desactiveTimeMenuSince") Cancelar
+			v-flex(xs12 sm4)
+				v-menu(
+					lazy
+					:close-on-content-click="false"
+					v-model="menuTimeUntil"
+					transition="scale-transition"
+					offset-y
+					full-width
+					:nudge-right="40"
+					max-width="290px"
+					min-width="290px"
+				)
+					v-text-field(
+						slot="activator"
+						label="Hora Hasta"
+						v-model="timeUntil"
+						prepend-icon="access_time"
+						readonly
+					)
+					v-time-picker(v-model="timeUntil" autosave format="24hr")
+						template(slot-scope="{ save, cancel }")
+							v-card-actions
+								v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
+		v-layout(row child-flex justify-center align-center wrap)
+			v-flex.py-5(fill-height xs12 offset-xs5)
+				v-btn#submit(large outline :loading="loading" :disabled="loading || (!timeSince && !dateSince)" @click.native="searchStats" color="primary") Obtener Resultados
+					span.custom-loader(slot="loader")
+						v-icon(light) cached
+				div(style="flex: 1 1 auto;")
 		v-dialog(v-model="dialog" persistent max-width="500" fullscreen transition="dialog-bottom-transition" :overlay=false scrollable)
 			v-card
 				v-toolbar(style="flex: 0 0 auto;" dark class="primary")
@@ -94,25 +213,82 @@
 								v-flex.py-5(xs12)
 									highcharts(:options="optionsChartLocalDatesMonth" ref="highcharts")
 				div(style="flex: 1 1 auto;")
+		v-dialog(v-model="dialogPreResults" persistent max-width="500")
+			v-card
+				v-card-title.headline(v-html="titleDialogPreResults")
+				v-card-text(v-html="textDialogPreResults")
+				v-card-actions
+					v-spacer
+					v-btn(color="green darken-1" flat @click.native="dialogPreResults = false") Entendido
+		v-dialog(v-model="dialogResults" persistent max-width="500" fullscreen transition="dialog-bottom-transition" :overlay=false scrollable)
+			v-card
+				v-toolbar(style="flex: 0 0 auto;" dark class="primary")
+					v-btn(icon @click.native="dialogResults = false" dark)
+						v-icon close
+					v-toolbar-title Resultados personalizados:
+				v-card-text
+					v-flex(xs12)
+						highcharts(:options="optionsChartCustom" ref="highcharts")
+					v-tabs(fixed centered)
+						v-tabs-bar(class="primary" dark)
+							v-tabs-slider(class="yellow")
+							v-tabs-item(href="#hour-custom" ripple) Por hora
+							v-tabs-item(href="#day-custom" ripple) Por día
+							v-tabs-item(href="#month-custom" ripple) Por mes
+						v-tabs-items
+							v-tabs-content(id="hour-custom")
+								v-flex.py-5(xs12)
+									highcharts(:options="optionsChartCustomDatesHour" ref="highcharts")
+							v-tabs-content(id="day-custom")
+								v-flex.py-5(xs12)
+									highcharts(:options="optionsChartCustomDatesDay" ref="highcharts")
+							v-tabs-content(id="month-custom")
+								v-flex.py-5(xs12)
+									highcharts(:options="optionsChartCustomDatesMonth" ref="highcharts")
+				div(style="flex: 1 1 auto;")
 </template>
 
 <script>
 	import Vue from 'vue'
+	import { validationMixin } from 'vuelidate'
+	import { required, maxLength, email } from 'vuelidate/lib/validators'
 	import Highcharts from 'highcharts'
 	import VueHighcharts from 'vue-highcharts'
-	require('highcharts/modules/exporting')(Highcharts)
-	Vue.use(VueHighcharts, { Highcharts });
-
 	import router from '@/router/'
+
+	require('highcharts/modules/exporting')(Highcharts)
+	Vue.use(VueHighcharts, { Highcharts })
+
   export default {
+		mixins: [validationMixin],
+		validations: {},
     data () {
       return {
+				menuDateSince: false,
+				menuDateUntil: false,
+				dateSince: null,
+				dateUntil: null,
+				dateSinceFormatted: null,
+				dateUntilFormatted: null,
+				menuTimeSince: false,
+				menuTimeUntil: false,
+				timeSince: null,
+				timeUntil: null,
+				results: null,
+        time: null,
+				loading: false,
+				loader: null,
+				dateFormatted2: null,
 				locals: [],
 				currentLocal: { title: null },
 				assessments: [],
 				indicatorsGlobal: { satisfaction: null, justification: null },
 				indicatorsLocal: [],
 				dialog: false,
+				dialogPreResults: false,
+				dialogResults: false,
+				textDialogPreResults: null,
+				titleDialogPreResults: null,
 				userStorage: JSON.parse(localStorage.getItem('user')),
 				optionsChartGlobal: {
 					chart: {
@@ -360,7 +536,136 @@
 						data: null
 					}]
 				},
+				optionsChartCustom: {
+					chart: {
+						plotBackgroundColor: null,
+						plotBorderWidth: null,
+						plotShadow: false,
+						type: 'pie',
+						height: 450,
+						backgroundColor: '#fafafa'
+					},
+					colors: ['#036303', '#00ff01', '#f7ff00', '#e30909'],
+					title: { text: null },
+					tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
+					plotOptions: {
+						pie: {
+							allowPointSelect: true,
+							cursor: 'pointer',
+							dataLabels: { enabled: false },
+							showInLegend: true
+						}
+					},
+					series: [{
+						name: 'Valoraciones',
+						colorByPoint: true,
+						data: [
+							{ name: 'Muy Bueno', y: null }, 
+							{ name: 'Bueno', y: null, sliced: true, selected: true }, 
+							{ name: 'Malo', y: null }, 
+							{ name: 'Muy Malo', y: null }
+						]
+					}]
+				},
+				optionsChartCustomDatesHour: {
+					chart: { type: 'column', backgroundColor: '#fafafa' },
+					title: { text: 'Resultados por Hora' },
+					xAxis: { 
+						categories: ['00:00 hs','01:00 hs','02:00 hs','03:00 hs','04:00 hs','05:00 hs',
+                '06:00 hs','07:00 hs','08:00 hs','09:00 hs','10:00 hs','11:00 hs',
+                '12:00 hs','13:00 hs','14:00 hs','15:00 hs','16:00 hs','17:00 hs',
+                '18:00 hs','19:00 hs','20:00 hs','21:00 hs','22:00 hs','23:00 hs',
+							],
+						crosshair: true 
+					},
+					yAxis: {
+						min: 0,
+						title: { text: 'Valoraciones' }
+					},
+					colors: ['#036303', '#00ff01', '#f7ff00', '#e30909'],
+					tooltip: {
+						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
+						footerFormat: '</table>',
+						shared: true,
+						useHTML: true
+					},
+					plotOptions: {
+						column: { pointPadding: 0.2, borderWidth: 0 }
+					},
+					series: [
+						{ name: 'Muy Bueno', data: null }, 
+						{ name: 'Bueno', data: null }, 
+						{ name: 'Malo', data: null }, 
+						{ name: 'Muy Malo', data: null}
+					]
+				},
+				optionsChartCustomDatesDay: {
+					chart: { type: 'column', backgroundColor: '#fafafa' },
+					title: { text: 'Resultados por Día' },
+					xAxis: { categories: ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'], crosshair: true },
+					yAxis: {
+						min: 0,
+						title: { text: 'Valoraciones' }
+					},
+					colors: ['#036303', '#00ff01', '#f7ff00', '#e30909'],
+					tooltip: {
+						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
+						footerFormat: '</table>',
+						shared: true,
+						useHTML: true
+					},
+					plotOptions: {
+						column: { pointPadding: 0.2, borderWidth: 0 }
+					},
+					series: [
+						{ name: 'Muy Bueno', data: null }, 
+						{ name: 'Bueno', data: null }, 
+						{ name: 'Malo', data: null }, 
+						{ name: 'Muy Malo', data: null }
+					]
+				},
+				optionsChartCustomDatesMonth: {
+					chart: { type: 'column', backgroundColor: '#fafafa' },
+					title: { text: 'Resultados por Mes' },
+					xAxis: { categories: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'], crosshair: true },
+					yAxis: {
+						min: 0,
+						title: { text: 'Valoraciones' }
+					},
+					colors: ['#036303', '#00ff01', '#f7ff00', '#e30909'],
+					tooltip: {
+						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
+						footerFormat: '</table>',
+						shared: true,
+						useHTML: true
+					},
+					plotOptions: {
+						column: { pointPadding: 0.2, borderWidth: 0 }
+					},
+					series: [{
+						name: 'Muy Bueno',
+						data: null
+					}, {
+						name: 'Bueno',
+						data: null
+					}, {
+						name: 'Malo',
+						data: null
+					}, {
+						name: 'Muy Malo',
+						data: null
+					}]
+				},
 			}
+		},
+		watch: {
+			loader () {
+				const l = this.loader
+				this[l] = !this[l]
+			},
 		},
 		async created() {
 			this.$firebase.firestore().collection('assessments')
@@ -390,6 +695,108 @@
 			})
 		},
 		methods: {
+			searchStats() {
+				let timeSince = '00:00'
+				let timeUntil = '23:59'
+				let dateSince = '1999-01-01'
+				let dateUntil = '2099-12-31'
+
+				function pad(s) { return (s < 10) ? '0' + s : s }
+				function timeSearch(date) { return `${pad(date.getHours())}:${pad(date.getMinutes())}` }
+				function compareTimes(timeRecord, timeSince, timeUntil) {
+					let arrayTimeRecord = timeRecord.split(":")
+					let arraytimeSince = timeSince.split(":")
+					let arraytimeUntil = timeUntil.split(":")
+
+					let recordHour = parseInt(arrayTimeRecord[0],10)
+					let recordMinutes = parseInt(arrayTimeRecord[1],10)
+					
+					let sinceHour = parseInt(arraytimeSince[0],10)
+					let sinceMinutes = parseInt(arraytimeSince[1],10)
+
+					let untilHour = parseInt(arraytimeUntil[0],10)
+					let untilMinutes = parseInt(arraytimeUntil[1],10)
+					
+					if (recordHour > sinceHour || (recordHour == sinceHour && recordMinutes >= sinceMinutes)) {
+						if (recordHour < untilHour || (recordHour == untilHour && recordMinutes <= untilMinutes)) return true
+						else return false
+					}
+					else return false
+				}
+
+				this.loader = 'loading'
+
+				if (this.timeSince) timeSince = this.timeSince
+				if (this.timeUntil) timeUntil = this.timeUntil
+
+				if (this.dateSince) {
+					dateSince = this.dateSince
+					dateUntil = this.dateSince
+				}
+
+				if (this.dateUntil) dateUntil = this.dateUntil
+
+				let searchSince = new Date(`${dateSince} ${timeSince}`)
+				let searchUntil = new Date(`${dateUntil} ${timeUntil}`)
+				
+				this.$firebase.firestore().collection('assessments')
+				.where('business','==',this.userStorage.business)
+				.where('date','>=',new Date(`${dateSince} ${timeSince}`))
+				.where('date','<=',new Date( `${dateUntil} ${timeUntil}`))
+				.onSnapshot(querySnapshot => {
+					this.results = []
+					querySnapshot.forEach(doc => {
+						if (compareTimes(timeSearch(doc.data().date), timeSearch(searchSince), timeSearch(searchUntil))) {
+							let assessment = doc.data()
+							assessment.id = doc.id
+							this.results.unshift(assessment)
+						}
+					})
+					this['loading'] = false
+					this.loader = null
+					if (!this.results.length) {
+						this.textDialogPreResults = "La búsqueda no ha devuelto ningún resultado. Intentá con otros valores."
+						this.titleDialogPreResults = "¡Advertencia!"
+						this.dialogPreResults = true
+					}
+					else {
+						//this.textDialogPreResults = `La busqueda ha retornado un total de ${this.results.length} resultados.`
+						//this.titleDialogPreResults = "¡Enhorabuena!"
+						this.getChartCustom()
+						this.getChartCustomDatesHour()
+						this.getChartCustomDatesDay()
+						this.getChartCustomDatesMonth()
+						this.dialogResults = true
+						//this.getIndicatorsCustom()
+					}
+				})
+			},
+
+      formatDate (date) {
+        if (!date) return null
+        const [year, month, day] = date.split('-')
+        return `${day}/${month}/${year}`
+			},
+			
+			activeDateMenus() {
+				this.menuDateUntil = true
+			},
+
+			desactiveDateMenus() {
+				this.menuDateSince = false,
+				this.menuDateUntil = false
+			},
+
+			desactiveTimeMenuSince() {
+				this.timeSince = null,
+				this.menuTimeSince = false
+			},
+
+			desactiveTimeMenuUntil() {
+				this.timeUntil = null,
+				this.menuTimeUntil = false
+			},
+
    		converTime(date) {
 				function pad(s) { return (s < 10) ? '0' + s : s }
 				var d = new Date(date)
@@ -432,6 +839,32 @@
 				this.assessments.stats = { veryGood: numVeryGood, good: numGood, bad: numBad, veryBad: numVeryBad }
 			},
 
+			getChartCustom() {
+				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
+				for (let assesment of this.results) {
+					switch(assesment.face) {
+						case 'veryGood':
+							numVeryGood++
+						break
+						case 'good':
+							numGood++
+						break
+						case 'bad':
+							numBad++
+						break
+						case 'veryBad':
+							numVeryBad++
+						break
+					}
+				}
+				this.optionsChartCustom.title.text = "Encuestas realizadas hasta la fecha:" + this.results.length
+				this.optionsChartCustom.series[0].data[0].y = numVeryGood
+				this.optionsChartCustom.series[0].data[1].y = numGood
+				this.optionsChartCustom.series[0].data[2].y = numBad
+				this.optionsChartCustom.series[0].data[3].y = numVeryBad
+				this.results.stats = { veryGood: numVeryGood, good: numGood, bad: numBad, veryBad: numVeryBad }				
+			},
+
 			getIndicatorsGlobal() {
 				let total = this.assessments.length
 				let justification = 0
@@ -449,8 +882,6 @@
 
 			getIndicatorsLocal() {
 				for (const [index, local] of this.locals.entries()) {
-					console.log('index: ' + index)
-					console.log(local)
 					let total = local.assessments.total
 					let justification = 0
 					let partialsGood = (local.assessments.veryGood * 2) + local.assessments.good
@@ -497,6 +928,35 @@
 				this.optionsChartGlobalDatesHour.series[3].data = timesVeryBad
 			},
 
+			getChartCustomDatesHour() {
+				let timesVeryGood = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+				let timesGood = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+				let timesBad = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+				let timesVeryBad = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+
+				for(let assessment of this.results) {
+					let currentTime = this.converTime(assessment.date)
+					switch(assessment.face) {
+						case 'veryGood':
+							timesVeryGood[currentTime]++
+						break
+						case 'good':
+							timesGood[currentTime]++
+						break
+						case 'bad':
+							timesBad[currentTime]++
+						break
+						case 'veryBad':
+							timesVeryBad[currentTime]++
+						break						
+					}
+				}
+				this.optionsChartCustomDatesHour.series[0].data = timesVeryGood
+				this.optionsChartCustomDatesHour.series[1].data = timesGood
+				this.optionsChartCustomDatesHour.series[2].data = timesBad
+				this.optionsChartCustomDatesHour.series[3].data = timesVeryBad
+			},
+
 			getChartGlobalDatesDay() {
 				let daysVeryGood = [0,0,0,0,0,0,0]
 				let daysGood = [0,0,0,0,0,0,0]
@@ -526,6 +986,35 @@
 				this.optionsChartGlobalDatesDay.series[3].data = daysVeryBad
 			},
 
+			getChartCustomDatesDay() {
+				let daysVeryGood = [0,0,0,0,0,0,0]
+				let daysGood = [0,0,0,0,0,0,0]
+				let daysBad = [0,0,0,0,0,0,0]
+				let daysVeryBad = [0,0,0,0,0,0,0]
+
+				for(let assessment of this.results) {
+					let currentDay = this.getDayOfWeek(assessment.date)
+					switch(assessment.face) {
+						case 'veryGood':
+							daysVeryGood[currentDay]++
+						break
+						case 'good':
+							daysGood[currentDay]++
+						break
+						case 'bad':
+							daysBad[currentDay]++
+						break
+						case 'veryBad':
+							daysVeryBad[currentDay]++
+						break						
+					}
+				}
+				this.optionsChartCustomDatesDay.series[0].data = daysVeryGood
+				this.optionsChartCustomDatesDay.series[1].data = daysGood
+				this.optionsChartCustomDatesDay.series[2].data = daysBad
+				this.optionsChartCustomDatesDay.series[3].data = daysVeryBad
+			},
+
 			getChartGlobalDatesMonth() {
 				let monthsVeryGood = [0,0,0,0,0,0,0,0,0,0,0,0]
 				let monthsGood = [0,0,0,0,0,0,0,0,0,0,0,0]
@@ -553,6 +1042,35 @@
 				this.optionsChartGlobalDatesMonth.series[1].data = monthsGood
 				this.optionsChartGlobalDatesMonth.series[2].data = monthsBad
 				this.optionsChartGlobalDatesMonth.series[3].data = monthsVeryBad
+			},
+
+			getChartCustomDatesMonth() {
+				let monthsVeryGood = [0,0,0,0,0,0,0,0,0,0,0,0]
+				let monthsGood = [0,0,0,0,0,0,0,0,0,0,0,0]
+				let monthsBad = [0,0,0,0,0,0,0,0,0,0,0,0]
+				let monthsVeryBad = [0,0,0,0,0,0,0,0,0,0,0,0]
+
+				for(let assessment of this.results) {
+					let currentMonth = this.getMonth(assessment.date)
+					switch(assessment.face) {
+						case 'veryGood':
+							monthsVeryGood[currentMonth]++
+						break
+						case 'good':
+							monthsGood[currentMonth]++
+						break
+						case 'bad':
+							monthsBad[currentMonth]++
+						break
+						case 'veryBad':
+							monthsVeryBad[currentMonth]++
+						break						
+					}
+				}
+				this.optionsChartCustomDatesMonth.series[0].data = monthsVeryGood
+				this.optionsChartCustomDatesMonth.series[1].data = monthsGood
+				this.optionsChartCustomDatesMonth.series[2].data = monthsBad
+				this.optionsChartCustomDatesMonth.series[3].data = monthsVeryBad
 			},
 
 			getChartLocal() {
@@ -684,5 +1202,33 @@
 	.progress-linear
 		margin-top: 0
 		margin-bottom: 0
+
+	.custom-loader
+		animation: loader 1s infinite
+		display: flex
+
+	@-moz-keyframes loader
+		from
+			transform: rotate(0)
+		to
+			transform: rotate(360deg)
+
+	@-webkit-keyframes loader
+		from
+			transform: rotate(0)
+		to
+			transform: rotate(360deg)
+
+	@-o-keyframes loader
+		from
+			transform: rotate(0)
+		to
+			transform: rotate(360deg)
+
+	@keyframes loader
+		from
+			transform: rotate(0)
+		to
+			transform: rotate(360deg)
 </style>
 

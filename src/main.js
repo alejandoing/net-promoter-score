@@ -31,6 +31,8 @@ import {
   VTooltip,
   VStepper,
   VProgressLinear,
+  VDatePicker,
+  VTimePicker,
   transitions
 } from 'vuetify'
 import '../node_modules/vuetify/src/stylus/app.styl'
@@ -70,6 +72,8 @@ Vue.use(Vuetify, {
     VTooltip,
     VStepper,
     VProgressLinear,
+    VDatePicker,
+    VTimePicker,
     transitions
   },
   theme: {
