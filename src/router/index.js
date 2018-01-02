@@ -22,18 +22,49 @@ Vue.use(Router)
 export default new Router({
   mode: 'history',
   routes: [
-    { path: '/dashboard', component: Layout, beforeEnter: (to, from, next) => {
-      if (localStorage.getItem('user')) next()
-      else location.href="/auth"
-    },
+    { 
+      path: '/dashboard', 
+      component: Layout, 
+      beforeEnter: (to, from, next) => {
+        if (localStorage.getItem('user')) next()
+        else location.href="/auth"
+      },
       children: [
         { path: '', component: Dashboard },
-        { path: '/polls/new', component: CreatePoll },
+        { 
+          path: '/polls/new', 
+          component: CreatePoll,
+          beforeEnter: (to, from, next) => {
+            if (JSON.parse(localStorage.getItem('user')).privileges == "Administrador") next()
+            else location.href="/dashboard"
+          },
+        },
         { path: '/polls/:id', component: ViewPoll },
         { path: '/polls/', component: ConsultPolls },
-        { path: '/locals/new', component: CreateLocal },
-        { path: '/locals/:id', component: ViewLocal },
-        { path: '/locals/', component: ConsultLocals },
+        { 
+          path: '/locals/new', 
+          component: CreateLocal,
+          beforeEnter: (to, from, next) => {
+            if (JSON.parse(localStorage.getItem('user')).privileges == "Administrador") next()
+            else location.href="/dashboard"
+          }, 
+        },
+        { 
+          path: '/locals/:id', 
+          component: ViewLocal,
+          beforeEnter: (to, from, next) => {
+            if (JSON.parse(localStorage.getItem('user')).privileges == "Administrador") next()
+            else location.href="/dashboard"
+          }, 
+        },
+        { 
+          path: '/locals/', 
+          component: ConsultLocals,
+          beforeEnter: (to, from, next) => {
+            if (JSON.parse(localStorage.getItem('user')).privileges == "Administrador") next()
+            else location.href="/dashboard"
+          }, 
+        },
         { path: '/settings/', component: Settings },
         { path: '/stats/', component: Stats },
         { path: '/tickets/', component: ConsultTickets },

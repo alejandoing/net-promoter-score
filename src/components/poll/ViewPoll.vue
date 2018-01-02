@@ -75,7 +75,7 @@
 											)
 		v-layout(row child-flex justify-center align-center wrap)
 			v-flex(fill-height xs12 offset-xs5)
-				v-btn#submit(large outline :loading="loading" :disabled="loading || $v.$invalid" @click.native="updatePoll" color="primary") Guardar cambios
+				v-btn#submit(v-if="!employee" large outline :loading="loading" :disabled="loading || $v.$invalid" @click.native="updatePoll" color="primary") Guardar cambios
 					span.custom-loader(slot="loader")
 						v-icon(light) cached
 		v-dialog(v-model="dialog" persistent max-width="500")
