@@ -29,6 +29,15 @@
 								v-icon(light) cached
 					v-snackbar(top right :timeout="timeout" v-model="snackbar") {{ text }}
 						v-btn(dark flat @click.native="snackbar = false") Close
+		v-dialog(v-model="dialogNewPassword" persistent max-width="500")
+			v-card
+				v-card-title(class="headline") !Bienvenido!
+				v-card-text 
+					| Tu cuenta ha sido habilitada correctamente. Para continuar ingresa una nueva contraseña de ocho caracteres como mínimo.
+					v-text-field(label="Contraseña" v-model="passwordNew" type="password" required)
+				v-card-actions
+					v-spacer
+						v-btn(color="green darken-1" flat @click.native="continueSignIn" :disabled="!passwordNew || passwordNew.length < 8") Entendido
 </template>
 
 <script>
@@ -39,18 +48,21 @@
 		name: 'Auth',
     mixins: [validationMixin],
     validations: {
-      email: { required, email },
-      password: { required },
+			email: { required, email },
+			password: { required }
     },
     data () {
       return {
         email: null,
 				password: null,
+				passwordNew: null,
         loader: null,
         loading: false,
         snackbar: false,
         timeout: 6000,
-        text: null
+				text: null,
+				dialogNewPassword: false,
+				userStorage: null
       }
 		},
     watch: {
@@ -66,13 +78,14 @@
 				this.loader = 'loading'
         this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
         .then((user) => {
-					console.log(user)
 					const GET_USER = this.$firebase.firestore().doc('users/' + user.uid).get()
 					GET_USER.then((doc) => {
 						let user = doc.data()
 						user.id = doc.id
 						localStorage.setItem('user', JSON.stringify(user))
-						router.push('/dashboard')
+						this.userStorage = JSON.parse(localStorage.getItem('user'))
+						if (user.status = 'Pendiente') this.dialogNewPassword = true
+						else router.push('/dashboard')
 					})
 				})
 				.catch((error) => {
@@ -93,6 +106,22 @@
 					break
 				}
 				this.snackbar = true
+			},
+
+			continueSignIn() {
+				console.log(this.userStorage)
+				this.$firebase.auth().onAuthStateChanged((user) => {
+					user.updatePassword(this.passwordNew)
+					const GET_USER = this.$firebase.firestore().doc('users/' + user.uid)
+					GET_USER.update({
+						name: this.userStorage.name,
+						email: this.userStorage.email,
+						business: this.userStorage.business,
+						status: 'Activo',
+						privileges: this.userStorage.privileges
+					})
+					.then(() => router.push('/dashboard'))
+				})
 			}
     },
     computed: {

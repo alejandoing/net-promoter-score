@@ -10,7 +10,7 @@
 			v-btn(flat to="/tickets") Tickets
 				v-icon.pl-2 assignment
 			v-menu(offset-y)
-				v-btn(flat slot="activator") Alejandro Uray
+				v-btn(flat slot="activator") {{ name }}
 					v-icon.pl-2 account_circle
 				v-list
 					v-list-tile(v-for="item in items" :key="item.title" @click="")
@@ -25,6 +25,7 @@
     data () {
       return {
 				title: null,
+				name: null,
 				userStorage: JSON.parse(localStorage.getItem('user')),
 				items: [
 					{ title: 'Cerrar sesión', route: '/auth', method: 'signOut' },
@@ -39,9 +40,10 @@
 		},
 		created() {
 			let business = this.$firebase.firestore().doc("business/" + this.userStorage.business)
-			business.onSnapshot(doc => {
-				this.title = doc.data().title
-			})
+			business.onSnapshot(doc => this.title = doc.data().title)
+
+			let user = this.$firebase.firestore().doc("users/" + this.userStorage.id)
+			user.onSnapshot(doc => this.name = doc.data().name)
 		}
   }
 </script>

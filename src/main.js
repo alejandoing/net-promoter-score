@@ -33,6 +33,7 @@ import {
   VProgressLinear,
   VDatePicker,
   VTimePicker,
+  VAlert,
   transitions
 } from 'vuetify'
 import '../node_modules/vuetify/src/stylus/app.styl'
@@ -74,6 +75,7 @@ Vue.use(Vuetify, {
     VProgressLinear,
     VDatePicker,
     VTimePicker,
+    VAlert,
     transitions
   },
   theme: {
