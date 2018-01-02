@@ -5,7 +5,7 @@
 			div.pb-5
 				span.display-1 Tickets Registrados
 				v-divider
-			v-flex(xs12 sm12)
+			v-flex(xs12 sm12 v-if='tickets')
 				v-card
 					v-list
 						template(v-for="ticket in tickets")
@@ -24,6 +24,8 @@
 									v-list-tile-sub-title
 										span.grey--text.text--darken-2 {{ ticket.email }}, {{ ticket.telephone }}
 							v-divider
+			v-flex(xs12 sm12 v-else) 
+				span.message Los tickets que se registren en el sistema aparecerán aquí
 </template>
 
 <script>
@@ -31,7 +33,7 @@
   export default {
     data () {
       return {
-				tickets: [],
+				tickets: false,
 				userStorage: JSON.parse(localStorage.getItem('user'))
       }
 		},
@@ -45,6 +47,7 @@
 					ticket.id = doc.id
 					this.tickets.unshift(ticket)
 				})
+				if (!this.tickets.length) this.tickets = false
 			})
 		},
 		methods: {
@@ -85,4 +88,6 @@
 			background: rgb(224, 224, 224) !important
 		.black-text
 			color: black
+	.message
+		font-size: 20px
 </style>

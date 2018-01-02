@@ -188,7 +188,7 @@
 				privileges: null,
 				privilegesSelect: ['Administrador', 'Empleado'],
 				context: null,
-				contextsLoad: null,
+				contextsLoad: [],
 				contextNew: null,
 				inputContext: false,
 				employee: true,
@@ -223,6 +223,7 @@
 			business.onSnapshot(doc => {
 				this.business = doc.data().title
 				this.contextsLoad = doc.data().contexts
+				if (!this.contextsLoad) this.contextsLoad = []
 				this.context = doc.data().contexts
 			})
 

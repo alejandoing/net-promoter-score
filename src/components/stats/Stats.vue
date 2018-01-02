@@ -45,29 +45,35 @@
 				div.pb-5
 					span.display-1 Resultados por Local
 					v-divider
-			v-flex(xs4 v-for="local in locals" :key="local.title")
-				v-card.my-1.mr-1(flat tile)
-					v-card-media(class="white--text primary" height="100px")
-						v-container(fill-height fluid)
-							v-layout(fill-height)
-								v-flex(xs12 align-end flexbox)
-									span.display-1.headline {{ local.title }}
-									v-divider
-					v-card-title
-						v-layout(row wrap)
-							v-flex(xs12)
-								v-badge(right color="blue")
-									span(slot="badge") {{ local.assessments.total }}
-									span Valoraciones
-							v-flex.my-2(xs12 v-if="local.assessments.total")
-								span Satisfacción de Cliente {{ local.indicators.satisfaction }} %
-								v-progress-linear(:value="local.indicators.satisfaction" height="20" color="info")
-							v-flex.my-2(xs12 v-if="local.assessments.total")
-								span Indice de Justificación {{ local.indicators.justification }} %
-								v-progress-linear(:value="local.indicators.justification" height="20" color="info")
-					v-card-actions
-						v-btn(flat color="primary" @click.native="selectLocal(local)" :disabled="!local.assessments.total") Ver Resultados
-						v-btn(:to="'/locals/' + local.id" flat color="primary") Ir al Local
+			template(v-if="locals")
+				v-flex(xs4 v-for="local in locals" :key="local.title")
+					v-card.my-1.mr-1(flat tile)
+						v-card-media(class="white--text primary" height="100px")
+							v-container(fill-height fluid)
+								v-layout(fill-height)
+									v-flex(xs12 align-end flexbox)
+										span.display-1.headline {{ local.title }}
+										v-divider
+						v-card-title
+							v-layout(row wrap)
+								v-flex(xs12)
+									v-badge(right color="blue")
+										span(slot="badge") {{ local.assessments.total }}
+										span Valoraciones
+								v-flex.my-2(xs12 v-if="local.assessments.total")
+									span Satisfacción de Cliente {{ local.indicators.satisfaction }} %
+									v-progress-linear(:value="local.indicators.satisfaction" height="20" color="info")
+								v-flex.my-2(xs12 v-if="local.assessments.total")
+									span Indice de Justificación {{ local.indicators.justification }} %
+									v-progress-linear(:value="local.indicators.justification" height="20" color="info")
+						v-card-actions
+							v-btn(flat color="primary" @click.native="selectLocal(local)" :disabled="!local.assessments.total") Ver Resultados
+							v-btn(:to="'/locals/' + local.id" flat color="primary") Ir al Local
+			v-flex(xs12 sm12 v-else) 
+				span.message ¡Aún no se han registrado locales para esta organización!
+			v-layout.py-5(row child-flex justify-center align-center wrap v-if='!locals')
+				v-flex(fill-height xs12 offset-xs5)
+					v-btn(to="/locals/new/" large outline color="primary") Registrar Local
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Resultados Personalizados
@@ -279,7 +285,7 @@
 				loading: false,
 				loader: null,
 				dateFormatted2: null,
-				locals: [],
+				locals: false,
 				currentLocal: { title: null },
 				assessments: [],
 				indicatorsGlobal: { satisfaction: null, justification: null },
@@ -668,7 +674,7 @@
 			},
 		},
 		async created() {
-			this.$firebase.firestore().collection('assessments')
+			this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
 			.onSnapshot(querySnapshot => { 
 				this.assessments = []
 				querySnapshot.forEach(doc => this.assessments.push(doc.data()) )
@@ -679,7 +685,7 @@
 				this.getIndicatorsGlobal()
 			})
 
-			this.$firebase.firestore().collection('locals').where('business','==', this.userStorage.business)
+			this.$firebase.firestore().collection('locals').where('business', '==', this.userStorage.business)
 			.onSnapshot(querySnapshot => {
 				this.locals = []
 				querySnapshot.forEach(doc => {
@@ -689,6 +695,7 @@
 					local.indicators = { satisfaction: null, justification: null }
 					this.locals.unshift(local)
 				})
+				if (!this.locals.length) this.locals = false
 				this.getChartLocal()
 				this.getChartLocalDatesHour()
 				this.getIndicatorsLocal()
@@ -760,14 +767,11 @@
 						this.dialogPreResults = true
 					}
 					else {
-						//this.textDialogPreResults = `La busqueda ha retornado un total de ${this.results.length} resultados.`
-						//this.titleDialogPreResults = "¡Enhorabuena!"
 						this.getChartCustom()
 						this.getChartCustomDatesHour()
 						this.getChartCustomDatesDay()
 						this.getChartCustomDatesMonth()
 						this.dialogResults = true
-						//this.getIndicatorsCustom()
 					}
 				})
 			},
@@ -877,7 +881,9 @@
 				}
 
 				this.indicatorsGlobal.satisfaction = ((partialsGood * 100) / partials).toFixed(2)
+				if (isNaN(this.indicatorsGlobal.satisfaction)) this.indicatorsGlobal.satisfaction = 0.00
 				this.indicatorsGlobal.justification = ((justification * 100) / total).toFixed(2)
+				if (isNaN(this.indicatorsGlobal.justification)) this.indicatorsGlobal.justification = 0.00
 			},
 
 			getIndicatorsLocal() {
@@ -1197,6 +1203,8 @@
 </script>
 
 <style lang="sass" scoped>
+	.message
+		font-size: 20px
 	a
 		text-decoration: none
 	.progress-linear

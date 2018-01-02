@@ -20,5 +20,5 @@ let FirebasePlugin = {
 export default function (Vue) {
 	if (!firebase.apps.length) firebase.initializeApp(config)
 	Vue.prototype.$firebase = FirebasePlugin
-  }
+}
 

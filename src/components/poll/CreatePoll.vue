@@ -58,7 +58,21 @@
 											)
 		v-layout(row child-flex justify-center align-center wrap)
 			v-flex(fill-height xs12 offset-xs5)
-				v-btn#submit(large outline :loading="loading" :disabled="loading || $v.$invalid" @click.native="createPoll" color="primary") CREAR ENCUESTA
+				v-btn#submit(
+					large 
+					outline 
+					:loading="loading" 
+					:disabled=`loading || $v.$invalid || 
+						!justificationsValues.veryGood.question || !justificationsValues.good.question || 
+						!justificationsValues.bad.question || !justificationsValues.veryBad.question || 
+						!justificationsValues.veryGood.options[0] || !justificationsValues.veryGood.options[1] || 
+						!justificationsValues.good.options[0] || !justificationsValues.good.options[1] || 
+						!justificationsValues.bad.options[0] || !justificationsValues.bad.options[1] || 
+						!justificationsValues.veryBad.options[0] || !justificationsValues.veryBad.options[1]`
+					@click.native="createPoll" 
+					color="primary"
+					) 
+					| CREAR ENCUESTA
 					span.custom-loader(slot="loader")
 						v-icon(light) cached
 		v-dialog(v-model="dialog" persistent max-width="500")
@@ -71,6 +85,25 @@
 						v-btn(color="green darken-1" flat @click.native="dialog = false") Ver Encuesta
 					router-link(:to="'/dashboard'")
 						v-btn(color="green darken-1" flat @click.native="dialog = false") Ir al Dashboard
+		v-dialog(v-model="dialogGuard" persistent max-width="500")
+			v-card
+				v-card-title(class="headline") ¡Advertencia!
+				v-card-text Antes de crear una encuesta es necesario haber registrado al menos un local. Por favor, registre un local y luego regrese a esta opción.
+				v-card-actions
+					v-spacer
+					router-link(:to="'/locals/new/'")
+						v-btn(color="green darken-1" flat @click.native="dialogGuard = false") Registrar Local
+					router-link(:to="'/dashboard'")
+						v-btn(color="green darken-1" flat @click.native="dialogGuard = false") Ir al Dashboard
+		v-dialog(v-model="dialogFile" persistent max-width="500")
+			v-card
+				v-card-title(class="headline") ¡Advertencia!
+				v-card-text Solo se permite subir archivos en formato PNG o JPG. Por favor, seleccione un archivo diferente.
+				v-card-actions
+					v-spacer
+					v-btn(color="green darken-1" flat @click.native="uploadClick") Seleccionar Otro Archivo
+					router-link(:to="'/dashboard'")
+						v-btn(color="green darken-1" flat @click.native="dialogGuard = false") Ir al Dashboard
 </template>
 
 <script>
@@ -97,16 +130,19 @@
 				background: null,
 				loader: null,
 				loading: false,
+				justificationsValidation: false,
 				selectedFile: false,
 				text: 'Encuesta creada satisfactoriamente',
 				dialog: false,
+				dialogGuard: false,
+				dialogFile: false,
 				poll: null,
 				userStorage: JSON.parse(localStorage.getItem('user')),
 				justificationsValues: {
-					veryGood: { question: null, options: [] },
-					good: { question: null, options: [] },
-					bad: { question: null, options: [] },
-					veryBad: { question: null, options: [] },
+					veryGood: { question: null, options: [ null, null ] },
+					good: { question: null, options: [ null, null ] },
+					bad: { question: null, options: [ null, null ] },
+					veryBad: { question: null, options: [ null, null ] },
 				},
 				justifications: [{
 					id: 'veryGood',
@@ -141,6 +177,8 @@
 					this.locals.unshift(local)
 					this.localsSelect.push(local.title)
 				})
+				if (!this.locals.length) this.dialogGuard = true
+				console.log(this.locals)
 			})
 
 			let business = this.$firebase.firestore().doc("business/" + this.userStorage.business)
@@ -157,11 +195,20 @@
 				const INDEX = this.locals.findIndex(local => local.title == this.local)
 				const LOCAL = this.locals[INDEX]
 				this.localId = this.locals[INDEX].id
+			},
+			justificationsValues() {
+				if (!justificationsValues.veryGood.question) return false
+				if (!justificationsValues.good.question) return false
+				if (!justificationsValues.bad.question) return false
+				if (!justificationsValues.veryBad.question) return false
+				this.justificationsValidation = true
+				console.log(this.justificationsValidation)
 			}
 		},
 		methods: {
 			uploadClick() {
 				document.getElementById('background').click()
+				if (this.dialogFile) this.dialogFile = false
 			},
 
 			writeFile(event) {
@@ -170,6 +217,8 @@
 
 				this.background = event.srcElement.files[0]
 				if (!background.value.length) return false
+				console.log(background.files[0])
+				if (background.files[0].type != 'image/jpeg' && background.files[0].type != 'image/png') this.dialogFile = true
 				UPLOAD_FILE.innerHTML = background.files[0].name
 				this.selectedFile = true
 			},
@@ -177,6 +226,15 @@
 			createPoll() {
 				const POLLS_COLLECTION = this.$firebase.firestore().collection('polls')
 				
+					// if (!this.justificationsValues.veryGood.options[2]) this.justificationsValues.veryGood.options.splice(2, 1)
+					// if (!this.justificationsValues.veryGood.options[3]) this.justificationsValues.veryGood.options.splice(3, 1)
+					// if (!this.justificationsValues.good.options[2]) this.justificationsValues.good.options.splice(2, 1)
+					// if (!this.justificationsValues.good.options[3]) this.justificationsValues.good.options.splice(3, 1)
+					// if (!this.justificationsValues.bad.options[2]) this.justificationsValues.bad.options.splice(2, 1)
+					// if (!this.justificationsValues.bad.options[3]) this.justificationsValues.bad.options.splice(3, 1)
+					// if (!this.justificationsValues.veryBad.options[2]) this.justificationsValues.veryBad.options.splice(2, 1)
+					// if (!this.justificationsValues.veryBad.options[3]) this.justificationsValues.veryBad.options.splice(3, 1)
+
 				this.loader = 'loading'
 				POLLS_COLLECTION.add({
 					question: this.question,

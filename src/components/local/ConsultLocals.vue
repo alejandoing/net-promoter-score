@@ -1,11 +1,11 @@
 <template lang="pug">
-	v-container(v-if='locals.length')
+	v-container
 		v-layout(row)
 		v-flex(xs12)
 			div.pb-5
 				span.display-1 Locales
 				v-divider
-			v-flex(xs12 sm12)
+			v-flex(xs12 sm12 v-if='locals')
 				v-card
 					v-list
 						template(v-for="local in locals")
@@ -19,6 +19,11 @@
 									v-list-tile-sub-title
 										span.grey--text.text--darken-2 {{ local.province }}, {{ local.location }} - {{ local.street }}
 							v-divider
+			v-flex(xs12 sm12 v-else) 
+				span.message ¡Aún no se han registrado locales para esta organización!
+		v-layout.py-5(row child-flex justify-center align-center wrap v-if='!locals')
+			v-flex(fill-height xs12 offset-xs5)
+				v-btn(to="/locals/new/" large outline color="primary") Registrar Local
 </template>
 
 <script>
@@ -26,7 +31,7 @@
   export default {
     data () {
       return {
-				locals: [],
+				locals: false,
 				userStorage: JSON.parse(localStorage.getItem('user'))
       }
 		},
@@ -48,6 +53,7 @@
 					})
 					this.locals.unshift(local)
 				})
+				if (!this.locals.length) this.locals = false
 			})
 		},
 		methods: {
@@ -57,3 +63,8 @@
 		}
   }
 </script>
+
+<style lang="sass" scoped>
+	.message
+		font-size: 20px
+</style>

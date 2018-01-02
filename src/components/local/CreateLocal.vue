@@ -77,6 +77,7 @@
 				],
 				dialog: false,
 				local: false,
+				userStorage: JSON.parse(localStorage.getItem('user')),
 			}
 		},
 		watch: {
@@ -94,6 +95,7 @@
 					province: this.province,
 					location: this.location,
 					street: this.street,
+					business: this.userStorage.business
 				})
 				.then((local) => {
 					this['loading'] = false

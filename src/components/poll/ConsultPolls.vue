@@ -1,11 +1,11 @@
 <template lang="pug">
-	v-container(v-if='polls.length')
+	v-container
 		v-layout(row)
 		v-flex(xs12)
 			div.pb-5
 				span.display-1 Encuestas
 				v-divider
-			v-flex(xs12 sm12)
+			v-flex(xs12 sm12 v-if='polls')
 				v-card
 					v-list
 						template(v-for="poll in polls")
@@ -31,6 +31,11 @@
 									v-list-tile-sub-title
 										span.grey--text.text--darken-2 {{ poll.local.title }} - {{ poll.context }}
 							v-divider
+			v-flex(xs12 sm12 v-else) 
+				span.message ¡Aún no se han registrado encuestas para esta organización!
+		v-layout.py-5(row child-flex justify-center align-center wrap v-if='!polls')
+			v-flex(fill-height xs12 offset-xs5)
+				v-btn(to="/polls/new/" large outline color="primary") Crear Encuesta
 </template>
 
 <script>
@@ -38,7 +43,7 @@
   export default {
     data () {
       return {
-				polls: [],
+				polls: false,
 				userStorage: JSON.parse(localStorage.getItem('user'))
       }
 		},
@@ -57,6 +62,7 @@
 						if (!this.polls.length) this.polls.unshift(poll)
 					})
 				})
+			if (!this.polls.length) this.polls = false
 			})
 		},
 		methods: {
@@ -66,3 +72,8 @@
 		}
   }
 </script>
+
+<style lang="sass" scoped>
+	.message
+		font-size: 20px
+</style>
