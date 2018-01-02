@@ -196,7 +196,7 @@ export default {
 	},
 
   async created() {
-		console.log(this.routePoll)
+		localStorage.setItem('assessment', 'assessment/' + this.$route.params.id)
 		let poll = this.$firebase.firestore().doc('polls/' + this.$route.params.id)
 		poll.onSnapshot(doc => this.poll = doc.data())
 

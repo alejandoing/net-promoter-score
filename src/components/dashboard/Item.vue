@@ -1,6 +1,6 @@
 <template lang="pug">
 	v-layout(row wrap)
-		v-flex(md4 xs4 v-for="option in options[user]" :key="option.src")
+		v-flex(md4 xs4 v-for="(option, index) in options[userStorage.privileges]" :key="option.src")
 			router-link(:to="option.route")
 				img(:src="option.src")
 </template>
@@ -10,9 +10,9 @@
 		name: 'Dashboard',
 		data() {
 			return {
-				user: 'administrador',
+				userStorage:  JSON.parse(localStorage.getItem('user')),
 				options: {
-					administrador: [
+					Administrador: [
 						{ src: 'static/dashboard/new-poll.png', route: '/polls/new/' },
 						{ src: 'static/dashboard/new-local.png', route: '/locals/new/' },
 						{ src: 'static/dashboard/my-locals.png', route: '/locals/' },
@@ -20,10 +20,10 @@
 						{ src: 'static/dashboard/settings.png', route: '/settings/' },
 						{ src: 'static/dashboard/back-to-home.png', route: '/locals/new/' }
 					],
-					employee: [
-						{ src: 'static/dashboard/new-poll.png', route: '/polls/new/' },
-						{ src: 'static/dashboard/new-local.png', route: '/locals/new/' },
-						{ src: 'static/dashboard/my-locals.png' }					
+					Empleado: [
+						{ src: 'static/dashboard/my-polls.png', route: '/polls/' },
+						{ src: 'static/dashboard/settings.png', route: '/settings/' },
+						{ src: 'static/dashboard/back-to-home.png', route: localStorage.getItem('assessment') }
 					]
 				}
 			}

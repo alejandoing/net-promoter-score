@@ -83,8 +83,9 @@
 						let user = doc.data()
 						user.id = doc.id
 						localStorage.setItem('user', JSON.stringify(user))
+						localStorage.setItem('assessment', '/polls/')
 						this.userStorage = JSON.parse(localStorage.getItem('user'))
-						if (user.status = 'Pendiente') this.dialogNewPassword = true
+						if (user.status == 'Pendiente') this.dialogNewPassword = true
 						else router.push('/dashboard')
 					})
 				})
@@ -112,8 +113,8 @@
 				console.log(this.userStorage)
 				this.$firebase.auth().onAuthStateChanged((user) => {
 					user.updatePassword(this.passwordNew)
-					const GET_USER = this.$firebase.firestore().doc('users/' + user.uid)
-					GET_USER.update({
+					const USER = this.$firebase.firestore().doc("users/" + user.uid)
+					USER.update({
 						name: this.userStorage.name,
 						email: this.userStorage.email,
 						business: this.userStorage.business,

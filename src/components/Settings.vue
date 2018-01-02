@@ -15,7 +15,7 @@
 						v-tabs-item(href="#profile")
 							v-icon person
 							| Mi Perfil
-						v-tabs-item(href="#users")
+						v-tabs-item(v-if="!employee" href="#users")
 							v-icon person_add
 							| Crear Usuario
 					v-tabs-items
@@ -27,6 +27,7 @@
 											label="Razón Social"
 											v-model.trim="business"
 											required
+											:readonly="employee"
 										)
 									v-flex(xs12)
 										p Contextos:
@@ -41,11 +42,11 @@
 											required
 										)
 									v-flex(xs12 md6)
-										v-btn(v-if="!inputContext" @click.native="addContext(1)" color="primary") Agregar Contexto
+										v-btn(v-if="!inputContext" v-show="!employee" @click.native="addContext(1)" color="primary") Agregar Contexto
 										v-btn(v-if="inputContext" :disabled="!contextNew" @click.native="addContext(2)" color="primary") Guardar Contexto
 							v-layout(row child-flex justify-center align-center wrap)
 								v-flex.py-2(fill-height xs12 offset-xs5)
-									v-btn(large outline :loading="loading" :disabled="loading" @click.native="saveChanges" color="primary") Guardar Cambios
+									v-btn(large outline :loading="loading" v-if="!employee" :disabled="loading" @click.native="saveChanges" color="primary") Guardar Cambios
 										span.custom-loader(slot="loader")
 											v-icon(light) cached
 						v-tabs-content(id="profile")
@@ -64,6 +65,7 @@
 												v-model.trim="privileges"
 												:items="privilegesSelect"
 												required
+												:readonly="employee"
 											)
 										v-flex(xs12 md6)
 											v-text-field(
@@ -189,6 +191,7 @@
 				contextsLoad: null,
 				contextNew: null,
 				inputContext: false,
+				employee: true,
 				local: null,
 				loader: null,
 				loading: false,
@@ -212,6 +215,10 @@
 			},
 		},
 		created() {
+			this.$firebase.firestore().doc('users/' + this.userStorage.id)
+			.onSnapshot(doc => {
+				if (doc.data().privileges == "Administrador") this.employee = false
+			})
 			let business = this.$firebase.firestore().doc("business/" + this.userStorage.business)
 			business.onSnapshot(doc => {
 				this.business = doc.data().title

@@ -10,12 +10,14 @@
 					label="Pregunta Principal"
 					v-model.trim="question"
 					required
+					:readonly="employee"
 				)
 			v-flex(xs12 md6)
 				v-select(
 					label="Elegir un Local"
 					v-model="local"
 					:items="localsSelect"
+					:readonly="employee"
 					required
 				)
 			v-flex(xs12 md6)
@@ -23,11 +25,12 @@
 					label="Elegir un Contexto"
 					v-model="context"
 					:items="contextsSelect"
+					:readonly="employee"
 					required
 				)
 			v-flex(xs12 md6).mb-5
 				v-text-field#background.hidden(type="file" @change.native="writeFile($event)")
-				v-btn#uploadFile(block color="primary" @click="uploadClick") Elegir nuevo background
+				v-btn#uploadFile(block color="primary" @click="uploadClick" v-if="!employee") Elegir nuevo background
 			v-flex(xs12 md4)
 				v-text-field(
 					label="Permalink Encuesta"
@@ -61,12 +64,14 @@
 											v-model.trim="justificationsValues[justification.id].question"
 											:id="justificationsValues[justification.id].question"
 											required
+											:readonly="employee"
 										)
 										div(v-for="(option, index) in 4")
 											v-text-field(
 												:label="'Opción ' + (index + 1)"
 												v-model.trim="justificationsValues[justification.id].options[index]"
 												:required="index <= 1"
+												:readonly="employee"
 											)
 		v-layout(row child-flex justify-center align-center wrap)
 			v-flex(fill-height xs12 offset-xs5)
@@ -111,6 +116,7 @@
 				background: null,
 				file: null,
 				localId: null,
+				employee: true,
 				userStorage: JSON.parse(localStorage.getItem('user')),
 				justificationsValues: {
 					veryGood: { question: null, options: [] },
@@ -152,9 +158,13 @@
 					const LOCAL = this.locals[INDEX]
 					this.localId = this.locals[INDEX].id
 				}
-			}
+			},
 		},
 		async created() {
+			this.$firebase.firestore().doc('users/' + this.userStorage.id)
+			.onSnapshot(doc => {
+				if (doc.data().privileges == "Administrador") this.employee = false
+			})
 			this.$firebase.firestore().doc('polls/' + this.$route.params.id)
 			.onSnapshot(doc => {
 				this.poll = doc.data()
