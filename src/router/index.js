@@ -22,7 +22,10 @@ Vue.use(Router)
 export default new Router({
   mode: 'history',
   routes: [
-    { path: '/dashboard', component: Layout, 
+    { path: '/dashboard', component: Layout, beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('user')) next()
+      else location.href="/auth"
+    },
       children: [
         { path: '', component: Dashboard },
         { path: '/polls/new', component: CreatePoll },

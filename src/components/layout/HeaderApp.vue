@@ -35,6 +35,8 @@
 		methods: {
 			signOut() {
 				this.$firebase.auth().signOut()
+				localStorage.removeItem('user')
+				localStorage.removeItem('assessment')
 				router.push('/auth')
 			}
 		},
