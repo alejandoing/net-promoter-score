@@ -1,5 +1,5 @@
 <template lang="pug">
-	v-container
+	v-container(v-if="load")
 		v-layout(row)
 		v-flex(xs12)
 			div.pb-5
@@ -43,6 +43,7 @@
   export default {
     data () {
       return {
+				load: false,
 				polls: false,
 				userStorage: JSON.parse(localStorage.getItem('user'))
       }
@@ -50,7 +51,8 @@
 		created() {
 			let polls = this.$firebase.firestore().collection("polls").where('business', '==', this.userStorage.business)
 			polls.onSnapshot(querySnapshot => {
-				this.polls = []
+				this.load = true
+				if (querySnapshot.docs.length) this.polls = []
 				querySnapshot.forEach(doc => {
 					let poll = doc.data()
 					poll.id = doc.id
@@ -59,10 +61,9 @@
 					assessments.onSnapshot(querySnapshot => {
 						poll.assessments = { veryGood: 0, good: 0, bad: 0, veryBad: 0 }
 						querySnapshot.forEach(doc => poll.assessments[doc.data().face]++)
-						if (!this.polls.length) this.polls.unshift(poll)
+						this.polls.unshift(poll)
 					})
 				})
-			if (!this.polls.length) this.polls = false
 			})
 		},
 		methods: {

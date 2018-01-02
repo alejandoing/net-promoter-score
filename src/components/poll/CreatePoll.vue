@@ -225,15 +225,6 @@
 
 			createPoll() {
 				const POLLS_COLLECTION = this.$firebase.firestore().collection('polls')
-				
-					// if (!this.justificationsValues.veryGood.options[2]) this.justificationsValues.veryGood.options.splice(2, 1)
-					// if (!this.justificationsValues.veryGood.options[3]) this.justificationsValues.veryGood.options.splice(3, 1)
-					// if (!this.justificationsValues.good.options[2]) this.justificationsValues.good.options.splice(2, 1)
-					// if (!this.justificationsValues.good.options[3]) this.justificationsValues.good.options.splice(3, 1)
-					// if (!this.justificationsValues.bad.options[2]) this.justificationsValues.bad.options.splice(2, 1)
-					// if (!this.justificationsValues.bad.options[3]) this.justificationsValues.bad.options.splice(3, 1)
-					// if (!this.justificationsValues.veryBad.options[2]) this.justificationsValues.veryBad.options.splice(2, 1)
-					// if (!this.justificationsValues.veryBad.options[3]) this.justificationsValues.veryBad.options.splice(3, 1)
 
 				this.loader = 'loading'
 				POLLS_COLLECTION.add({
