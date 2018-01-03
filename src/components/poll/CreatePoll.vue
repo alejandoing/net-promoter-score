@@ -55,26 +55,27 @@
 												:label="'Opción ' + (index + 1)"
 												v-model.trim="justificationsValues[justification.id].options[index]"
 												:required="index <= 1"
-											)
-		v-layout(row child-flex justify-center align-center wrap)
-			v-flex(fill-height xs12 offset-xs5)
-				v-btn#submit(
-					large 
-					outline 
-					:loading="loading" 
-					:disabled=`loading || $v.$invalid || 
-						!justificationsValues.veryGood.question || !justificationsValues.good.question || 
-						!justificationsValues.bad.question || !justificationsValues.veryBad.question || 
-						!justificationsValues.veryGood.options[0] || !justificationsValues.veryGood.options[1] || 
-						!justificationsValues.good.options[0] || !justificationsValues.good.options[1] || 
-						!justificationsValues.bad.options[0] || !justificationsValues.bad.options[1] || 
-						!justificationsValues.veryBad.options[0] || !justificationsValues.veryBad.options[1]`
-					@click.native="createPoll" 
-					color="primary"
-					) 
-					| CREAR ENCUESTA
-					span.custom-loader(slot="loader")
-						v-icon(light) cached
+										)
+		div(style="position: relative; bottom: 75px")
+			v-layout.pa-5(row child-flex justify-center align-center wrap)
+				v-flex#prueba(fill-height xs12 offset-xs5)
+					v-btn#submit(
+						large 
+						outline 
+						:loading="loading" 
+						:disabled=`loading || $v.$invalid || 
+							!justificationsValues.veryGood.question || !justificationsValues.good.question || 
+							!justificationsValues.bad.question || !justificationsValues.veryBad.question || 
+							!justificationsValues.veryGood.options[0] || !justificationsValues.veryGood.options[1] || 
+							!justificationsValues.good.options[0] || !justificationsValues.good.options[1] || 
+							!justificationsValues.bad.options[0] || !justificationsValues.bad.options[1] || 
+							!justificationsValues.veryBad.options[0] || !justificationsValues.veryBad.options[1]`
+						@click.native="createPoll" 
+						color="primary"
+						) 
+						| CREAR ENCUESTA
+						span.custom-loader(slot="loader")
+							v-icon(light) cached
 		v-dialog(v-model="dialog" persistent max-width="500")
 			v-card
 				v-card-title(class="headline") ¡Enhorabuena!
@@ -178,7 +179,6 @@
 					this.localsSelect.push(local.title)
 				})
 				if (!this.locals.length) this.dialogGuard = true
-				console.log(this.locals)
 			})
 
 			let business = this.$firebase.firestore().doc("business/" + this.userStorage.business)
@@ -290,3 +290,4 @@
 		to
 			transform: rotate(360deg)
 </style>
+

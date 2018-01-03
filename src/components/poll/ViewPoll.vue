@@ -1,6 +1,6 @@
 <template lang="pug">
 	v-container(v-if="poll" grid-list-md)
-		v-layout(row wrap)
+		v-layout.mb-5(row wrap)
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Encuesta: {{ poll.question }}
@@ -43,9 +43,9 @@
 					v-btn(block color="primary") Ir a encuesta
 			v-flex(xs12)
 				img(height="500" width="100%" :src="background")
-		v-layout.my-5(row wrap)
+		v-layout(row wrap)
 			v-flex(xs12)
-				span.display-1.my-5 Justificación
+				span.display-1 Justificación
 				v-divider
 			v-flex(xs12)
 				v-tabs(fixed icons centered)
@@ -78,6 +78,12 @@
 				v-btn#submit(v-if="!employee" large outline :loading="loading" :disabled="loading || $v.$invalid" @click.native="updatePoll" color="primary") Guardar cambios
 					span.custom-loader(slot="loader")
 						v-icon(light) cached
+		v-layout.my-5(row wrap)
+			v-flex(xs12)
+				span.display-1.my-5 Resultados
+				v-divider
+			v-flex(xs12)
+				highcharts(:options="optionsChartGlobal" ref="highcharts")
 		v-dialog(v-model="dialog" persistent max-width="500")
 			v-card
 				v-card-title(class="headline") ¡Enhorabuena!
@@ -108,6 +114,7 @@
 				context: null,
 				permalink: null,
 				locals: [],
+				assessments: null,
 				localsSelect: [],
 				contextsSelect: [],
 				loader: null,
@@ -118,6 +125,37 @@
 				localId: null,
 				employee: true,
 				userStorage: JSON.parse(localStorage.getItem('user')),
+				optionsChartGlobal: {
+					chart: {
+						plotBackgroundColor: null,
+						plotBorderWidth: null,
+						plotShadow: false,
+						type: 'pie',
+						height: 450,
+						backgroundColor: '#fafafa'
+					},
+					colors: ['#036303', '#00ff01', '#f7ff00', '#e30909'],
+					title: { text: null },
+					tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
+					plotOptions: {
+						pie: {
+							allowPointSelect: true,
+							cursor: 'pointer',
+							dataLabels: { enabled: false },
+							showInLegend: true
+						}
+					},
+					series: [{
+						name: 'Valoraciones',
+						colorByPoint: true,
+						data: [
+							{ name: 'Muy Bueno', y: null }, 
+							{ name: 'Bueno', y: null, sliced: true, selected: true }, 
+							{ name: 'Malo', y: null }, 
+							{ name: 'Muy Malo', y: null }
+						]
+					}]
+				},
 				justificationsValues: {
 					veryGood: { question: null, options: [] },
 					good: { question: null, options: [] },
@@ -165,6 +203,18 @@
 			.onSnapshot(doc => {
 				if (doc.data().privileges == "Administrador") this.employee = false
 			})
+
+			let assessments = this.$firebase.firestore().collection('assessments').where('poll', '==', this.$route.params.id)
+			assessments.onSnapshot(querySnapshot => {
+				this.assessments = []
+				querySnapshot.forEach(doc => {
+					let assessment = doc.data()
+					assessment.id = doc.id
+					this.assessments.unshift(assessment)
+				})
+				this.getChartGlobal()
+			})
+
 			this.$firebase.firestore().doc('polls/' + this.$route.params.id)
 			.onSnapshot(doc => {
 				this.poll = doc.data()
@@ -196,6 +246,32 @@
 			})
 		},
 		methods: {
+			getChartGlobal() {
+				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
+				for (let assesment of this.assessments) {
+					switch(assesment.face) {
+						case 'veryGood':
+							numVeryGood++
+						break
+						case 'good':
+							numGood++
+						break
+						case 'bad':
+							numBad++
+						break
+						case 'veryBad':
+							numVeryBad++
+						break
+					}
+				}
+				this.optionsChartGlobal.title.text = "Valoraciones realizadas hasta la fecha:" + this.assessments.length
+				this.optionsChartGlobal.series[0].data[0].y = numVeryGood
+				this.optionsChartGlobal.series[0].data[1].y = numGood
+				this.optionsChartGlobal.series[0].data[2].y = numBad
+				this.optionsChartGlobal.series[0].data[3].y = numVeryBad
+				this.assessments.stats = { veryGood: numVeryGood, good: numGood, bad: numBad, veryBad: numVeryBad }
+			},
+
 			uploadClick() {
 				document.getElementById('background').click()
 			},
