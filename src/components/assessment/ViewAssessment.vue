@@ -36,17 +36,18 @@
 										label="Teléfono"
 										prepend-icon="phone"
 										v-model.trim="ticket.telephone"
+										mask="phone"
 									)
 								v-flex.pb-3(xs12)
-									v-text-field#puto(
+									v-text-field(
 										label="Mensaje"
 										v-model.trim="ticket.description"
 										multi-line
-										style="resize: none !important"
 									)
-								v-btn(color="primary" :loading="loading" :disabled="loading" @click.native="createAssessment") Enviar datos
+								v-btn(color="primary" :loading="loading" :disabled="loading || !ticket.email || !ticket.description" @click.native="createAssessment") Enviar datos
 									span.custom-loader(slot="loader")
 										v-icon(light) cached
+								v-btn(color="primary" :loading="loading" :disabled="loading" @click.native="createAssessment") Omitir
 		v-dialog(v-model="dialog" persistent max-width="500")
 			v-card
 				v-card-title(class="headline") ¡Enhorabuena!
