@@ -28,7 +28,7 @@
 									v-text-field(
 										label=" Email"
 										prepend-icon="email"
-										v-model.trim="ticket.email"
+										v-model.trim="email"
 										required
 									)
 								v-flex(xs12 md6)
@@ -36,15 +36,15 @@
 										label="Teléfono"
 										prepend-icon="phone"
 										v-model.trim="ticket.telephone"
-										mask="phone"
 									)
 								v-flex.pb-3(xs12)
 									v-text-field(
 										label="Mensaje"
 										v-model.trim="ticket.description"
 										multi-line
+										required
 									)
-								v-btn(color="primary" :loading="loading" :disabled="loading || !ticket.email || !ticket.description" @click.native="createAssessment") Enviar datos
+								v-btn(color="primary" :loading="loading" :disabled="loading || $v.$invalid || !ticket.description" @click.native="createAssessment") Enviar datos
 									span.custom-loader(slot="loader")
 										v-icon(light) cached
 								v-btn(color="primary" :loading="loading" :disabled="loading" @click.native="createAssessment") Omitir
@@ -58,153 +58,161 @@
 </template>
 
 <script>
-export default {
-	data() {
-		return {
-			i: 0,
-			userStorage: JSON.parse(localStorage.getItem('user')),
-			timer: null,
-			loader: null,
-			loading: false,
-			poll: { question: null },
-			justificationLoad: {
-				question: null,
-				options: [],
-			},
-			backgroundImage: null,
-			step: 1,
-			faces: {
-				veryGood: { url: "./../../../static/faces/very-good.png", title: 'veryGood' },
-				good: { url: "./../../../static/faces/good.png", title: 'good' },
-				bad: { url: "./../../../static/faces/bad.png", title: 'bad' },
-				veryBad: { url: "./../../../static/faces/very-bad.png", title: 'veryBad' },
-			},
-			assessment: null,
-			justification: null,
-			ticket: {
-				email: null,
-				telephone: null,
-				description: null,
-			},
-			flow: {
-				justification: false,
-				contact: false
-			},
-			dialog: false
-		}
-	},
-	watch: {
-		loader () {
-			const l = this.loader
-			this[l] = !this[l]
-		},
-		step() {
-			const STEPPER = document.getElementById("stepper")
-		
-			STEPPER.style.height = '400px'
-			if (this.step == 1) {
-				clearInterval(this.timer)
-				this.timer = null
-				this.i = 0
-			}
-			else {
-				if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
-				if (this.step == 3) STEPPER.style.height = '80%'
-			}
-		}
-	},
+	import { validationMixin } from 'vuelidate'
+	import { required, maxLength, email, sameAs } from 'vuelidate/lib/validators'
 
-	methods: {
-		async waiting(i) {
-			console.log(i)
-			i++
-			if (i == 20) {
-				clearInterval(this.timer)
-				await this.createAssessment()
-				this.i = 0
+	export default {
+		mixins: [validationMixin],
+		validations: {
+			email: { email, required },
+		},
+		data() {
+			return {
+				i: 0,
+				userStorage: JSON.parse(localStorage.getItem('user')),
+				timer: null,
+				loader: null,
+				loading: false,
+				poll: { question: null },
+				justificationLoad: {
+					question: null,
+					options: [],
+				},
+				backgroundImage: null,
+				step: 1,
+				faces: {
+					veryGood: { url: "./../../../static/faces/very-good.png", title: 'veryGood' },
+					good: { url: "./../../../static/faces/good.png", title: 'good' },
+					bad: { url: "./../../../static/faces/bad.png", title: 'bad' },
+					veryBad: { url: "./../../../static/faces/very-bad.png", title: 'veryBad' },
+				},
+				assessment: null,
+				justification: null,
+				email: null,
+				ticket: {
+					email: null,
+					telephone: null,
+					description: null,
+				},
+				flow: {
+					justification: false,
+					contact: false
+				},
+				dialog: false
+			}
+		},
+		watch: {
+			loader () {
+				const l = this.loader
+				this[l] = !this[l]
+			},
+			step() {
+				const STEPPER = document.getElementById("stepper")
+			
+				STEPPER.style.height = '400px'
+				if (this.step == 1) {
+					clearInterval(this.timer)
+					this.timer = null
+					this.i = 0
+				}
+				else {
+					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
+					if (this.step == 3) STEPPER.style.height = '80%'
+				}
+			}
+		},
+
+		methods: {
+			async waiting(i) {
+				console.log(i)
+				i++
+				if (i == 20) {
+					clearInterval(this.timer)
+					await this.createAssessment()
+					this.i = 0
+					this.step = 1
+				}
+				this.i = i
+			},
+			getAssessment(option) {
+				this.step = 2
+				this.assessment = option
+				this.justificationLoad = this.poll.justifications[option]
+			},
+
+			getJustification(option) {
+				this.step = 3
+				this.justification = option
+				this.flow.justification = true
+			},
+
+			createAssessment() {
+				if (this.ticket.description) this.flow.contact = true
+				const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
+				this.loader = 'loading'
+
+				ASSESSMENT_COLLECTION.add({
+					face: this.assessment,
+					date: new Date(),
+					flow: this.flow,
+					justification: this.justification,
+					poll: this.$route.params.id,
+					business: this.userStorage.business,
+					local: this.poll.local
+				})
+				.then(() => {
+					if (this.flow.contact) this.createTicket()
+					else {
+						this['loading'] = false
+						this.loader = null
+						this.dialog = true
+					}
+				})
+				.catch((error) => { console.log(error) })
+			},
+
+			createTicket() {
+				const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')
+				TICKETS_COLLECTION.add({
+					date: new Date(),
+					description: this.ticket.description,
+					email: this.email,
+					telephone: this.ticket.telephone,
+					leido: false,
+					business: this.userStorage.business,
+					local: this.poll.local,
+					poll: this.$route.params.id
+				})
+				.then(() => {
+						this['loading'] = false
+						this.loader = null
+						this.dialog = true
+
+						let resetTicket = {
+							email: null,
+							telephone: null,
+							description: null
+						}
+						this.ticket = resetTicket
+				})
+				.catch((error) => { console.log(error) })			
+			},
+
+			finalize() {
+				this.dialog = false,
 				this.step = 1
 			}
-			this.i = i
-		},
-		getAssessment(option) {
-			this.step = 2
-			this.assessment = option
-			this.justificationLoad = this.poll.justifications[option]
 		},
 
-		getJustification(option) {
-			this.step = 3
-			this.justification = option
-			this.flow.justification = true
-		},
+		async created() {
+			localStorage.setItem('assessment', 'assessment/' + this.$route.params.id)
+			let poll = this.$firebase.firestore().doc('polls/' + this.$route.params.id)
+			poll.onSnapshot(doc => this.poll = doc.data())
 
-		createAssessment() {
-			if (this.ticket.description) this.flow.contact = true
-			const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
-			this.loader = 'loading'
-
-			ASSESSMENT_COLLECTION.add({
-				face: this.assessment,
-				date: new Date(),
-				flow: this.flow,
-				justification: this.justification,
-				poll: this.$route.params.id,
-				business: this.userStorage.business,
-				local: this.poll.local
-			})
-			.then(() => {
-				if (this.flow.contact) this.createTicket()
-				else {
-					this['loading'] = false
-					this.loader = null
-					this.dialog = true
-				}
-			})
-			.catch((error) => { console.log(error) })
-		},
-
-		createTicket() {
-			const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')
-			TICKETS_COLLECTION.add({
-				date: new Date(),
-				description: this.ticket.description,
-				email: this.ticket.email,
-				telephone: this.ticket.telephone,
-				leido: false,
-				business: this.userStorage.business,
-				local: this.poll.local,
-				poll: this.$route.params.id
-			})
-			.then(() => {
-					this['loading'] = false
-					this.loader = null
-					this.dialog = true
-
-					let resetTicket = {
-						email: null,
-						telephone: null,
-						description: null
-					}
-					this.ticket = resetTicket
-			})
-			.catch((error) => { console.log(error) })			
-		},
-
-		finalize() {
-			this.dialog = false,
-			this.step = 1
+			let imageRef = this.$firebase.storage().ref().child('polls/backgrounds/' + this.$route.params.id)
+			this.backgroundImage = await imageRef.getDownloadURL()
 		}
-	},
-
-  async created() {
-		localStorage.setItem('assessment', 'assessment/' + this.$route.params.id)
-		let poll = this.$firebase.firestore().doc('polls/' + this.$route.params.id)
-		poll.onSnapshot(doc => this.poll = doc.data())
-
-    let imageRef = this.$firebase.storage().ref().child('polls/backgrounds/' + this.$route.params.id)
-		this.backgroundImage = await imageRef.getDownloadURL()
 	}
-}
 </script>
 
 <style lang="sass" scoped>

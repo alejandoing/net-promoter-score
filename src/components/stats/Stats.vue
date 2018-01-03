@@ -787,8 +787,10 @@
 			},
 
 			desactiveDateMenus() {
-				this.menuDateSince = false,
+				this.menuDateSince = false
+				this.dateSinceFormatted = null
 				this.menuDateUntil = false
+				this.dateUntilFormatted = null
 			},
 
 			desactiveTimeMenuSince() {

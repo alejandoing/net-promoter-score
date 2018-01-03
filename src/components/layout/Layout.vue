@@ -40,7 +40,11 @@
 		created() {
 			this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
 			.onSnapshot(querySnapshot => {
-				this.collectionAssessments = []
+				this.assessments = []
+				this.veryGood = 0
+				this.good = 0
+				this.bad = 0
+				this.veryBad = 0
 				querySnapshot.forEach(doc => {
 					let assessment = doc.data()
 					this.assessments.unshift(assessment)
@@ -56,4 +60,7 @@
 		text-decoration: none
 	.text-footer
 		font-size: 20px
+	@media (max-width: 600px)
+		footer
+			display: none
 </style>

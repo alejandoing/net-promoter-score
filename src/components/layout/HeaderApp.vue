@@ -1,8 +1,8 @@
 <template lang="pug">
 	v-toolbar(fixed app dark color="primary")
-		v-toolbar-title Net Promoter Score - {{ title }}
+		v-toolbar-title.header-title Net Promoter Score - {{ title }}
 		v-spacer
-		v-toolbar-items
+		v-toolbar-items.header-computer
 			v-btn(flat to="/dashboard") Dashboard
 				v-icon.pl-2 dashboard
 			v-btn(flat to="/stats") Resultados
@@ -53,4 +53,9 @@
 <style lang="sass" scoped>
 	a
 		text-decoration: none
+	@media (max-width: 600px)
+		.header-computer
+			display: none
+		.header-title
+			display: none
 </style>
