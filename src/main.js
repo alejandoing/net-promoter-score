@@ -34,6 +34,8 @@ import {
   VDatePicker,
   VTimePicker,
   VAlert,
+  VRadioGroup,
+  VSwitch,
   transitions
 } from 'vuetify'
 import '../node_modules/vuetify/src/stylus/app.styl'
@@ -76,6 +78,8 @@ Vue.use(Vuetify, {
     VDatePicker,
     VTimePicker,
     VAlert,
+    VRadioGroup,
+    VSwitch,
     transitions
   },
   theme: {

@@ -126,17 +126,23 @@
 				v-flex(xs12 sm4)
 					v-checkbox(
 						v-model="read"
-						value="1"
 						label="Leído"
 						type="checkbox"
 						style="position: relative; top: 20px; left: 20px"
+					)
+				v-flex(xs12 sm4)
+					v-checkbox(
+						v-model="unread"
+						label="No Leído"
+						type="checkbox"
+						style="position: relative; top: 20px; right: 80px"
 					)
 			v-layout(row).mb-5
 				v-flex(xs12 sm4 offset-sm2)
 					v-btn(block color="primary" @click="searchTickets") Filtrar Tickets
 				v-flex(xs12 sm4).pl-2
 					v-btn(block color="primary" @click="clearFields") Limpiar
-			v-flex(xs12 sm12 v-if='tickets')
+			v-flex.mb-5(xs12 sm12 v-if='tickets')
 				v-card
 					v-list
 						template(v-for="ticket in tickets")
@@ -153,7 +159,7 @@
 								v-list-tile-content.ticket-content(ripple @click="viewTicket(ticket.id)")
 									v-list-tile-title.black-text Ticket Nro: {{ ticket.id }} ({{ ticket.dateFormat }})
 									v-list-tile-sub-title
-										span.grey--text.text--darken-2 {{ ticket.email }}, {{ ticket.telephone }}
+										span.grey--text.text--darken-2 {{ ticket.email }}
 							v-divider
 			v-flex(xs12 sm12 v-else) 
 				span.message Los tickets que se registren en el sistema aparecerán aquí
@@ -169,7 +175,8 @@
 				localID: null,
 				locals: null,
 				localsSelect: [],
-				read: false,
+				read: true,
+				unread: true,
 				menuDateSince: false,
 				menuDateUntil: false,
 				dateSince: null,
@@ -191,6 +198,12 @@
 				locals.onSnapshot(querySnapshot => {
 					querySnapshot.forEach(doc => this.localID = doc.id)
 				})
+			},
+			read() {
+				if (!this.read) this.unread = true
+			},
+			unread() {
+				if (!this.unread) this.read = true
 			}
 		},
 		created() {
@@ -224,6 +237,10 @@
         return `${day}/${month}/${year}`
 			},
 
+			changeCheckbox(field) {
+				if (field == 'unread' && this.read) this.read = !this.read
+			},
+
 			activeDateMenus() {
 				this.menuDateUntil = true
 			},
@@ -231,7 +248,9 @@
 			desactiveDateMenus() {
 				this.menuDateSince = false
 				this.dateSinceFormatted = null
+				this.dateSince = null
 				this.menuDateUntil = false
+				this.dateUntill = null
 				this.dateUntilFormatted = null
 			},
 
@@ -258,11 +277,103 @@
 			},
 
 			searchTickets() {
+				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business)
+				if (this.read != this.unread) tickets = tickets.where('leido', '==', this.read)
+				if (this.local) tickets = tickets.where('local.id', '==', this.localID)
 
+				let timeSince = '00:00'
+				let timeUntil = '23:59'
+				let dateSince = '1999-01-01'
+				let dateUntil = '2099-12-31'
+
+				function pad(s) { return (s < 10) ? '0' + s : s }
+				function timeSearch(date) { return `${pad(date.getHours())}:${pad(date.getMinutes())}` }
+				function compareTimes(timeRecord, timeSince, timeUntil) {
+					let arrayTimeRecord = timeRecord.split(":")
+					let arraytimeSince = timeSince.split(":")
+					let arraytimeUntil = timeUntil.split(":")
+
+					let recordHour = parseInt(arrayTimeRecord[0],10)
+					let recordMinutes = parseInt(arrayTimeRecord[1],10)
+					
+					let sinceHour = parseInt(arraytimeSince[0],10)
+					let sinceMinutes = parseInt(arraytimeSince[1],10)
+
+					let untilHour = parseInt(arraytimeUntil[0],10)
+					let untilMinutes = parseInt(arraytimeUntil[1],10)
+					
+					if (recordHour > sinceHour || (recordHour == sinceHour && recordMinutes >= sinceMinutes)) {
+						if (recordHour < untilHour || (recordHour == untilHour && recordMinutes <= untilMinutes)) return true
+						else return false
+					}
+					else return false
+				}
+
+				this.loader = 'loading'
+
+				if (this.timeSince) timeSince = this.timeSince
+				if (this.timeUntil) timeUntil = this.timeUntil
+
+				if (this.dateSince) {
+					dateSince = this.dateSince
+					dateUntil = this.dateSince
+				}
+
+				if (this.dateUntil) dateUntil = this.dateUntil
+
+				let searchSince = new Date(`${dateSince} ${timeSince}`)
+				let searchUntil = new Date(`${dateUntil} ${timeUntil}`)
+				
+				if (this.dateSince || this.timeSince) {
+					tickets = tickets
+					.where('date','>=',new Date(`${dateSince} ${timeSince}`))
+					.where('date','<=',new Date(`${dateUntil} ${timeUntil}`))
+				}
+				
+				tickets.onSnapshot(querySnapshot => {
+					this.tickets = []
+					if (!this.timeSince) {
+						querySnapshot.forEach(doc => {
+							let ticket = doc.data()
+							ticket.dateFormat = this.convertDate(doc.data().date)
+							ticket.id = doc.id
+							this.tickets.unshift(ticket)
+						})
+					}
+					else {
+						querySnapshot.forEach(doc => {
+							if (compareTimes(timeSearch(doc.data().date), timeSearch(searchSince), timeSearch(searchUntil))) {
+								let ticket = doc.data()
+								ticket.dateFormat = this.convertDate(doc.data().date)
+								ticket.id = doc.id
+								this.tickets.unshift(ticket)
+							}
+						})
+					}
+					if (!this.tickets.length) this.tickets = false
+				})
 			},
 
-			clearFiels() {
+			clearFields() {
+				this.local = null
+				this.read = true
+				this.unread = true
+				this.dateSince = null
+				this.dateUntil = null
+				this.timeSince = null
+				this.timeUntil = null
 
+				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business)
+				tickets.onSnapshot(querySnapshot => {
+					this.tickets = []
+					querySnapshot.forEach(doc => {
+						let ticket = doc.data()
+						ticket.dateFormat = this.convertDate(doc.data().date)
+						ticket.id = doc.id
+						this.tickets.unshift(ticket)
+					})
+					if (!this.tickets.length) this.tickets = false
+				})
 			},
 
 			updateTicket(ticket) {
