@@ -35,16 +35,16 @@
 									v-text-field(
 										label="Teléfono"
 										prepend-icon="phone"
-										v-model.trim="ticket.telephone"
+										v-model.trim="telephone"
 									)
 								v-flex.pb-3(xs12)
 									v-text-field(
 										label="Mensaje"
-										v-model.trim="ticket.description"
+										v-model.trim="description"
 										multi-line
 										required
 									)
-								v-btn(color="primary" :loading="loading" :disabled="loading || $v.$invalid || !ticket.description" @click.native="createAssessment") Enviar datos
+								v-btn(color="primary" :loading="loading" :disabled="loading || $v.$invalid || !description" @click.native="createAssessment") Enviar datos
 									span.custom-loader(slot="loader")
 										v-icon(light) cached
 								v-btn(color="primary" :loading="loading" :disabled="loading" @click.native="createAssessment") Omitir
@@ -89,11 +89,8 @@
 				assessment: null,
 				justification: null,
 				email: null,
-				ticket: {
-					email: null,
-					telephone: null,
-					description: null,
-				},
+				telephone: null,
+				description: null,
 				flow: {
 					justification: false,
 					contact: false
@@ -119,12 +116,19 @@
 					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
 					if (this.step == 3) STEPPER.style.height = '80%'
 				}
-			}
+			},
+			email() { this.i = 0 },
+			telephone() { this.i = 0 },
+			description() { this.i = 0 }
+		},
+
+		destroyed() {
+			clearInterval(this.timer)
 		},
 
 		methods: {
 			async waiting(i) {
-				console.log(i)
+				console.log(this.i)
 				i++
 				if (i == 20) {
 					clearInterval(this.timer)
@@ -175,9 +179,9 @@
 				const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')
 				TICKETS_COLLECTION.add({
 					date: new Date(),
-					description: this.ticket.description,
+					description: this.description,
 					email: this.email,
-					telephone: this.ticket.telephone,
+					telephone: this.telephone,
 					leido: false,
 					business: this.userStorage.business,
 					local: this.poll.local,
