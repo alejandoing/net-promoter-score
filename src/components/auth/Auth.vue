@@ -24,123 +24,173 @@
 							required
 						)
 					.button-container
-						v-btn(outline :loading="loading" @click.native="signIn" :disabled="loading || $v.$invalid" color="primary") INGRESAR
+						v-btn(outline :loading="loading" @click.native="signIn" :disabled="loading || $v.formSignIn.$invalid" color="primary") INGRESAR
 							span.custom-loader(slot="loader")
 								v-icon(light) cached
-					v-snackbar(top right :timeout="timeout" v-model="snackbar") {{ text }}
-						v-btn(dark flat @click.native="snackbar = false") Close
-		v-dialog(v-model="dialogNewPassword" persistent max-width="500")
+					v-snackbar(top right :timeout="timeout" v-model="snackbar") {{ error }}
+						v-btn(dark flat @click.native="snackbar = false") Cerrar
+		v-dialog(v-model="dialog" persistent max-width="500")
 			v-card
 				v-card-title(class="headline") !Bienvenido!
 				v-card-text 
 					| Tu cuenta ha sido habilitada correctamente. Para continuar ingresa una nueva contraseña de ocho caracteres como mínimo.
-					v-text-field(label="Contraseña" v-model="passwordNew" type="password" required)
+					v-text-field(
+						label="Contraseña" 
+						v-model="newPassword" 
+						type="password"
+						:error-messages="newPasswordErrors"
+						@input="$v.newPassword.$touch()"
+						@blur="$v.newPassword.$touch()"
+						required
+					)
+					v-text-field(
+						label="Confirmar Contraseña" 
+						v-model="passwordConfirm" 
+						type="password"
+						:error-messages="passwordConfirmErrors"
+						@input="$v.passwordConfirm.$touch()"
+						@blur="$v.passwordConfirm.$touch()"
+						required
+					)
 				v-card-actions
 					v-spacer
-						v-btn(color="green darken-1" flat @click.native="continueSignIn" :disabled="!passwordNew || passwordNew.length < 8") Entendido
+						v-btn(color="green darken-1" flat @click.native="continueSignIn" :disabled="$v.formPassword.$invalid") Entendido
 </template>
 
 <script>
 	import { validationMixin } from 'vuelidate'
-	import { required, maxLength, email } from 'vuelidate/lib/validators'
+	import { required, minLength, email, sameAs } from 'vuelidate/lib/validators'
 	import router from '@/router/'
 	export default {
-		name: 'Auth',
-    mixins: [validationMixin],
-    validations: {
+		mixins: [validationMixin],
+		validations: {
 			email: { required, email },
-			password: { required }
-    },
-    data () {
-      return {
-        email: null,
-				password: null,
-				passwordNew: null,
-        loader: null,
-        loading: false,
-        snackbar: false,
-        timeout: 6000,
-				text: null,
-				dialogNewPassword: false,
-				userStorage: null
-      }
+			password: { required },
+			newPassword: { required, minLength: minLength(8) },
+			passwordConfirm: { required, minLength: minLength(8), sameAs: sameAs('newPassword') },
+			formSignIn: ['email', 'password'],
+			formPassword: ['newPassword', 'passwordConfirm']
 		},
-    watch: {
-      loader () {
+
+		data () {
+			return {
+				email: null,
+				password: null,
+				newPassword: null,
+				passwordConfirm: null,
+				loader: null,
+				loading: false,
+				snackbar: false,
+				timeout: 6000,
+				error: null,
+				dialog: false,
+				user: null,
+			}
+		},
+
+		watch: {
+			loader () {
 				const l = this.loader
-        this[l] = !this[l]
+				this[l] = !this[l]
 				setTimeout(() => (this[l] = false), 3000)
-        this.loader = null
-      }
-    },
-    methods: {
-      signIn () {
+				this.loader = null
+			},
+		},
+
+		methods: {
+			signIn () {
 				this.loader = 'loading'
-        this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-        .then((user) => {
-					const GET_USER = this.$firebase.firestore().doc('users/' + user.uid).get()
-					GET_USER.then((doc) => {
-						let user = doc.data()
-						user.id = doc.id
-						localStorage.setItem('user', JSON.stringify(user))
-						localStorage.setItem('assessment', '/polls/')
-						this.userStorage = JSON.parse(localStorage.getItem('user'))
-						if (user.status == 'Pendiente') this.dialogNewPassword = true
-						else router.push('/dashboard')
-					})
-				})
+				this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+				.then((user) => this.getUser(user))
 				.catch((error) => {
 					console.log(error)
-					this.showSnackbar(error)
+					this.showErrors(error)
 				})
 			},
-			showSnackbar(error) {
+
+			getUser(user) {
+				this.$firebase.firestore().doc('users/' + user.uid).get()
+				.then((doc) => {
+					const USER = doc.data()
+					USER.id = doc.id
+					this.user = USER
+					this.saveStorage()
+				})
+			},
+
+			saveStorage() {
+				localStorage.setItem('user', JSON.stringify(this.user))
+				localStorage.setItem('assessment', '/polls/')
+				this.verifyUser()
+			},
+
+			verifyUser() {
+				this.user.status == 'Pendiente' ? this.dialog = true : router.push('/dashboard')
+			},
+
+			continueSignIn() {
+				this.$firebase.auth().onAuthStateChanged((user) => {
+					user.updatePassword(this.newPassword)
+					this.$firebase.firestore().doc("users/" + user.uid).update({
+						name: this.user.name,
+						email: this.user.email,
+						business: this.user.business,
+						privileges: this.user.privileges,
+						status: 'Activo'
+					})
+					.then(() => router.push('/dashboard'))
+				})
+			},
+
+			showErrors(error) {
 				switch(error.code) {
 					case "auth/user-not-found":
-						this.text = "El usuario no existe"
+						this.error = "El usuario no existe"
 					break
 					case "auth/wrong-password":
-						this.text = "Contraseña incorrecta"
+						this.error = "Contraseña incorrecta"
 					break
 					default:
-						this.text = "Ha ocurrido un error en la autenticación. Intente de nuevo."
+						this.error = "Ha ocurrido un error en la autenticación. Intente de nuevo."
 					break
 				}
 				this.snackbar = true
 			},
+		},
 
-			continueSignIn() {
-				console.log(this.userStorage)
-				this.$firebase.auth().onAuthStateChanged((user) => {
-					user.updatePassword(this.passwordNew)
-					const USER = this.$firebase.firestore().doc("users/" + user.uid)
-					USER.update({
-						name: this.userStorage.name,
-						email: this.userStorage.email,
-						business: this.userStorage.business,
-						status: 'Activo',
-						privileges: this.userStorage.privileges
-					})
-					.then(() => router.push('/dashboard'))
-				})
+		computed: {
+			emailErrors () {
+				const errors = []
+				if (!this.$v.email.$dirty) return errors
+				!this.$v.email.email && errors.push('El email es inválido')
+				!this.$v.email.required && errors.push('El email es obligatorio')
+				return errors
+			},
+
+			passwordErrors () {
+				const errors = []
+				if (!this.$v.password.$dirty) return errors
+				!this.$v.password.required && errors.push('La contraseña es obligatoria')
+				return errors
+			},
+
+			newPasswordErrors () {
+				const errors = []
+				if (!this.$v.newPassword.$dirty) return errors
+				!this.$v.newPassword.required && errors.push('La contraseña es obligatoria')
+				!this.$v.newPassword.minLength && errors.push('La contraseña debe contener ocho caracteres como mínimo')
+				return errors
+			},
+
+			passwordConfirmErrors() {
+				const errors = []
+				if (!this.$v.passwordConfirm.$dirty) return errors
+				!this.$v.passwordConfirm.required && errors.push('Debe confirmar la contraseña')
+				!this.$v.passwordConfirm.sameAs && errors.push('Las contraseñas no coinciden')
+				return errors
 			}
-    },
-    computed: {
-      emailErrors () {
-        const errors = []
-        if (!this.$v.email.$dirty) return errors
-        !this.$v.email.email && errors.push('El email es inválido')
-        !this.$v.email.required && errors.push('El email es obligatorio')
-        return errors
-      },
-      passwordErrors () {
-        const errors = []
-        if (!this.$v.password.$dirty) return errors
-        !this.$v.password.required && errors.push('La contraseña es obligatoria')
-        return errors
-      }
-    }
-  }
+		}
+	}
 </script>
 
 <style lang="sass" scoped>

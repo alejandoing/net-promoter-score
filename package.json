@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "firebase": "^4.8.0",
+    "fs": "0.0.1-security",
     "highcharts": "^6.0.4",
+    "prod": "^1.0.1",
     "vue": "^2.5.3",
     "vue-highcharts": "0.0.10",
     "vue-router": "^3.0.1",
