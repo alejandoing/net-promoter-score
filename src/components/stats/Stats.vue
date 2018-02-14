@@ -9,7 +9,7 @@
 				highcharts(:options="optionsChartGlobal" ref="highcharts")
 			v-flex(xs6)
 				v-card.my-1.mr-1(flat tile)
-					v-card-media(class="white--text primary" height="75px")
+					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
@@ -18,7 +18,7 @@
 						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
 			v-flex(xs6)
 				v-card.my-1.mr-1(flat tile)
-					v-card-media(class="white--text primary" height="75px")
+					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
@@ -26,7 +26,7 @@
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.justification" height="20" color="info")
 			v-tabs(fixed centered)
-				v-tabs-bar(class="primary" dark)
+				v-tabs-bar.primary(dark)
 					v-tabs-slider(class="yellow")
 					v-tabs-item(href="#hour" ripple) Por hora
 					v-tabs-item(href="#day" ripple) Por día
@@ -48,7 +48,7 @@
 			template(v-if="locals")
 				v-flex(xs4 v-for="local in locals" :key="local.title")
 					v-card.my-1.mr-1(flat tile)
-						v-card-media(class="white--text primary" height="100px")
+						v-card-media.white--text.primary(height="100px")
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)

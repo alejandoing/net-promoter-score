@@ -151,7 +151,7 @@
 			},
 
 			createAssessment() {
-				if (this.ticket.description) this.flow.contact = true
+				if (this.description) this.flow.contact = true
 				const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
 				this.loader = 'loading'
 

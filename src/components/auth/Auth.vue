@@ -130,7 +130,7 @@
 
 			continueSignIn() {
 				this.$firebase.auth().onAuthStateChanged((user) => {
-					user.updatePassword(this.newPassword)
+          user.updatePassword(this.newPassword)
 					this.$firebase.firestore().doc("users/" + user.uid).update({
 						name: this.user.name,
 						email: this.user.email,
@@ -138,6 +138,7 @@
 						privileges: this.user.privileges,
 						status: 'Activo'
 					})
+					
 					.then(() => router.push('/dashboard'))
 				})
 			},
