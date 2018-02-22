@@ -28,12 +28,12 @@ El tercer paso del flujo lleva a una pantalla de contacto donde el usuario puede
 
 ## Recursos Adicionales
 
-..* Vuetify
-..* Highcharts
-..* jQuery
-..* Google Fonts
-..* Font Awesome
-..* Sass
+* Vuetify
+* Highcharts
+* jQuery
+* Google Fonts
+* Font Awesome
+* Sass
 
 ## Licencia
 
