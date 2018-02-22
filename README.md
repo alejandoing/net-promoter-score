@@ -25,3 +25,7 @@ Las encuestas son un método de investigación y recopilación de datos utilizad
 En el caso de Net-Promoter-Score las encuestas siguen un flujo personalizado pero que siempre comienza con una pregunta principal con cuatro opciones genéricas; luego, a partir de la opción elegida, la segunda parte del flujo lleva al usuario a la siguiente pantalla donde se visualiza una pregunta que, básicamente, se trata de una justificación personalizada basada en la valoración anterior; en este punto las opciones contienen texto que busca entender a mayor profundidad la opinión de la persona.
 
 El tercer paso del flujo lleva a una pantalla de contacto donde el usuario puede (o no) dejar sus datos para ser contactado por la empresa. La importancia de este paso es crucial para la toma de decisiones posterior a partir de los datos. Si el usuario opta por dejar sus datos también puede agregar un comentario que posteriormente es guardado en el sistema como un **ticket**.
+
+## Licencia
+
+[![npm](https://img.shields.io/npm/l/express.svg)](https://www.npmjs.com/)
