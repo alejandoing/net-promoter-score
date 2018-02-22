@@ -26,6 +26,15 @@ En el caso de Net-Promoter-Score las encuestas siguen un flujo personalizado per
 
 El tercer paso del flujo lleva a una pantalla de contacto donde el usuario puede (o no) dejar sus datos para ser contactado por la empresa. La importancia de este paso es crucial para la toma de decisiones posterior a partir de los datos. Si el usuario opta por dejar sus datos también puede agregar un comentario que posteriormente es guardado en el sistema como un **ticket**.
 
+## Recursos Adicionales
+
+..* Vuetify
+..* Highcharts
+..* jQuery
+..* Google Fonts
+..* Font Awesome
+..* Sass
+
 ## Licencia
 
 [![npm](https://img.shields.io/npm/l/express.svg)](https://www.npmjs.com/)
