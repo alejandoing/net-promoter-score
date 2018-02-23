@@ -13,19 +13,19 @@
 								v-list-tile-avatar.pr-5
 									v-badge(overlay left color="primary" overlap medium)
 										span(slot="badge") {{ poll.assessments.veryGood }}
-										v-icon(large color="light-primary accent-3") mood
+										v-icon(large color="light-primary accent-3") sentiment_very_satisfied
 								v-list-tile-avatar
 									v-badge(overlay left color="primary" overlap)
 										span(slot="badge") {{ poll.assessments.good }}
-										v-icon(large color="light-primary") fa-smile-o
+										v-icon(large color="light-primary") sentiment_satisfied
 								v-list-tile-avatar
 									v-badge(overlay left color="primary" overlap)
 										span(slot="badge") {{ poll.assessments.bad }}
-										v-icon(large color="light-primary") fa-meh-o
+										v-icon(large color="light-primary") sentiment_dissatisfied
 								v-list-tile-avatar
 									v-badge(overlay left color="primary" overlap)
 										span(slot="badge") {{ poll.assessments.veryBad }}
-										v-icon(large color="light-primary") fa-frown-o
+										v-icon(large color="light-primary") sentiment_very_dissatisfied
 								v-list-tile-content
 									v-list-tile-title(v-html="poll.question")
 									v-list-tile-sub-title

@@ -164,22 +164,22 @@
 				},
 				justifications: [{
 					id: 'veryGood',
-					icon: 'mood',
+					icon: 'sentiment_very_satisfied',
 					title: 'Muy Bueno',
 					display: 'block',
 				}, {
 					id: 'good',
-					icon: 'fa-smile-o',
+					icon: 'sentiment_satisfied',
 					title: 'Bueno',
 					display: 'none',
 				}, {
 					id: 'bad',
-					icon: 'fa-meh-o',
+					icon: 'sentiment_dissatisfied',
 					title: 'Malo',
 					display: 'none',
 				}, {
 					id: 'veryBad',
-					icon: 'fa-frown-o',
+					icon: 'sentiment_very_dissatisfied',
 					title: 'Muy Malo',
 					display: 'none',
 				}
