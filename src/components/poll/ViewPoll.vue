@@ -15,10 +15,12 @@
 			v-flex(xs12 md6)
 				v-select(
 					label="Elegir un Local"
-					v-model="local"
+					v-model="localNew"
 					:items="localsSelect"
 					:readonly="employee"
 					required
+					chips
+					multiple
 				)
 			v-flex(xs12 md6)
 				v-select(
@@ -102,7 +104,7 @@
 		mixins: [validationMixin],
 		validations: {
 			question: { required },
-			local: { required },
+			//local: { required },
 			context: { required },
 			background: { required },
 		},
@@ -111,12 +113,14 @@
 				poll: false,
 				question: null,
 				local: null,
+				localNew: [],
 				context: null,
 				permalink: null,
 				locals: [],
 				assessments: null,
 				localsSelect: [],
 				contextsSelect: [],
+				localArray: [],
 				loader: null,
 				loading: false,
 				dialog: false,
@@ -194,9 +198,20 @@
 				if (this.locals.length) {
 					const INDEX = this.locals.findIndex(local => local.title == this.local)
 					const LOCAL = this.locals[INDEX]
-					this.localId = this.locals[INDEX].id
+					//this.localId = this.locals[INDEX].id
 				}
 			},
+			localNew() {
+				let localArray = []
+				try {
+					for(let local of this.localNew) {
+						const INDEX = this.locals.findIndex(localDB => localDB.title == local)
+						localArray.push({id: this.locals[INDEX].id, title: this.locals[INDEX].title})
+					}
+					this.localArray = localArray
+				}
+				catch(e) {}
+			}
 		},
 		async created() {
 			this.$firebase.firestore().doc('users/' + this.userStorage.id)
@@ -219,8 +234,12 @@
 			.onSnapshot(doc => {
 				this.poll = doc.data()
 				this.question = doc.data().question
-				this.local = doc.data().local.title
-				this.localId = doc.data().local.id
+				this.local = doc.data().locals
+				this.localArray = this.local
+				for (let local of this.local) {
+					this.localNew.push(local.title)
+				}
+				//this.localId = doc.data().local.id
 				this.context = doc.data().context
 				this.justificationsValues = doc.data().justifications
 				this.permalink = '/assessment/' + this.$route.params.id
@@ -308,7 +327,7 @@
 				let poll = this.$firebase.firestore().doc("polls/" + this.$route.params.id)
 				poll.update({
 					question: this.question,
-					local: { title: this.local, id: this.localId },
+					locals: this.localArray,
 					context: this.context,
 					justifications: this.justificationsValues,
 					business: this.userStorage.business

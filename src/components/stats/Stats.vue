@@ -1,12 +1,12 @@
 <template lang="pug">
-	v-container
+	v-container.mainContainer(fluid)
 		v-layout(row wrap)
 			v-flex(xs12)
 				div.pb-5
-					span.display-1 Resultados Generales
+					span.display-1 Comparación
 					v-divider
 			v-flex(xs12 v-if="assessments")
-				highcharts(:options="optionsChartGlobal" ref="highcharts")
+				highcharts(:options="optionChartGlobalStacked" ref="highcharts")
 			v-flex(xs6)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
@@ -28,19 +28,27 @@
 			v-tabs(fixed centered)
 				v-tabs-bar.primary(dark)
 					v-tabs-slider(class="yellow")
-					v-tabs-item(href="#hour" ripple) Por hora
-					v-tabs-item(href="#day" ripple) Por día
-					v-tabs-item(href="#month" ripple) Por mes
+					v-tabs-item(href="#hour" ripple) Horario
+					v-tabs-item(href="#week" ripple) Día de la Semana
+					v-tabs-item(href="#day" ripple) Día del Mes
+					v-tabs-item(href="#month" ripple) Mensual
 				v-tabs-items
 					v-tabs-content(id="hour")
 						v-flex.py-5(xs12 v-if="assessments")
-							highcharts(:options="optionsChartGlobalDatesHour" ref="highcharts")
+							highcharts(:options="optionChartGlobalStacked4" ref="highcharts")
+							//highcharts(:options="optionsChartGlobalDatesHour" ref="highcharts")
+					v-tabs-content(id="week")
+						v-flex.py-5(xs12 v-if="assessments")
+							//highcharts(:options="optionsChartGlobalDatesDay" ref="highcharts")
+							highcharts(:options="optionChartGlobalStacked3" ref="highcharts")
 					v-tabs-content(id="day")
 						v-flex.py-5(xs12 v-if="assessments")
-							highcharts(:options="optionsChartGlobalDatesDay" ref="highcharts")
+							//highcharts(:options="optionsChartGlobalDatesMonth" ref="highcharts")
+							highcharts(:options="optionChartGlobalStacked2" ref="highcharts")
 					v-tabs-content(id="month")
 						v-flex.py-5(xs12 v-if="assessments")
-							highcharts(:options="optionsChartGlobalDatesMonth" ref="highcharts")
+							//highcharts(:options="optionsChartGlobalDatesMonth" ref="highcharts")
+							highcharts(:options="optionChartGlobalStacked5" ref="highcharts")
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Resultados por Local
@@ -261,11 +269,15 @@
 	import Highcharts from 'highcharts'
 	import VueHighcharts from 'vue-highcharts'
 	import router from '@/router/'
+	import { GChart } from 'vue-google-charts'
 
 	require('highcharts/modules/exporting')(Highcharts)
 	Vue.use(VueHighcharts, { Highcharts })
 
   export default {
+		components: {
+			GChart
+		},
 		mixins: [validationMixin],
 		validations: {},
     data () {
@@ -296,6 +308,274 @@
 				textDialogPreResults: null,
 				titleDialogPreResults: null,
 				userStorage: JSON.parse(localStorage.getItem('user')),
+				optionChartGlobalStacked: {
+					chart: {
+						type: 'bar',
+					},
+					title: {
+							text: 'Comparación'
+					},
+					xAxis: {
+							categories: ['C.S Montevideo', 'C.S. Pompeya', 'C.S. Liniers']
+					},
+					yAxis: {
+							min: 0,
+							max: 100,
+							title: {
+									text: 'Promedio de Valoraciones'
+							}
+					},
+					legend: {
+						reversed: true
+					},
+					plotOptions: {
+							series: {
+									stacking: 'normal',
+									dataLabels: {
+											enabled: true,
+											color: '#000000',
+											format: '{y}%',
+											style: {
+													fontWeight: 'bold',
+													fontSize: '12px',
+													fillCollor: 'black'
+											}
+									}
+							}
+					},
+					series: [{
+							name: 'Muy Bueno',
+							data: [30, 20, 30]
+					}, {
+							name: 'Bueno',
+							data: [20, 30, 20]
+					}, {
+							name: 'Malo',
+							data: [20, 30, 30]
+					}, {
+							name: 'Muy Malo',
+							data: [30, 20, 20]
+					}],
+					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
+				},
+				optionChartGlobalStacked2: {
+					chart: {
+						type: 'column',
+						height: '600'
+					},
+					title: {
+							text: 'Todas las Unidades Combinandas - Distribución Diaria'
+					},
+					xAxis: {
+							categories: ['01/07', '02/07', '03/07',
+							'04/07', '05/07', '06/07', '07/07', '08/07', '09/07', '10/07', '11/07', '12/07',
+							'13/07', '14/07', '15/07', '16/07', '17/07', '18/07', '19/07', '20/07', '21/07',
+							'22/07', '23/07', '24/07', '25/07', '26/07', '27/07', '28/07', '29/07', '30/07',
+							'31/07']
+					},
+					yAxis: {
+							min: 0,
+							max: 100,
+							title: {
+									text: 'Promedio de Valoraciones'
+							}
+					},
+					legend: {
+							reversed: true
+					},
+					plotOptions: {
+							series: {
+									stacking: 'normal',
+									dataLabels: {
+											enabled: true,
+											color: '#000000',
+											format: '{y}%',
+											rotation: 270,
+											style: {
+													fontWeight: 'bold',
+													fontSize: '10px',
+													fill: 'black'
+											}
+									}
+							}
+					},
+					series: [{
+							name: 'Muy Bueno',
+							data: [30, 20, 30, 10, 20, 30, 20, 40, 40, 20, 40, 20, 40, 40, 20,
+							30, 40, 30, 10, 40, 30, 20, 40, 10, 20, 40, 20, 30, 40, 20, 40]
+					}, {
+							name: 'Bueno',
+							data: [30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30,
+							30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 20]
+					}, {
+							name: 'Malo',
+							data: [30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30,
+							30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 20]
+					}, {
+							name: 'Muy Malo',
+							data: [10, 40, 10, 30, 40, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30,
+							30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 20]
+					}],
+					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
+				},
+				optionChartGlobalStacked3: {
+					chart: {
+						type: 'column',
+						height: '600'
+					},
+					title: {
+							text: 'Todas las Unidades Combinadas - Distribución por Día Laboral'
+					},
+					xAxis: {
+							categories: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
+					},
+					yAxis: {
+							min: 0,
+							max: 100,
+							title: {
+									text: 'Promedio de Valoraciones'
+							}
+					},
+					legend: {
+							reversed: true
+					},
+					plotOptions: {
+							series: {
+									stacking: 'normal',
+									dataLabels: {
+											enabled: true,
+											color: '#000000',
+											format: '{y}%',
+											style: {
+													fontWeight: 'bold',
+													fontSize: '10px',
+													fill: 'black'
+											}
+									}
+							}
+					},
+					series: [{
+							name: 'Muy Bueno',
+							data: [30, 20, 30, 20, 20, 20, 30]
+					}, {
+							name: 'Bueno',
+							data: [20, 20, 30, 20, 20, 20, 30]
+					}, {
+							name: 'Malo',
+							data: [30, 20, 20, 30, 20, 30, 20]
+					}, {
+							name: 'Muy Malo',
+							data: [20, 40, 20, 30, 40, 30, 20]
+					}],
+					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
+				},
+				optionChartGlobalStacked4: {
+					title: {
+							text: 'Todas las Unidades Combinadas - Distribución Horaria'
+					},
+					chart: {
+						type: 'column',
+						height: '600'
+					},
+					xAxis: {
+							categories: ['08', '09', '10', '11', '12',
+							'13', '14', '15', '16', '17', '18', '19', '20', '21',
+							'22']
+					},
+					yAxis: {
+							min: 0,
+							max: 100,
+							title: {
+									text: 'Promedio de Valoraciones'
+							}
+					},
+					legend: {
+							reversed: true
+					},
+					plotOptions: {
+							series: {
+									stacking: 'normal',
+									dataLabels: {
+											enabled: true,
+											color: '#000000',
+											format: '{y}%',
+											rotation: 270,
+											style: {
+													fontWeight: 'bold',
+													fontSize: '10px',
+													fill: 'black'
+											}
+									}
+							}
+					},
+					series: [{
+							name: 'Muy Bueno',
+							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20, 30, 10, 10]
+					}, {
+							name: 'Bueno',
+							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20, 30, 10, 10]
+					}, {
+							name: 'Malo',
+							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20, 30, 10, 10]
+					}, {
+							name: 'Muy Malo',
+							data: [10, 40, 10, 70, 40, 10, 40, 10, 70, 40, 10, 40, 10, 70, 70]
+					}],
+					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
+				},
+				optionChartGlobalStacked5: {
+					title: {
+							text: 'Todas las Unidades Combinadas - Distribución Mensual'
+					},
+					chart: {
+						type: 'column',
+						height: '600'
+					},
+					xAxis: {
+							categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May',
+							'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec']
+					},
+					yAxis: {
+							min: 0,
+							max: 100,
+							title: {
+									text: 'Promedio de Valoraciones'
+							}
+					},
+					legend: {
+							reversed: true
+					},
+					plotOptions: {
+							series: {
+									stacking: 'normal',
+									dataLabels: {
+											enabled: true,
+											color: '#000000',
+											format: '{y}%',
+											rotation: 270,
+											style: {
+													fontWeight: 'bold',
+													fontSize: '10px',
+													fill: 'black'
+											}
+									}
+							}
+					},
+					series: [{
+							name: 'Muy Bueno',
+							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20]
+					}, {
+							name: 'Bueno',
+							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20]
+					}, {
+							name: 'Malo',
+							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20]
+					}, {
+							name: 'Muy Malo',
+							data: [10, 40, 10, 70, 40, 10, 40, 10, 70, 40, 10, 40]
+					}],
+					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
+				},
 				optionsChartGlobal: {
 					chart: {
 						plotBackgroundColor: null,
@@ -702,6 +982,9 @@
 			})
 		},
 		methods: {
+			onChartReady (chart, google) {
+				this.chartsLib = google
+			},
 			searchStats() {
 				let timeSince = '00:00'
 				let timeUntil = '23:59'
@@ -1205,6 +1488,8 @@
 </script>
 
 <style lang="sass" scoped>
+	.mainContainer
+		padding: 50px
 	.message
 		font-size: 20px
 	a
@@ -1241,4 +1526,3 @@
 		to
 			transform: rotate(360deg)
 </style>
-

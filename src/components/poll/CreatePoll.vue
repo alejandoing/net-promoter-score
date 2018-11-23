@@ -16,6 +16,7 @@
 					label="Elegir un Local"
 					v-model="local"
 					:items="localsSelect"
+					multiple
 					required
 				)
 			v-flex(xs12 md6)
@@ -28,9 +29,9 @@
 			v-flex(xs12 md6).mb-5
 				v-text-field#background.hidden(type="file" @change.native="writeFile($event)")
 				v-btn#uploadFile(block color="primary" @click="uploadClick") Elegir background
-		v-layout(row wrap)
+		v-layout.pb-5(row wrap)
 			v-flex(xs12)
-				span.display-1.my-5 Justificación
+				span.display-1.my-5 Servicios a Medir
 				v-divider
 			v-flex(xs12)
 				v-tabs(fixed icons centered)
@@ -56,9 +57,57 @@
 												v-model.trim="justificationsValues[justification.id].options[index]"
 												:required="index <= 1"
 										)
-		div(style="position: relative; bottom: 75px")
+										v-layout.pa-2(row child-flex justify-center align-center wrap)
+											v-flex(fill-height)
+												v-btn(
+													outline
+													:disabled=`!justificationsValues.veryGood.options[0] || !justificationsValues.veryGood.options[1]`
+													@click.native="duplicateOptions(0)" 
+													color="primary"
+													) 
+													| Replicar Opciones
+
+		v-layout.pb-5(row wrap)
+			v-flex(xs12)
+				span.display-1.my-5 Motivos
+				v-divider
+			v-flex(xs12)
+				v-tabs(fixed icons centered)
+					v-tabs-bar(dark color="primary")
+						v-tabs-slider(color="yellow")
+						v-tabs-item(v-for="justification in justifications" :key="justification.id" :href="'#' + justification.id")
+							v-icon(large) {{ justification.icon }}
+							| {{ justification.title }}
+					v-tabs-items
+						v-tabs-content(v-for="justification in justifications" :key="justification.id" :id="justification.id")
+							v-card(flat)
+								v-card-text
+									v-flex(xs12)
+										v-text-field(
+											:label="'Pregunta principal: ' + justification.title"
+											v-model.trim="justificationsTwoValues[justification.id].question"
+											:id="justificationsTwoValues[justification.id].question"
+											required
+										)
+										div(v-for="(option, index) in 4")
+											v-text-field(
+												:label="'Opción ' + (index + 1)"
+												v-model.trim="justificationsTwoValues[justification.id].options[index]"
+												:required="index <= 1"
+										)
+										v-layout.pa-2(row child-flex justify-center align-center wrap)
+											v-flex(fill-height)
+												v-btn(
+													outline
+													:disabled=`!justificationsTwoValues.veryGood.options[0] || !justificationsTwoValues.veryGood.options[1]`
+													@click.native="duplicateOptions(1)" 
+													color="primary"
+													) 
+													| Replicar Opciones
+
+		div(style="position: relative; bottom: 25px")
 			v-layout.pa-5(row child-flex justify-center align-center wrap)
-				v-flex#prueba(fill-height xs12 offset-xs5)
+				v-flex(fill-height xs12 offset-xs5)
 					v-btn#submit(
 						large 
 						outline 
@@ -69,7 +118,13 @@
 							!justificationsValues.veryGood.options[0] || !justificationsValues.veryGood.options[1] || 
 							!justificationsValues.good.options[0] || !justificationsValues.good.options[1] || 
 							!justificationsValues.bad.options[0] || !justificationsValues.bad.options[1] || 
-							!justificationsValues.veryBad.options[0] || !justificationsValues.veryBad.options[1]`
+							!justificationsValues.veryBad.options[0] || !justificationsValues.veryBad.options[1] ||
+							!justificationsTwoValues.veryGood.question || !justificationsTwoValues.good.question || 
+							!justificationsTwoValues.bad.question || !justificationsTwoValues.veryBad.question || 
+							!justificationsTwoValues.veryGood.options[0] || !justificationsTwoValues.veryGood.options[1] || 
+							!justificationsTwoValues.good.options[0] || !justificationsTwoValues.good.options[1] || 
+							!justificationsTwoValues.bad.options[0] || !justificationsTwoValues.bad.options[1] || 
+							!justificationsTwoValues.veryBad.options[0] || !justificationsTwoValues.veryBad.options[1]`
 						@click.native="createPoll" 
 						color="primary"
 						) 
@@ -132,6 +187,7 @@
 				loader: null,
 				loading: false,
 				justificationsValidation: false,
+				justificationsTwoValidation: false,
 				selectedFile: false,
 				text: 'Encuesta creada satisfactoriamente',
 				dialog: false,
@@ -140,10 +196,16 @@
 				poll: null,
 				userStorage: JSON.parse(localStorage.getItem('user')),
 				justificationsValues: {
-					veryGood: { question: null, options: [ null, null ] },
-					good: { question: null, options: [ null, null ] },
-					bad: { question: null, options: [ null, null ] },
-					veryBad: { question: null, options: [ null, null ] },
+					veryGood: { question: 'Nos alegra saberlo, ¿qué servicio utilizaste?', options: [ null, null ] },
+					good: { question: 'Nos alegra saberlo, ¿qué servicio utilizaste?', options: [ null, null ] },
+					bad: { question: 'Nos entristece saberlo, ¿qué servicio utilizaste?', options: [ null, null ] },
+					veryBad: { question: 'Nos entristece saberlo, ¿qué servicio utilizaste?', options: [ null, null ] },
+				},
+				justificationsTwoValues: {
+					veryGood: { question: '¿Qué fue lo que más te gustó?', options: [ null, null ] },
+					good: { question: '¿Qué fue lo que más te gustó?', options: [ null, null ] },
+					bad: { question: '¿Qué fue lo que no te gustó?', options: [ null, null ] },
+					veryBad: { question: '¿Qué fue lo que no te gustó?', options: [ null, null ] },
 				},
 				justifications: [{
 					id: 'veryGood',
@@ -202,7 +264,6 @@
 				if (!justificationsValues.bad.question) return false
 				if (!justificationsValues.veryBad.question) return false
 				this.justificationsValidation = true
-				console.log(this.justificationsValidation)
 			}
 		},
 		methods: {
@@ -232,10 +293,24 @@
 					local: { title: this.local, id: this.localId },
 					context: this.context,
 					justifications: this.justificationsValues,
+					justificationsTwo: this.justificationsTwoValues,
 					business: this.userStorage.business
 				})
 				.then((poll) => { this.uploadFile(poll.id) })
 				.catch((error) => { console.log(error) })
+			},
+
+			duplicateOptions(flow) {
+				if (!flow) {
+					this.justificationsValues.good.options = this.justificationsValues.veryGood.options
+					this.justificationsValues.bad.options = this.justificationsValues.veryGood.options
+					this.justificationsValues.veryBad.options = this.justificationsValues.veryGood.options
+				}
+				else if (flow == 1) {
+					this.justificationsTwoValues.good.options = this.justificationsTwoValues.veryGood.options
+					this.justificationsTwoValues.bad.options = this.justificationsTwoValues.veryGood.options
+					this.justificationsTwoValues.veryBad.options = this.justificationsTwoValues.veryGood.options					
+				}
 			},
 
 			uploadFile(id) {

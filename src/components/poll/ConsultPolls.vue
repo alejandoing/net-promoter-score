@@ -29,7 +29,7 @@
 								v-list-tile-content
 									v-list-tile-title(v-html="poll.question")
 									v-list-tile-sub-title
-										span.grey--text.text--darken-2 {{ poll.local.title }} - {{ poll.context }}
+										//span.grey--text.text--darken-2 {{ poll.local.title }} - {{ poll.context }}
 							v-divider
 			v-flex(xs12 sm12 v-else) 
 				span.message ¡Aún no se han registrado encuestas para esta organización!

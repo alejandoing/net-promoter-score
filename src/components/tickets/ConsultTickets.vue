@@ -207,7 +207,7 @@
 			}
 		},
 		created() {
-			let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business)
+			let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
 			tickets.onSnapshot(querySnapshot => {
 				this.tickets = []
 				querySnapshot.forEach(doc => {
@@ -277,7 +277,7 @@
 			},
 
 			searchTickets() {
-				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business)
+				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
 				if (this.read != this.unread) tickets = tickets.where('leido', '==', this.read)
 				if (this.local) tickets = tickets.where('local.id', '==', this.localID)
 
@@ -363,7 +363,7 @@
 				this.timeSince = null
 				this.timeUntil = null
 
-				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business)
+				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
 				tickets.onSnapshot(querySnapshot => {
 					this.tickets = []
 					querySnapshot.forEach(doc => {

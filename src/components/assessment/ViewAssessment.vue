@@ -4,9 +4,11 @@
 			v-stepper-header
 				v-stepper-step(step="1" :complete="step > 1") Encuesta de Satisficación
 				v-divider
-				v-stepper-step(step="2" :complete="step > 2") Justifique su Respuesta
+				v-stepper-step(step="2" :complete="step > 2") Servicio Utilizado
 				v-divider
-				v-stepper-step(step="3") Te contactamos
+				v-stepper-step(step="3" :complete="step > 3") Indicá el Motivo
+				v-divider
+				v-stepper-step(step="4") Te contactamos
 			v-stepper-items
 				v-stepper-content(step="1")
 					p.question.pb-5 {{ poll.question }}
@@ -18,8 +20,14 @@
 					v-card.card(class="mb-5" style="padding-top: 5px")
 						div.options
 							v-btn(v-for="option in justificationLoad.options" :key="option" @click="getJustification(option)" color="info" v-html="option")
-					v-btn(color="primary" @click.native="step--") Volver
+					v-btn.back-button(color="primary" @click.native="step--") Volver
 				v-stepper-content(step="3")
+					p.question.pb-5(v-html="justificationTwoLoad.question")
+					v-card.card(class="mb-5" style="padding-top: 5px")
+						div.options
+							v-btn(v-for="option in justificationTwoLoad.options" :key="option" @click="getJustificationTwo(option)" color="info" v-html="option")
+					v-btn.back-button(color="primary" @click.native="step--") Volver
+				v-stepper-content(step="4")
 					p.question Podés dejarnos tu contacto
 					v-card.contact
 						v-container
@@ -78,6 +86,10 @@
 					question: null,
 					options: [],
 				},
+				justificationTwoLoad: {
+					question: null,
+					options: [],
+				},
 				backgroundImage: null,
 				step: 1,
 				faces: {
@@ -88,11 +100,14 @@
 				},
 				assessment: null,
 				justification: null,
+				justificationTwo: null,
 				email: null,
 				telephone: null,
 				description: null,
+				complain: 0,
 				flow: {
 					justification: false,
+					justificationTwo: false,
 					contact: false
 				},
 				dialog: false
@@ -105,8 +120,8 @@
 			},
 			step() {
 				const STEPPER = document.getElementById("stepper")
-			
 				STEPPER.style.height = '400px'
+				
 				if (this.step == 1) {
 					clearInterval(this.timer)
 					this.timer = null
@@ -114,12 +129,12 @@
 				}
 				else {
 					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
-					if (this.step == 3) STEPPER.style.height = '80%'
+					if (this.step == 4) STEPPER.style.height = '85%'
 				}
 			},
-			email() { this.i = 0 },
-			telephone() { this.i = 0 },
-			description() { this.i = 0 }
+			email() { this.i = -30 },
+			telephone() { this.i = -30 },
+			description() { this.i = -30 }
 		},
 
 		destroyed() {
@@ -128,9 +143,9 @@
 
 		methods: {
 			async waiting(i) {
-				console.log(this.i)
+				//console.log(this.i)
 				i++
-				if (i == 20) {
+				if (i == 10000) {
 					clearInterval(this.timer)
 					await this.createAssessment()
 					this.i = 0
@@ -138,16 +153,24 @@
 				}
 				this.i = i
 			},
+			
 			getAssessment(option) {
 				this.step = 2
 				this.assessment = option
 				this.justificationLoad = this.poll.justifications[option]
+				this.justificationTwoLoad = this.poll.justificationsTwo[option]
 			},
 
 			getJustification(option) {
 				this.step = 3
 				this.justification = option
 				this.flow.justification = true
+			},
+
+			getJustificationTwo(option) {
+				this.step = 4
+				this.justificationTwo = option
+				this.flow.justificationTwo = true
 			},
 
 			createAssessment() {
@@ -160,9 +183,10 @@
 					date: new Date(),
 					flow: this.flow,
 					justification: this.justification,
+					justificationTwo: this.justificationTwo,
 					poll: this.$route.params.id,
 					business: this.userStorage.business,
-					local: this.poll.local
+					local: this.poll.locals
 				})
 				.then(() => {
 					if (this.flow.contact) this.createTicket()
@@ -176,12 +200,15 @@
 			},
 
 			createTicket() {
+				if (this.assessment == "bad" || this.assessment == "veryBad") this.complain = 1
 				const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')
 				TICKETS_COLLECTION.add({
 					date: new Date(),
 					description: this.description,
 					email: this.email,
 					telephone: this.telephone,
+					complain: this.complain,
+					status: 0,
 					leido: false,
 					business: this.userStorage.business,
 					local: this.poll.local,
@@ -195,7 +222,8 @@
 						let resetTicket = {
 							email: null,
 							telephone: null,
-							description: null
+							description: null,
+							complain: 0
 						}
 						this.ticket = resetTicket
 				})
@@ -205,6 +233,10 @@
 			finalize() {
 				this.dialog = false,
 				this.step = 1
+				this.email = null
+				this.telephone = null
+				this.description = null
+				this.complain = 0
 			}
 		},
 
@@ -264,15 +296,17 @@
 			left: 0
 			right: 0
 			height: 400px
+			opacity: 0.8
 			margin: auto
 			.question
 				display: block
-				font-size: 48px
+				font-size: 36px
 				text-align: center
 			.card
 				display: flex
 				justify-content: center
 				align-items: center
+				opacity: 0.8
 				.contact
 					input
 						padding-left: 20px
@@ -281,7 +315,8 @@
 					img
 						padding-left: 30px
 					button
-						width: 300px !important
+						font-size: 12px
+						width: 200px !important
 						height: 50px
 	@media (max-width: 750px)
 		.stepper
@@ -305,7 +340,13 @@
 			margin: 0 0 20px 0
 	@media (min-height: 893px)
 		.stepper
-			height: 80%
+			height: 90%
+		.back-button
+			color: red
+	@media (max-width: 1264px)
+		.card
+			display: grid
+			
 </style>
 
 <style lang="sass">
