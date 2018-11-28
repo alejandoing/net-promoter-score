@@ -1,30 +1,61 @@
 <template lang="pug">
-	v-container.mainContainer(fluid)
+	v-container.mainContainer(fluid v-if="assessments")
 		v-layout(row wrap)
 			v-flex(xs12)
 				div.pb-5
-					span.display-1 Comparación
+					span.display-1 Resultados Generales
 					v-divider
-			v-flex(xs12 v-if="assessments")
-				highcharts(:options="optionChartGlobalStacked" ref="highcharts")
-			v-flex(xs6)
+			v-flex(xs9 offset-xs2)
+				Face.pb-5(:data="assessments.stats")
+			v-flex.pt-3.pb-5(xs12)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.display-1.headline Satisfacción de Cliente {{ indicatorsGlobal.satisfaction }} %
+									span.display-1.headline Satisfacción de Cliente: {{ indicatorsGlobal.satisfaction }}%
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
-			v-flex(xs6)
+			v-flex(xs3)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.display-1.headline Intención de Justificación {{ indicatorsGlobal.justification }} %
+									span.display-1.headline Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
 					v-card-title
-						v-progress-linear(:value="indicatorsGlobal.justification" height="20" color="info")
+						v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
+			v-flex(xs3)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text.primary(height="75px")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.display-1.headline Comentarios: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
+					v-card-title
+						v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
+			v-flex(xs3)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text.primary(height="75px")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.display-1.headline Just. Servicio: {{ indicatorsGlobal.service[1] }}% - {{ indicatorsGlobal.service[0] }} total
+					v-card-title
+						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
+			v-flex(xs3)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text.primary(height="75px")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.display-1.headline Just. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
+					v-card-title
+						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
+			v-flex.pt-5(xs6 v-if="assessments")
+				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
+			v-flex.pt-5(xs6 v-if="assessments")
+				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="topLocals")
 			v-tabs(fixed centered)
 				v-tabs-bar.primary(dark)
 					v-tabs-slider(class="yellow")
@@ -36,18 +67,14 @@
 					v-tabs-content(id="hour")
 						v-flex.py-5(xs12 v-if="assessments")
 							highcharts(:options="optionChartGlobalStacked4" ref="highcharts")
-							//highcharts(:options="optionsChartGlobalDatesHour" ref="highcharts")
 					v-tabs-content(id="week")
 						v-flex.py-5(xs12 v-if="assessments")
-							//highcharts(:options="optionsChartGlobalDatesDay" ref="highcharts")
 							highcharts(:options="optionChartGlobalStacked3" ref="highcharts")
 					v-tabs-content(id="day")
 						v-flex.py-5(xs12 v-if="assessments")
-							//highcharts(:options="optionsChartGlobalDatesMonth" ref="highcharts")
-							highcharts(:options="optionChartGlobalStacked2" ref="highcharts")
+							//Chart(type="barStacked" title="Comparation")
 					v-tabs-content(id="month")
 						v-flex.py-5(xs12 v-if="assessments")
-							//highcharts(:options="optionsChartGlobalDatesMonth" ref="highcharts")
 							highcharts(:options="optionChartGlobalStacked5" ref="highcharts")
 			v-flex(xs12)
 				div.pb-5
@@ -269,19 +296,22 @@
 	import Highcharts from 'highcharts'
 	import VueHighcharts from 'vue-highcharts'
 	import router from '@/router/'
-	import { GChart } from 'vue-google-charts'
+	import Chart from './Chart.vue'
+	import Face from './Face.vue'
 
 	require('highcharts/modules/exporting')(Highcharts)
-	Vue.use(VueHighcharts, { Highcharts })
 
   export default {
 		components: {
-			GChart
+			Chart,
+			Face
 		},
 		mixins: [validationMixin],
 		validations: {},
     data () {
       return {
+				topLocals: JSON.parse(localStorage.getItem('topLocals')),
+				badLocals: [],
 				menuDateSince: false,
 				menuDateUntil: false,
 				dateSince: null,
@@ -300,7 +330,7 @@
 				locals: false,
 				currentLocal: { title: null },
 				assessments: [],
-				indicatorsGlobal: { satisfaction: null, justification: null },
+				indicatorsGlobal: { satisfaction: null, complain: [], comment: [], service: [], reason: [] },
 				indicatorsLocal: [],
 				dialog: false,
 				dialogPreResults: false,
@@ -332,6 +362,7 @@
 							series: {
 									stacking: 'normal',
 									dataLabels: {
+											useHTML: true,
 											enabled: true,
 											color: '#000000',
 											format: '{y}%',
@@ -387,6 +418,7 @@
 							series: {
 									stacking: 'normal',
 									dataLabels: {
+											useHTML: true,
 											enabled: true,
 											color: '#000000',
 											format: '{y}%',
@@ -443,12 +475,13 @@
 							series: {
 									stacking: 'normal',
 									dataLabels: {
+											useHTML: true,
 											enabled: true,
 											color: '#000000',
 											format: '{y}%',
 											style: {
 													fontWeight: 'bold',
-													fontSize: '10px',
+													fontSize: '12px',
 													fill: 'black'
 											}
 									}
@@ -493,20 +526,21 @@
 							reversed: true
 					},
 					plotOptions: {
-							series: {
-									stacking: 'normal',
-									dataLabels: {
-											enabled: true,
-											color: '#000000',
-											format: '{y}%',
-											rotation: 270,
-											style: {
-													fontWeight: 'bold',
-													fontSize: '10px',
-													fill: 'black'
-											}
-									}
+						series: {
+							stacking: 'normal',
+							dataLabels: {
+								useHTML: true,
+								enabled: true,
+								color: '#000000',
+								format: '{y}%',
+								rotation: 270,
+								style: {
+									fontWeight: 'bold',
+									fontSize: '12px',
+									fill: 'black'
+								}
 							}
+						}
 					},
 					series: [{
 							name: 'Muy Bueno',
@@ -549,13 +583,14 @@
 							series: {
 									stacking: 'normal',
 									dataLabels: {
+											useHTML: true,
 											enabled: true,
 											color: '#000000',
 											format: '{y}%',
 											rotation: 270,
 											style: {
 													fontWeight: 'bold',
-													fontSize: '10px',
+													fontSize: '12px',
 													fill: 'black'
 											}
 									}
@@ -953,7 +988,8 @@
 				this[l] = !this[l]
 			},
 		},
-		async created() {
+		
+		created() {
 			this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
 			.onSnapshot(querySnapshot => { 
 				this.assessments = []
@@ -963,28 +999,24 @@
 				this.getChartGlobalDatesDay()
 				this.getChartGlobalDatesMonth()
 				this.getIndicatorsGlobal()
-			})
-
-			this.$firebase.firestore().collection('locals').where('business', '==', this.userStorage.business)
-			.onSnapshot(querySnapshot => {
-				this.locals = []
-				querySnapshot.forEach(doc => {
-					let local = doc.data()
-					local.id = doc.id
-					local.assessments = { total: 0, veryGood: 0, good: 0, bad: 0, veryBad: 0 }
-					local.indicators = { satisfaction: null, justification: null }
-					this.locals.unshift(local)
+				this.$firebase.firestore().collection('locals').where('business', '==', this.userStorage.business)
+				.onSnapshot(querySnapshot => {
+					this.locals = []
+					querySnapshot.forEach(doc => {
+						let local = doc.data()
+						local.id = doc.id
+						local.assessments = { total: 0, veryGood: 0, good: 0, bad: 0, veryBad: 0, percentages: [] }
+						local.indicators = { satisfaction: null, justification: null }
+						this.locals.unshift(local)
+					})
+					if (!this.locals.length) this.locals = false
+					this.getChartLocal()
+					this.getChartLocalDatesHour()
+					this.getIndicatorsLocal()
 				})
-				if (!this.locals.length) this.locals = false
-				this.getChartLocal()
-				this.getChartLocalDatesHour()
-				this.getIndicatorsLocal()
 			})
 		},
 		methods: {
-			onChartReady (chart, google) {
-				this.chartsLib = google
-			},
 			searchStats() {
 				let timeSince = '00:00'
 				let timeUntil = '23:59'
@@ -1101,9 +1133,15 @@
 				var d = new Date(date)
 				return d.getMonth()
 			},
+
+			getPercentage(part, universe) {
+				return parseFloat(((part * 100) / universe).toFixed(2))
+			},
 			
 			getChartGlobal() {
+				const total = this.assessments.length
 				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
+				
 				for (let assesment of this.assessments) {
 					switch(assesment.face) {
 						case 'veryGood':
@@ -1125,7 +1163,15 @@
 				this.optionsChartGlobal.series[0].data[1].y = numGood
 				this.optionsChartGlobal.series[0].data[2].y = numBad
 				this.optionsChartGlobal.series[0].data[3].y = numVeryBad
-				this.assessments.stats = { veryGood: numVeryGood, good: numGood, bad: numBad, veryBad: numVeryBad }
+
+				this.assessments.stats = {
+					veryGood: [numVeryGood, this.getPercentage(numVeryGood, total)],
+					good: [numGood, this.getPercentage(numGood, total)],
+					bad: [numBad, this.getPercentage(numBad, total)],
+					veryBad: [numVeryBad, this.getPercentage(numVeryBad, total)]
+				}
+
+				//console.log(this.assessments.stats)
 			},
 
 			getChartCustom() {
@@ -1156,19 +1202,33 @@
 
 			getIndicatorsGlobal() {
 				let total = this.assessments.length
-				let justification = 0
-				let partialsGood = (this.assessments.stats.veryGood * 2) + this.assessments.stats.good
-				let partialsBad =  (this.assessments.stats.veryBad * 2) + this.assessments.stats.bad
-				let partials = partialsGood + partialsBad
+				let complains = 0, comments = 0, services = 0, reasons = 0
 
 				for (let assessment of this.assessments) {
-					if (assessment.flow.justification) justification++
+					assessment.complain ? complains++ : complains
+					assessment.comment ? comments++ : comments
+					assessment.flow.justification ? services++ : services
+					assessment.flow.justificationTwo ? reasons++ : reasons
 				}
 
-				this.indicatorsGlobal.satisfaction = ((partialsGood * 100) / partials).toFixed(2)
+				let partialsGood = ((this.assessments.stats.veryGood[0] * 2) + this.assessments.stats.good[0]) + (comments * 3)
+				let partialsBad =  ((this.assessments.stats.veryBad[0] * 2) + this.assessments.stats.bad[0]) + (complains * 3)
+				let partials = partialsGood + partialsBad
+
+				this.indicatorsGlobal.satisfaction = this.getPercentage(partialsGood, partials)
 				if (isNaN(this.indicatorsGlobal.satisfaction)) this.indicatorsGlobal.satisfaction = 0.00
-				this.indicatorsGlobal.justification = ((justification * 100) / total).toFixed(2)
-				if (isNaN(this.indicatorsGlobal.justification)) this.indicatorsGlobal.justification = 0.00
+				
+				this.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
+				if (isNaN(this.indicatorsGlobal.complain[0])) this.indicatorsGlobal.complain[0] = 0.00
+				
+				this.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
+				if (isNaN(this.indicatorsGlobal.comment[0])) this.indicatorsGlobal.comment[0] = 0.00
+
+				this.indicatorsGlobal.service = [services, this.getPercentage(services, total)]
+				if (isNaN(this.indicatorsGlobal.service[0])) this.indicatorsGlobal.service[0] = 0.00
+
+				this.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, total)]
+				if (isNaN(this.indicatorsGlobal.reason[0])) this.indicatorsGlobal.reason[0] = 0.00
 			},
 
 			getIndicatorsLocal() {
@@ -1365,14 +1425,30 @@
 			},
 
 			getChartLocal() {
-				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
+				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
+				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0, activeLocals = []
+				
 				for (let local of this.locals) {
 					for (let assessment of this.assessments) {
-						if(assessment.local.id == local.id) {
+						if(assessment.local.id == local.id || assessment.local == local.id) {
 							local.assessments.total++
 							local.assessments[assessment.face]++
 						}
 					}
+
+					if (local.assessments.total)
+						activeLocals.push({
+							title: local.title,
+							veryGood: parseFloat(((local.assessments["veryGood"] * 100) / local.assessments.total).toFixed(2)),
+							good: parseFloat(((local.assessments["good"] * 100) / local.assessments.total).toFixed(2)),
+							bad: parseFloat(((local.assessments["bad"] * 100) / local.assessments.total).toFixed(2)),
+							veryBad: parseFloat(((local.assessments["veryBad"] * 100) / local.assessments.total).toFixed(2)),
+							total: local.assessments.total
+						})
+
+					this.topLocals = activeLocals.sort(sortByProperty('veryGood')).slice(0,5)
+					localStorage.setItem('topLocals', JSON.stringify(this.topLocals))
+					this.badLocals = activeLocals.sort(sortByProperty('veryBad'))
 				}
 			},
 

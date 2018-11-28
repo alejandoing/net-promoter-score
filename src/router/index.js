@@ -73,6 +73,6 @@ export default new Router({
     },
     { path: '/auth', name: 'Auth', component: Auth },
     { path: '*', redirect: '/dashboard' },
-    { path: '/assessment/:id', component: ViewAssessment }
+    { path: '/assessment/:id/local/:localId', component: ViewAssessment }
   ]
 })

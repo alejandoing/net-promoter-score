@@ -45,9 +45,6 @@ import App from './App'
 import router from './router'
 import store from './store/store'
 import Firebase from './plugins/Firebase.js'
-import VueGoogleCharts from 'vue-google-charts'
-
-Vue.use(VueGoogleCharts)
 Vue.use(Firebase)
 
 Vue.use(Vuetify, {

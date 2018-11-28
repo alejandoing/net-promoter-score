@@ -41,8 +41,7 @@
 					readonly
 				)
 			v-flex(xs12 md4).mb-5
-				router-link(:to="permalink")
-					v-btn(block color="primary") Ir a encuesta
+				v-btn(block color="primary" @click="selectLocal") Ir a encuesta
 			v-flex(xs12)
 				img(height="500" width="100%" :src="background")
 		v-layout(row wrap)
@@ -95,6 +94,22 @@
 						v-btn(color="green darken-1" flat @click.native="dialog = false") Permanecer aquí
 					router-link(:to="'/dashboard'")
 						v-btn(color="green darken-1" flat @click.native="dialog = false") Ir al Dashboard
+		v-dialog(v-model="dialogSelectLocal" persistent max-width="500")
+			v-card
+				v-card-title(class="headline") Seleccioná un local
+				v-card-text
+					v-flex(xs12)
+						v-select(
+							label="Elegir un Local"
+							v-model="localAssessment"
+							:items="localNew"
+							:readonly="employee"
+							required
+						)
+				v-card-actions
+					v-spacer
+						v-btn(color="green darken-1" flat @click.native="toAssessment") Ir a Encuesta
+						v-btn(color="green darken-1" flat @click.native="dialogSelectLocal = false") Cancelar
 </template>
 
 <script>
@@ -111,6 +126,7 @@
 		data() {
 			return {
 				poll: false,
+				localAssessment: null,
 				question: null,
 				local: null,
 				localNew: [],
@@ -124,6 +140,7 @@
 				loader: null,
 				loading: false,
 				dialog: false,
+				dialogSelectLocal: false,
 				background: null,
 				file: null,
 				localId: null,
@@ -295,6 +312,17 @@
 				document.getElementById('background').click()
 			},
 
+			toAssessment() {
+				for (let local of this.locals) {
+					if (local.title == this.localAssessment) {
+						this.dialogSelectLocal = false
+						this.$router.push(this.permalink + '/local/' + local.id)
+						break
+					}
+				}
+				//this.$router.go(this.permalink)
+			},
+
 			writeFile(event) {
 				const BACKGROUND = document.getElementById('background')
 				const UPLOAD_FILE = document.getElementById('uploadFile')
@@ -340,6 +368,9 @@
 						this.dialog = true
 					}
 				})
+			},
+			selectLocal() {
+				this.dialogSelectLocal = true
 			}
 		}
 	}

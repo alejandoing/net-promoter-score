@@ -105,6 +105,7 @@
 				telephone: null,
 				description: null,
 				complain: 0,
+				comment: 0,
 				flow: {
 					justification: false,
 					justificationTwo: false,
@@ -132,9 +133,9 @@
 					if (this.step == 4) STEPPER.style.height = '85%'
 				}
 			},
-			email() { this.i = -30 },
-			telephone() { this.i = -30 },
-			description() { this.i = -30 }
+			email() { this.i = 0 },
+			telephone() { this.i = 0 },
+			description() { this.i = 0 }
 		},
 
 		destroyed() {
@@ -143,9 +144,9 @@
 
 		methods: {
 			async waiting(i) {
-				//console.log(this.i)
+				console.log(this.i)
 				i++
-				if (i == 10000) {
+				if (i == 10) {
 					clearInterval(this.timer)
 					await this.createAssessment()
 					this.i = 0
@@ -174,7 +175,11 @@
 			},
 
 			createAssessment() {
-				if (this.description) this.flow.contact = true
+				if (this.description) { 
+					this.flow.contact = true
+					if (this.assessment == "bad" || this.assessment == "veryBad") this.complain = 1
+					if (this.assessment == "veryGood" || this.assessment == "good") this.comment = 1
+				}
 				const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
 				this.loader = 'loading'
 
@@ -186,7 +191,9 @@
 					justificationTwo: this.justificationTwo,
 					poll: this.$route.params.id,
 					business: this.userStorage.business,
-					local: this.poll.locals
+					local: this.$route.params.localId,
+					complain: this.complain,
+					comment: this.comment
 				})
 				.then(() => {
 					if (this.flow.contact) this.createTicket()
@@ -200,7 +207,6 @@
 			},
 
 			createTicket() {
-				if (this.assessment == "bad" || this.assessment == "veryBad") this.complain = 1
 				const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')
 				TICKETS_COLLECTION.add({
 					date: new Date(),
@@ -208,10 +214,11 @@
 					email: this.email,
 					telephone: this.telephone,
 					complain: this.complain,
+					comment: this.comment,
 					status: 0,
 					leido: false,
 					business: this.userStorage.business,
-					local: this.poll.local,
+					local: this.$route.params.localId,
 					poll: this.$route.params.id
 				})
 				.then(() => {
@@ -237,11 +244,14 @@
 				this.telephone = null
 				this.description = null
 				this.complain = 0
+				this.comment = 0
+				this.flow = { contact: false, justification: false, justificationTwo: false }
+				this.i = 0
 			}
 		},
 
 		async created() {
-			localStorage.setItem('assessment', 'assessment/' + this.$route.params.id)
+			localStorage.setItem('assessment', 'assessment/' + this.$route.params.id + '/local/' + this.$route.params.localId)
 			let poll = this.$firebase.firestore().doc('polls/' + this.$route.params.id)
 			poll.onSnapshot(doc => this.poll = doc.data())
 
