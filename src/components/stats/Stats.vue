@@ -22,7 +22,7 @@
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.display-1.headline Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
+									span.indicatorsTwoTitle Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
 			v-flex(xs3)
@@ -31,7 +31,7 @@
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.display-1.headline Comentarios: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
+									span.indicatorsTwoTitle Comentarios: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
 			v-flex(xs3)
@@ -40,7 +40,7 @@
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.display-1.headline Just. Servicio: {{ indicatorsGlobal.service[1] }}% - {{ indicatorsGlobal.service[0] }} total
+									span.indicatorsTwoTitle Just. Servicio: {{ indicatorsGlobal.service[1] }}% - {{ indicatorsGlobal.service[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
 			v-flex(xs3)
@@ -49,7 +49,7 @@
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.display-1.headline Just. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
+									span.indicatorsTwoTitle Just. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
 			v-flex.pt-5(xs6 v-if="assessments")
@@ -1577,6 +1577,9 @@
 	.custom-loader
 		animation: loader 1s infinite
 		display: flex
+
+	.indicatorsTwoTitle
+		font-size: 20px
 
 	@-moz-keyframes loader
 		from
