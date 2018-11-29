@@ -17,15 +17,16 @@
 							img(v-for="face in faces" @click="getAssessment(face.title)" :src="face.url")
 				v-stepper-content(step="2")
 					p.question.pb-5(v-html="justificationLoad.question")
-					v-card.card(class="mb-5" style="padding-top: 5px")
-						div.options
-							v-btn(v-for="option in justificationLoad.options" :key="option" @click="getJustification(option)" color="info" v-html="option")
+					v-card.card(class="mb-5" style="padding-top: 5px;")
+						div.options.justification(v-for="service in services")
+							img(@click="getJustification(service.title)" :src="service.url" width=138 height=118)
+							span.justification-span {{ service.title }}
 					v-btn.back-button(color="primary" @click.native="step--") Volver
 				v-stepper-content(step="3")
 					p.question.pb-5(v-html="justificationTwoLoad.question")
-					v-card.card(class="mb-5" style="padding-top: 5px")
+					v-card.card(class="mb-5" style="padding-top: 5px;")
 						div.options
-							v-btn(v-for="option in justificationTwoLoad.options" :key="option" @click="getJustificationTwo(option)" color="info" v-html="option")
+							img(v-for="reason in reasons" @click="getJustificationTwo(reason.title)" :src="reason.url" width=173 height=143)
 					v-btn.back-button(color="primary" @click.native="step--") Volver
 				v-stepper-content(step="4")
 					p.question Podés dejarnos tu contacto
@@ -98,6 +99,18 @@
 					bad: { url: "./../../../static/faces/bad.png", title: 'bad' },
 					veryBad: { url: "./../../../static/faces/very-bad.png", title: 'veryBad' },
 				},
+				services: {
+					0: { url: "./../../../static/services/pago-facil.png", title: '' },
+					1: { url: "./../../../static/services/envio-internacional.png", title: '' },
+					2: { url: "./../../../static/services/pago-facil.png", title: '' },
+					3: { url: "./../../../static/services/casa-cambio.png", title: '' },
+				},
+				reasons: {
+					0: { url: "./../../../static/reasons/atencion-cajero.png", title: 'Atención del Cajero' },
+					1: { url: "./../../../static/reasons/tiempo-espera.png", title: 'Tiempo de Espera' },
+					2: { url: "./../../../static/reasons/estado-local.png", title: 'Estado del Local' },
+					3: { url: "./../../../static/reasons/servicio-utilizado.png", title: 'Servicio Utilizado' },
+				},
 				assessment: null,
 				justification: null,
 				justificationTwo: null,
@@ -121,7 +134,7 @@
 			},
 			step() {
 				const STEPPER = document.getElementById("stepper")
-				STEPPER.style.height = '400px'
+				STEPPER.style.height = '460px'
 				
 				if (this.step == 1) {
 					clearInterval(this.timer)
@@ -130,7 +143,7 @@
 				}
 				else {
 					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
-					if (this.step == 4) STEPPER.style.height = '85%'
+					this.step == 4 ? STEPPER.style.height = '60%' : null
 				}
 			},
 			email() { this.i = 0 },
@@ -144,9 +157,9 @@
 
 		methods: {
 			async waiting(i) {
-				console.log(this.i)
+				//console.log(this.i)
 				i++
-				if (i == 10) {
+				if (i == 100000000) {
 					clearInterval(this.timer)
 					await this.createAssessment()
 					this.i = 0
@@ -158,6 +171,9 @@
 			getAssessment(option) {
 				this.step = 2
 				this.assessment = option
+				for (let service in this.services) {
+					this.services[service].title = this.poll.justifications[option].options[service]
+				}
 				this.justificationLoad = this.poll.justifications[option]
 				this.justificationTwoLoad = this.poll.justificationsTwo[option]
 			},
@@ -269,6 +285,16 @@
 	.custom-loader
 		animation: loader 1s infinite
 		display: flex
+	.justification
+		display: grid
+		justify-content: center
+		padding-right: 30px
+		img
+			padding: 0 !important
+		.justification-span
+			justify-self: center
+			font-size: 20px
+			font-weight: bold
 
 	@-moz-keyframes loader
 		from
@@ -348,14 +374,13 @@
 			display: block
 			padding: 0
 			margin: 0 0 20px 0
-	@media (min-height: 893px)
-		.stepper
-			height: 90%
-		.back-button
-			color: red
 	@media (max-width: 1264px)
 		.card
 			display: grid
+	
+	@media (max-height: 600px)
+		.stepper
+			height: 90% !important
 			
 </style>
 
