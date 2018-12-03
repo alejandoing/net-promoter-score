@@ -144,7 +144,7 @@
 				}
 				else {
 					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
-					this.step == 4 ? STEPPER.style.height = '60%' : null
+					this.step == 4 ? STEPPER.style.height = '67%' : null
 				}
 			},
 			email() { this.i = 0 },
@@ -160,7 +160,7 @@
 			async waiting(i) {
 				//console.log(this.i)
 				i++
-				if (i == 100000000) {
+				if (i == 10) {
 					clearInterval(this.timer)
 					await this.createAssessment()
 					this.i = 0

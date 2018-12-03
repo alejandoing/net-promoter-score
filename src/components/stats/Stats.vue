@@ -62,17 +62,16 @@
 				v-tabs-items
 					v-tabs-content(id="hour")
 						v-flex.py-5(xs12 v-if="assessments")
-							Chart(type="barStacked" title="Distribución General Horaria")
-							//highcharts(:options="optionChartGlobalStacked4" ref="highcharts")
+							Chart(type="columnStacked" title="Distribución General Horaria" :data="chartHourGlobal")
 					v-tabs-content(id="week")
 						v-flex.py-5(xs12 v-if="assessments")
-							highcharts(:options="optionChartGlobalStacked3" ref="highcharts")
+							Chart(type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobal")
 					v-tabs-content(id="day")
 						v-flex.py-5(xs12 v-if="assessments")
-							//Chart(type="barStacked" title="Comparation")
+							Chart(type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobal")
 					v-tabs-content(id="month")
 						v-flex.py-5(xs12 v-if="assessments")
-							highcharts(:options="optionChartGlobalStacked5" ref="highcharts")
+							Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
 			v-flex.pt-5(xs6 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
 			v-flex.pt-5(xs6 v-if="assessments")
@@ -311,6 +310,10 @@
 		validations: {},
     data () {
       return {
+				chartHourGlobal: null,
+				chartDayWGlobal: null,
+				chartDayGlobal: null,
+				chartMonthGlobal: null,
 				topLocals: JSON.parse(localStorage.getItem('topLocals')),
 				badLocals: [],
 				menuDateSince: false,
@@ -449,61 +452,6 @@
 					}, {
 							name: 'Muy Malo',
 							data: [20, 40, 20, 30, 40, 30, 20]
-					}],
-					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
-				},
-				optionChartGlobalStacked4: {
-					title: {
-							text: 'Todas las Unidades Combinadas - Distribución Horaria'
-					},
-					chart: {
-						type: 'column',
-						height: '600'
-					},
-					xAxis: {
-							categories: ['08', '09', '10', '11', '12',
-							'13', '14', '15', '16', '17', '18', '19', '20', '21',
-							'22']
-					},
-					yAxis: {
-							min: 0,
-							max: 100,
-							title: {
-									text: 'Promedio de Valoraciones'
-							}
-					},
-					legend: {
-							reversed: true
-					},
-					plotOptions: {
-						series: {
-							stacking: 'normal',
-							dataLabels: {
-								useHTML: true,
-								enabled: true,
-								color: '#000000',
-								format: '{y}%',
-								rotation: 270,
-								style: {
-									fontWeight: 'bold',
-									fontSize: '12px',
-									fill: 'black'
-								}
-							}
-						}
-					},
-					series: [{
-							name: 'Muy Bueno',
-							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20, 30, 10, 10]
-					}, {
-							name: 'Bueno',
-							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20, 30, 10, 10]
-					}, {
-							name: 'Malo',
-							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20, 30, 10, 10]
-					}, {
-							name: 'Muy Malo',
-							data: [10, 40, 10, 70, 40, 10, 40, 10, 70, 40, 10, 40, 10, 70, 70]
 					}],
 					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
 				},
@@ -946,6 +894,7 @@
 				querySnapshot.forEach(doc => this.assessments.push(doc.data()) )
 				this.getChartGlobal()
 				this.getChartGlobalDatesHour()
+				this.getChartGlobalDatesDayW()
 				this.getChartGlobalDatesDay()
 				this.getChartGlobalDatesMonth()
 				this.getIndicatorsGlobal()
@@ -1085,7 +1034,8 @@
 			},
 
 			getPercentage(part, universe) {
-				return parseFloat(((part * 100) / universe).toFixed(2))
+				let result = parseFloat(((part * 100) / universe).toFixed(0)) 
+				return isNaN(result) ? 0 : result
 			},
 			
 			getChartGlobal() {
@@ -1121,7 +1071,7 @@
 					veryBad: [numVeryBad, this.getPercentage(numVeryBad, total)]
 				}
 
-				//console.log(this.assessments.stats)
+				console.log(this.assessments.stats)
 			},
 
 			getChartCustom() {
@@ -1201,10 +1151,10 @@
 			},
 
 			getChartGlobalDatesHour() {
-				let timesVeryGood = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-				let timesGood = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-				let timesBad = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-				let timesVeryBad = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+				let timesVeryGood = new Array(24).fill(0)
+				let timesGood = new Array(24).fill(0)
+				let timesBad = new Array(24).fill(0)
+				let timesVeryBad = new Array(24).fill(0)
 
 				for(let assessment of this.assessments) {
 					let currentTime = this.converTime(assessment.date)
@@ -1223,10 +1173,20 @@
 						break						
 					}
 				}
-				this.optionsChartGlobalDatesHour.series[0].data = timesVeryGood
-				this.optionsChartGlobalDatesHour.series[1].data = timesGood
-				this.optionsChartGlobalDatesHour.series[2].data = timesBad
-				this.optionsChartGlobalDatesHour.series[3].data = timesVeryBad
+
+				this.chartHourGlobal = []
+
+				for (let i = 8; i < 23; i++) {
+					let total = timesVeryGood[i] + timesGood[i] + timesBad[i] + timesVeryBad[i]
+					this.chartHourGlobal.push({
+						title: i,
+						total,
+						veryGood: this.getPercentage(timesVeryGood[i], total),
+						good: this.getPercentage(timesGood[i], total),
+						bad: this.getPercentage(timesBad[i], total),
+						veryBad: this.getPercentage(timesVeryBad[i], total)
+					})
+				}
 			},
 
 			getChartCustomDatesHour() {
@@ -1258,14 +1218,54 @@
 				this.optionsChartCustomDatesHour.series[3].data = timesVeryBad
 			},
 
-			getChartGlobalDatesDay() {
-				let daysVeryGood = [0,0,0,0,0,0,0]
-				let daysGood = [0,0,0,0,0,0,0]
-				let daysBad = [0,0,0,0,0,0,0]
-				let daysVeryBad = [0,0,0,0,0,0,0]
+			getChartGlobalDatesDayW() {
+				let daysWVeryGood = new Array(7).fill(0)
+				let daysWGood = new Array(7).fill(0)
+				let daysWBad = new Array(7).fill(0)
+				let daysWVeryBad = new Array(7).fill(0)
+				const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 
 				for(let assessment of this.assessments) {
 					let currentDay = this.getDayOfWeek(assessment.date)
+					switch(assessment.face) {
+						case 'veryGood':
+							daysWVeryGood[currentDay]++
+						break
+						case 'good':
+							daysWGood[currentDay]++
+						break
+						case 'bad':
+							daysWBad[currentDay]++
+						break
+						case 'veryBad':
+							daysWVeryBad[currentDay]++
+						break						
+					}
+				}
+
+				this.chartDayWGlobal = []
+
+				for (let i = 0; i < 7; i++) {
+					let total = daysWVeryGood[i] + daysWGood[i] + daysWBad[i] + daysWVeryBad[i]
+					this.chartDayWGlobal.push({
+						title: CATEGORIES[i],
+						total,
+						veryGood: this.getPercentage(daysWVeryGood[i], total),
+						good: this.getPercentage(daysWGood[i], total),
+						bad: this.getPercentage(daysWBad[i], total),
+						veryBad: this.getPercentage(daysWVeryBad[i], total)
+					})
+				}
+			},
+
+			getChartGlobalDatesDay() {
+				let daysVeryGood = new Array(31).fill(0)
+				let daysGood = new Array(31).fill(0)
+				let daysBad = new Array(31).fill(0)
+				let daysVeryBad = new Array(31).fill(0)
+
+				for(let assessment of this.assessments) {
+					let currentDay = assessment.date.getDate()
 					switch(assessment.face) {
 						case 'veryGood':
 							daysVeryGood[currentDay]++
@@ -1281,10 +1281,20 @@
 						break						
 					}
 				}
-				this.optionsChartGlobalDatesDay.series[0].data = daysVeryGood
-				this.optionsChartGlobalDatesDay.series[1].data = daysGood
-				this.optionsChartGlobalDatesDay.series[2].data = daysBad
-				this.optionsChartGlobalDatesDay.series[3].data = daysVeryBad
+
+				this.chartDayGlobal = []
+
+				for (let i = 1; i < 32; i++) {
+					let total = daysVeryGood[i] + daysGood[i] + daysBad[i] + daysVeryBad[i]
+					this.chartDayGlobal.push({
+						title: i,
+						total,
+						veryGood: this.getPercentage(daysVeryGood[i], total),
+						good: this.getPercentage(daysGood[i], total),
+						bad: this.getPercentage(daysBad[i], total),
+						veryBad: this.getPercentage(daysVeryBad[i], total)
+					})
+				}
 			},
 
 			getChartCustomDatesDay() {
@@ -1317,10 +1327,12 @@
 			},
 
 			getChartGlobalDatesMonth() {
-				let monthsVeryGood = [0,0,0,0,0,0,0,0,0,0,0,0]
-				let monthsGood = [0,0,0,0,0,0,0,0,0,0,0,0]
-				let monthsBad = [0,0,0,0,0,0,0,0,0,0,0,0]
-				let monthsVeryBad = [0,0,0,0,0,0,0,0,0,0,0,0]
+				let monthsVeryGood = new Array(12).fill(0)
+				let monthsGood = new Array(12).fill(0)
+				let monthsBad = new Array(12).fill(0)
+				let monthsVeryBad = new Array(12).fill(0)
+				const CATEGORIES = ['Ene', 'Feb', 'Mar', 'Abr', 'May',
+							'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec']
 
 				for(let assessment of this.assessments) {
 					let currentMonth = this.getMonth(assessment.date)
@@ -1339,10 +1351,20 @@
 						break						
 					}
 				}
-				this.optionsChartGlobalDatesMonth.series[0].data = monthsVeryGood
-				this.optionsChartGlobalDatesMonth.series[1].data = monthsGood
-				this.optionsChartGlobalDatesMonth.series[2].data = monthsBad
-				this.optionsChartGlobalDatesMonth.series[3].data = monthsVeryBad
+
+				this.chartMonthGlobal = []
+
+				for (let i = 1; i < 13; i++) {
+					let total = monthsVeryGood[i] + monthsGood[i] + monthsBad[i] + monthsVeryBad[i]
+					this.chartMonthGlobal.push({
+						title: CATEGORIES[i],
+						total,
+						veryGood: this.getPercentage(monthsVeryGood[i], total),
+						good: this.getPercentage(monthsGood[i], total),
+						bad: this.getPercentage(monthsBad[i], total),
+						veryBad: this.getPercentage(monthsVeryBad[i], total)
+					})
+				}
 			},
 
 			getChartCustomDatesMonth() {
@@ -1397,6 +1419,7 @@
 						})
 
 					this.topLocals = activeLocals.sort(sortByProperty('veryGood')).slice(0,5)
+
 					localStorage.setItem('topLocals', JSON.stringify(this.topLocals))
 					this.badLocals = activeLocals.sort(sortByProperty('veryBad'))
 				}
