@@ -17,9 +17,9 @@
 								v-list-tile-content
 									v-list-tile-title(v-html="local.title")
 									v-list-tile-sub-title
-										span.grey--text.text--darken-2 {{ local.number }} - Zona {{ local.zone }}
+										span.grey--text.text--darken-2 {{ local.number }} - Jefe Zonal: {{ local.zone }}
 							v-divider
-			v-flex(xs12 sm12 v-else) 
+			v-flex(xs12 sm12 v-else)
 				span.message ¡Aún no se han registrado locales para esta organización!
 		v-layout.py-5(row child-flex justify-center align-center wrap v-if='!locals')
 			v-flex(fill-height xs12 offset-xs5)

@@ -13,7 +13,7 @@
 				)
 			v-flex(xs12 md4)
 				v-select(
-					label="Elegí una zona"
+					label="Elegí un jefe zonal"
 					v-model="zoneSelect"
 					:items="zones"
 					required
@@ -101,10 +101,8 @@
 				let local = this.$firebase.firestore().doc("locals/" + this.$route.params.id)
 				local.update({
 					title: this.title,
-					province: this.province,
-					location: this.location,
-					street: this.street,
-					exchange: this.exchange
+					exchange: this.exchange,
+					zone: this.zone
 				})
 				.then(() => {
 					this['loading'] = false
