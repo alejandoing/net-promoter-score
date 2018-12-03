@@ -72,6 +72,8 @@
 					v-tabs-content(id="month")
 						v-flex.py-5(xs12 v-if="assessments")
 							Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
+			v-flex(xs9 offset-xs2)
+				Service.pb-5(:data="assessments.stats")
 			v-flex.pt-5(xs6 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
 			v-flex.pt-5(xs6 v-if="assessments")
@@ -297,6 +299,7 @@
 	import VueHighcharts from 'vue-highcharts'
 	import router from '@/router/'
 	import Chart from './Chart.vue'
+	import Service from './Service.vue'
 	import Face from './Face.vue'
 
 	require('highcharts/modules/exporting')(Highcharts)
@@ -304,7 +307,8 @@
   export default {
 		components: {
 			Chart,
-			Face
+			Face,
+			Service
 		},
 		mixins: [validationMixin],
 		validations: {},
@@ -1041,6 +1045,7 @@
 			getChartGlobal() {
 				const total = this.assessments.length
 				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
+				let numServ1 = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
 				
 				for (let assesment of this.assessments) {
 					switch(assesment.face) {
@@ -1057,18 +1062,34 @@
 							numVeryBad++
 						break
 					}
+
+					switch(assesment.justification) {
+						case 'Pago de servicios':
+							numServ1++
+						break
+						case 'Envío internacional':
+							numServ2++
+						break
+						case 'Envío nacional':
+							numServ3++
+						break
+						case 'Casa de cambio':
+							numServ4++
+						break
+					}
 				}
-				this.optionsChartGlobal.title.text = "Encuestas realizadas hasta la fecha:" + this.assessments.length
-				this.optionsChartGlobal.series[0].data[0].y = numVeryGood
-				this.optionsChartGlobal.series[0].data[1].y = numGood
-				this.optionsChartGlobal.series[0].data[2].y = numBad
-				this.optionsChartGlobal.series[0].data[3].y = numVeryBad
 
 				this.assessments.stats = {
 					veryGood: [numVeryGood, this.getPercentage(numVeryGood, total)],
 					good: [numGood, this.getPercentage(numGood, total)],
 					bad: [numBad, this.getPercentage(numBad, total)],
-					veryBad: [numVeryBad, this.getPercentage(numVeryBad, total)]
+					veryBad: [numVeryBad, this.getPercentage(numVeryBad, total)],
+					services: {
+						0: [numServ1, this.getPercentage(numServ1, total)],
+						1: [numServ2, this.getPercentage(numServ2, total)],
+						2: [numServ3, this.getPercentage(numServ3, total)],
+						3: [numServ4, this.getPercentage(numServ4, total)]
+					}
 				}
 
 				console.log(this.assessments.stats)
