@@ -124,7 +124,8 @@
 					justificationTwo: false,
 					contact: false
 				},
-				dialog: false
+				dialog: false,
+				local: null
 			}
 		},
 		watch: {
@@ -172,6 +173,10 @@
 				this.step = 2
 				this.assessment = option
 				for (let service in this.services) {
+					if (!this.local.exchange && service == 3) {
+						delete this.services[3]
+						break
+					}
 					this.services[service].title = this.poll.justifications[option].options[service]
 				}
 				this.justificationLoad = this.poll.justifications[option]
@@ -270,6 +275,9 @@
 			localStorage.setItem('assessment', 'assessment/' + this.$route.params.id + '/local/' + this.$route.params.localId)
 			let poll = this.$firebase.firestore().doc('polls/' + this.$route.params.id)
 			poll.onSnapshot(doc => this.poll = doc.data())
+
+			let local = this.$firebase.firestore().doc('locals/' + this.$route.params.localId)
+			local.onSnapshot(doc => this.local = doc.data())
 
 			let imageRef = this.$firebase.storage().ref().child('polls/backgrounds/' + this.$route.params.id)
 			this.backgroundImage = await imageRef.getDownloadURL()

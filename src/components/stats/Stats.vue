@@ -1446,6 +1446,8 @@
 							total: local.assessments.total
 						})
 
+						console.log(activeLocals)
+
 					this.topLocals = activeLocals.sort(sortByProperty('veryGood')).slice(0,5)
 					localStorage.setItem('topLocals', JSON.stringify(this.topLocals))
 					this.badLocals = activeLocals.sort(sortByProperty('veryBad'))

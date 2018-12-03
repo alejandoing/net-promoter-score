@@ -3,32 +3,25 @@
 		v-layout(row wrap)
 			v-flex(xs12)
 				div.pb-5
-					span.display-1 Local: {{ local.title }}
+					span.display-1 {{ local.title }}
 					v-divider
-			v-flex(xs12 md6)
+			v-flex(xs12 md4)
 				v-text-field(
 					label="Título"
 					v-model.trim="title"
 					required
 				)
-			v-flex(xs12 md6)
+			v-flex(xs12 md4)
 				v-select(
-					label="Elegí una provincia"
-					v-model="province"
-					:items="provinces"
+					label="Elegí una zona"
+					v-model="zoneSelect"
+					:items="zones"
 					required
 				)
 			v-flex(xs12 md6)
-				v-text-field(
-					label="Ingresá el nombre de la localidad"
-					v-model.trim="location"
-					required
-				)
-			v-flex(xs12 md6)
-				v-text-field(
-					label="Ingresá el nombre de la calle"
-					v-model.trim="street"
-					required
+				v-checkbox(
+					label="Casa de Cambio"
+					v-model="exchange"
 				)
 		v-layout(row child-flex justify-center align-center wrap)
 			v-flex.py-5(fill-height xs12 offset-xs5)
@@ -54,9 +47,7 @@
 		mixins: [validationMixin],
 		validations: {
 			title: { required },
-			province: { required },
-			location: { required },
-			street: { required },
+			zone: { required },
 		},
 
 		data () {
@@ -66,18 +57,19 @@
 				location: null,
 				street: null,
 				local: false,
+				exchange: true,
 				loader: null,
 				loading: false,
 				dialog: false,
+				zone: null,
+				zoneSelect: null,
+				zones: ['Walter Mancho', 'Luciana Bernadotti', 'Cristina Marigomez', 'Dado Ricci',
+					'Diego Longo', 'Florencia Casa'],
+				zonesID: ['MM3exjMdkKaQ0cUkAkM2', 'MopGQtv8fBJU4Pbad7vD', 'Ngw5aiu8JFFKlHMDeZVd',
+				'cRc6N1NsFEXInsBtkB9w', 'mTMi65jxCFXXglPMEARV', 'wk77ITDgnPYUjZ28MxJK'],
+				regions: ['Norte', 'AMBA', 'Centro'],
+				regionsID: ['0cMke5XHDRu2lLSyiUQw', '0l5DtjJ6UQ1J4DxX0fdY', 'MKITRJYc46G8XLR0Kjsv'],
 				userStorage: JSON.parse(localStorage.getItem('user')),
-				provinces: [
-					'Buenos Aires - GBA', 'Capital Federal', 'Catamarca',
-					'Chaco', 'Chubut', 'Córdoba', 'Corrientes', 'Entre Ríos',
-					'Formosa', 'Jujuy', 'La Pampa', 'La Rioja', 'Mendoza',
-					'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan',
-					'San Luis', 'Santa Cruz', 'Santa Fe', 'Santiago del Estero',
-					'Tierra del Fuego', 'Tucumán'
-				]
 			}
 		},
 
@@ -86,10 +78,11 @@
 			local.onSnapshot(doc => {
 				this.local = doc.data()
 				this.title = doc.data().title
-				this.province = doc.data().province
-				this.location = doc.data().location
-				this.street = doc.data().street
+				this.zone = doc.data().zone
+				this.exchange = doc.data().exchange
+				this.zoneSelect = this.zones[this.zonesID.indexOf(this.zone)]
 			})
+
 		},
 
 		watch: {
@@ -97,6 +90,9 @@
 				const l = this.loader
 				this[l] = !this[l]
 			},
+			zoneSelect() {
+				this.zone = this.zonesID[this.zones.indexOf(this.zoneSelect)]
+			}
 		},
 
 		methods: {
@@ -108,6 +104,7 @@
 					province: this.province,
 					location: this.location,
 					street: this.street,
+					exchange: this.exchange
 				})
 				.then(() => {
 					this['loading'] = false

@@ -1,6 +1,6 @@
 <template lang="pug">
 	v-layout(row wrap)
-		v-flex(md4 xs4 v-for="(option, index) in options[userStorage.privileges]" :key="option.src")
+		v-flex(md4 xs2 v-for="(option, index) in options[userStorage.privileges]" :key="option.src")
 			router-link(:to="option.route")
 				img(:src="option.src")
 </template>
@@ -33,16 +33,14 @@
 
 <style lang="sass" scoped>
 	$radius-image: 0px 1px 6px 1px rgba(0,0,0,0.75)
-	$size-image: 350px
-	$size-image-big: 500px
 	
 	img
 		-webkit-box-shadow: $radius-image
 		-moz-box-shadow: $radius-image
 		box-shadow: $radius-image
 		margin-bottom: 30px
-		height: $size-image
-		width: $size-image
+		height: 250px
+		width: 300px
 		cursor: pointer
 		&:hover
 			filter: gray
@@ -53,6 +51,6 @@
 	
 	@media (min-width: 1900px)
 		img
-			width: $size-image-big
-			height: $size-image-big
+			width: 500px
+			height: 350px
 </style>

@@ -17,7 +17,7 @@
 								v-list-tile-content
 									v-list-tile-title(v-html="local.title")
 									v-list-tile-sub-title
-										span.grey--text.text--darken-2 {{ local.province }}, {{ local.location }} - {{ local.street }}
+										span.grey--text.text--darken-2 {{ local.number }} - Zona {{ local.zone }}
 							v-divider
 			v-flex(xs12 sm12 v-else) 
 				span.message ¡Aún no se han registrado locales para esta organización!
@@ -31,14 +31,17 @@
   export default {
     data () {
       return {
-				locals: false,
+				locals: [],
+				zone: null,
 				userStorage: JSON.parse(localStorage.getItem('user'))
       }
 		},
 		created() {
+			const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
+			let newLocals = []
+
 			let locals = this.$firebase.firestore().collection("locals").where('business', '==', this.userStorage.business)
 			locals.onSnapshot(querySnapshot => {
-				this.locals = []
 				querySnapshot.forEach(doc => {
 					let local = doc.data()
 					local.id = doc.id
@@ -46,14 +49,20 @@
 
 					let assessments = this.$firebase.firestore().collection("assessments").where('business', '==', this.userStorage.business)
 					assessments.onSnapshot(querySnapshot => {
-						local.assessments = 0
 						querySnapshot.forEach(doc => {
-							if (doc.data().local.id == local.id) local.assessments++
+							if (doc.data().local.id == local.id || doc.data().local == local.id) local.assessments++
 						})
+					})
+
+					this.$firebase.firestore().doc('zones/' + local.zone).get()
+					.then(doc => {
+						this.zone = doc.data().responsable
+						local.zone = this.zone
 					})
 					this.locals.unshift(local)
 				})
 				if (!this.locals.length) this.locals = false
+				this.locals.sort(sortByProperty('title')).reverse()
 			})
 		},
 		methods: {
