@@ -103,7 +103,6 @@
 							label="Elegir un Local"
 							v-model="localAssessment"
 							:items="localNew"
-							:readonly="employee"
 							required
 						)
 				v-card-actions

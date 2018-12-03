@@ -52,10 +52,6 @@
 									span.indicatorsTwoTitle Just. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
-			v-flex.pt-5(xs6 v-if="assessments")
-				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
-			v-flex.pt-5(xs6 v-if="assessments")
-				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="topLocals")
 			v-tabs(fixed centered)
 				v-tabs-bar.primary(dark)
 					v-tabs-slider(class="yellow")
@@ -66,7 +62,8 @@
 				v-tabs-items
 					v-tabs-content(id="hour")
 						v-flex.py-5(xs12 v-if="assessments")
-							highcharts(:options="optionChartGlobalStacked4" ref="highcharts")
+							Chart(type="barStacked" title="Distribución General Horaria")
+							//highcharts(:options="optionChartGlobalStacked4" ref="highcharts")
 					v-tabs-content(id="week")
 						v-flex.py-5(xs12 v-if="assessments")
 							highcharts(:options="optionChartGlobalStacked3" ref="highcharts")
@@ -76,6 +73,10 @@
 					v-tabs-content(id="month")
 						v-flex.py-5(xs12 v-if="assessments")
 							highcharts(:options="optionChartGlobalStacked5" ref="highcharts")
+			v-flex.pt-5(xs6 v-if="assessments")
+				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
+			v-flex.pt-5(xs6 v-if="assessments")
+				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="topLocals")
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Resultados por Local
@@ -338,57 +339,6 @@
 				textDialogPreResults: null,
 				titleDialogPreResults: null,
 				userStorage: JSON.parse(localStorage.getItem('user')),
-				optionChartGlobalStacked: {
-					chart: {
-						type: 'bar',
-					},
-					title: {
-							text: 'Comparación'
-					},
-					xAxis: {
-							categories: ['C.S Montevideo', 'C.S. Pompeya', 'C.S. Liniers']
-					},
-					yAxis: {
-							min: 0,
-							max: 100,
-							title: {
-									text: 'Promedio de Valoraciones'
-							}
-					},
-					legend: {
-						reversed: true
-					},
-					plotOptions: {
-							series: {
-									stacking: 'normal',
-									dataLabels: {
-											useHTML: true,
-											enabled: true,
-											color: '#000000',
-											format: '{y}%',
-											style: {
-													fontWeight: 'bold',
-													fontSize: '12px',
-													fillCollor: 'black'
-											}
-									}
-							}
-					},
-					series: [{
-							name: 'Muy Bueno',
-							data: [30, 20, 30]
-					}, {
-							name: 'Bueno',
-							data: [20, 30, 20]
-					}, {
-							name: 'Malo',
-							data: [20, 30, 30]
-					}, {
-							name: 'Muy Malo',
-							data: [30, 20, 20]
-					}],
-					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
-				},
 				optionChartGlobalStacked2: {
 					chart: {
 						type: 'column',
@@ -1445,8 +1395,6 @@
 							veryBad: parseFloat(((local.assessments["veryBad"] * 100) / local.assessments.total).toFixed(2)),
 							total: local.assessments.total
 						})
-
-						console.log(activeLocals)
 
 					this.topLocals = activeLocals.sort(sortByProperty('veryGood')).slice(0,5)
 					localStorage.setItem('topLocals', JSON.stringify(this.topLocals))
