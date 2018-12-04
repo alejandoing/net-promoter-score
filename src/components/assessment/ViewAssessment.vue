@@ -29,7 +29,7 @@
 							img(v-for="reason in reasons" @click="getJustificationTwo(reason.title)" :src="reason.url" width=173 height=143)
 					v-btn.back-button(color="primary" @click.native="step--") Volver
 				v-stepper-content(step="4")
-					p.question Podés dejarnos tu contacto
+					p.question Dejanos tu comentario
 					v-card.contact
 						v-container
 							v-layout(row wrap)
@@ -160,7 +160,7 @@
 			async waiting(i) {
 				//console.log(this.i)
 				i++
-				if (i == 10) {
+				if (i == 15) {
 					clearInterval(this.timer)
 					await this.createAssessment()
 					this.i = 0
@@ -298,9 +298,10 @@
 		justify-content: center
 		padding-right: 30px
 		img
+			justify-self: center
 			padding: 0 !important
 		.justification-span
-			justify-self: center
+			text-align: center
 			font-size: 20px
 			font-weight: bold
 
@@ -350,7 +351,7 @@
 				display: flex
 				justify-content: center
 				align-items: center
-				opacity: 0.8
+				opacity: 1
 				.contact
 					input
 						padding-left: 20px

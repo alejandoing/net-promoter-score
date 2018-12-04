@@ -72,8 +72,18 @@
 					v-tabs-content(id="month")
 						v-flex.py-5(xs12 v-if="assessments")
 							Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
+			v-flex(xs12)
+				div.pb-5
+					span.display-1 Servicios
+					v-divider
 			v-flex(xs9 offset-xs2)
 				Service.pb-5(:data="assessments.stats")
+			v-flex(xs12)
+				div.pb-5
+					span.display-1 Motivos
+					v-divider
+			v-flex(xs9 offset-xs2)
+				Reason.pb-5(:data="assessments.stats")
 			v-flex.pt-5(xs6 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
 			v-flex.pt-5(xs6 v-if="assessments")
@@ -300,6 +310,7 @@
 	import router from '@/router/'
 	import Chart from './Chart.vue'
 	import Service from './Service.vue'
+	import Reason from './Reason.vue'
 	import Face from './Face.vue'
 
 	require('highcharts/modules/exporting')(Highcharts)
@@ -308,7 +319,8 @@
 		components: {
 			Chart,
 			Face,
-			Service
+			Service,
+			Reason
 		},
 		mixins: [validationMixin],
 		validations: {},
@@ -346,296 +358,6 @@
 				textDialogPreResults: null,
 				titleDialogPreResults: null,
 				userStorage: JSON.parse(localStorage.getItem('user')),
-				optionChartGlobalStacked2: {
-					chart: {
-						type: 'column',
-						height: '600'
-					},
-					title: {
-							text: 'Todas las Unidades Combinandas - Distribución Diaria'
-					},
-					xAxis: {
-							categories: ['01/07', '02/07', '03/07',
-							'04/07', '05/07', '06/07', '07/07', '08/07', '09/07', '10/07', '11/07', '12/07',
-							'13/07', '14/07', '15/07', '16/07', '17/07', '18/07', '19/07', '20/07', '21/07',
-							'22/07', '23/07', '24/07', '25/07', '26/07', '27/07', '28/07', '29/07', '30/07',
-							'31/07']
-					},
-					yAxis: {
-							min: 0,
-							max: 100,
-							title: {
-									text: 'Promedio de Valoraciones'
-							}
-					},
-					legend: {
-							reversed: true
-					},
-					plotOptions: {
-							series: {
-									stacking: 'normal',
-									dataLabels: {
-											useHTML: true,
-											enabled: true,
-											color: '#000000',
-											format: '{y}%',
-											rotation: 270,
-											style: {
-													fontWeight: 'bold',
-													fontSize: '10px',
-													fill: 'black'
-											}
-									}
-							}
-					},
-					series: [{
-							name: 'Muy Bueno',
-							data: [30, 20, 30, 10, 20, 30, 20, 40, 40, 20, 40, 20, 40, 40, 20,
-							30, 40, 30, 10, 40, 30, 20, 40, 10, 20, 40, 20, 30, 40, 20, 40]
-					}, {
-							name: 'Bueno',
-							data: [30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30,
-							30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 20]
-					}, {
-							name: 'Malo',
-							data: [30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30,
-							30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 20]
-					}, {
-							name: 'Muy Malo',
-							data: [10, 40, 10, 30, 40, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30,
-							30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 30, 20, 30, 20]
-					}],
-					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
-				},
-				optionChartGlobalStacked3: {
-					chart: {
-						type: 'column',
-						height: '600'
-					},
-					title: {
-							text: 'Todas las Unidades Combinadas - Distribución por Día Laboral'
-					},
-					xAxis: {
-							categories: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
-					},
-					yAxis: {
-							min: 0,
-							max: 100,
-							title: {
-									text: 'Promedio de Valoraciones'
-							}
-					},
-					legend: {
-							reversed: true
-					},
-					plotOptions: {
-							series: {
-									stacking: 'normal',
-									dataLabels: {
-											useHTML: true,
-											enabled: true,
-											color: '#000000',
-											format: '{y}%',
-											style: {
-													fontWeight: 'bold',
-													fontSize: '12px',
-													fill: 'black'
-											}
-									}
-							}
-					},
-					series: [{
-							name: 'Muy Bueno',
-							data: [30, 20, 30, 20, 20, 20, 30]
-					}, {
-							name: 'Bueno',
-							data: [20, 20, 30, 20, 20, 20, 30]
-					}, {
-							name: 'Malo',
-							data: [30, 20, 20, 30, 20, 30, 20]
-					}, {
-							name: 'Muy Malo',
-							data: [20, 40, 20, 30, 40, 30, 20]
-					}],
-					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
-				},
-				optionChartGlobalStacked5: {
-					title: {
-							text: 'Todas las Unidades Combinadas - Distribución Mensual'
-					},
-					chart: {
-						type: 'column',
-						height: '600'
-					},
-					xAxis: {
-							categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May',
-							'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec']
-					},
-					yAxis: {
-							min: 0,
-							max: 100,
-							title: {
-									text: 'Promedio de Valoraciones'
-							}
-					},
-					legend: {
-							reversed: true
-					},
-					plotOptions: {
-							series: {
-									stacking: 'normal',
-									dataLabels: {
-											useHTML: true,
-											enabled: true,
-											color: '#000000',
-											format: '{y}%',
-											rotation: 270,
-											style: {
-													fontWeight: 'bold',
-													fontSize: '12px',
-													fill: 'black'
-											}
-									}
-							}
-					},
-					series: [{
-							name: 'Muy Bueno',
-							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20]
-					}, {
-							name: 'Bueno',
-							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20]
-					}, {
-							name: 'Malo',
-							data: [30, 20, 30, 10, 20, 30, 20, 30, 10, 20, 30, 20]
-					}, {
-							name: 'Muy Malo',
-							data: [10, 40, 10, 70, 40, 10, 40, 10, 70, 40, 10, 40]
-					}],
-					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
-				},
-				optionsChartGlobal: {
-					chart: {
-						plotBackgroundColor: null,
-						plotBorderWidth: null,
-						plotShadow: false,
-						type: 'pie',
-						height: 450,
-						backgroundColor: '#fafafa'
-					},
-					colors: ['#036303', '#00ff01', '#f7ff00', '#e30909'],
-					title: { text: null },
-					tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
-					plotOptions: {
-						pie: {
-							allowPointSelect: true,
-							cursor: 'pointer',
-							dataLabels: { enabled: false },
-							showInLegend: true
-						}
-					},
-					series: [{
-						name: 'Valoraciones',
-						colorByPoint: true,
-						data: [
-							{ name: 'Muy Bueno', y: null }, 
-							{ name: 'Bueno', y: null, sliced: true, selected: true }, 
-							{ name: 'Malo', y: null }, 
-							{ name: 'Muy Malo', y: null }
-						]
-					}]
-				},
-				optionsChartGlobalDatesHour: {
-					chart: { type: 'column', backgroundColor: '#fafafa' },
-					title: { text: 'Resultados por Hora' },
-					xAxis: { 
-						categories: ['00:00 hs','01:00 hs','02:00 hs','03:00 hs','04:00 hs','05:00 hs',
-                '06:00 hs','07:00 hs','08:00 hs','09:00 hs','10:00 hs','11:00 hs',
-                '12:00 hs','13:00 hs','14:00 hs','15:00 hs','16:00 hs','17:00 hs',
-                '18:00 hs','19:00 hs','20:00 hs','21:00 hs','22:00 hs','23:00 hs',
-							],
-						crosshair: true 
-					},
-					yAxis: {
-						min: 0,
-						title: { text: 'Valoraciones' }
-					},
-					colors: ['#036303', '#00ff01', '#f7ff00', '#e30909'],
-					tooltip: {
-						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
-						footerFormat: '</table>',
-						shared: true,
-						useHTML: true
-					},
-					plotOptions: {
-						column: { pointPadding: 0.2, borderWidth: 0 }
-					},
-					series: [
-						{ name: 'Muy Bueno', data: null }, 
-						{ name: 'Bueno', data: null }, 
-						{ name: 'Malo', data: null }, 
-						{ name: 'Muy Malo', data: null}
-					]
-				},
-				optionsChartGlobalDatesDay: {
-					chart: { type: 'column', backgroundColor: '#fafafa' },
-					title: { text: 'Resultados por Día' },
-					xAxis: { categories: ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'], crosshair: true },
-					yAxis: {
-						min: 0,
-						title: { text: 'Valoraciones' }
-					},
-					colors: ['#036303', '#00ff01', '#f7ff00', '#e30909'],
-					tooltip: {
-						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
-						footerFormat: '</table>',
-						shared: true,
-						useHTML: true
-					},
-					plotOptions: {
-						column: { pointPadding: 0.2, borderWidth: 0 }
-					},
-					series: [
-						{ name: 'Muy Bueno', data: null }, 
-						{ name: 'Bueno', data: null }, 
-						{ name: 'Malo', data: null }, 
-						{ name: 'Muy Malo', data: null }
-					]
-				},
-				optionsChartGlobalDatesMonth: {
-					chart: { type: 'column', backgroundColor: '#fafafa' },
-					title: { text: 'Resultados por Mes' },
-					xAxis: { categories: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'], crosshair: true },
-					yAxis: {
-						min: 0,
-						title: { text: 'Valoraciones' }
-					},
-					colors: ['#036303', '#00ff01', '#f7ff00', '#e30909'],
-					tooltip: {
-						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
-						footerFormat: '</table>',
-						shared: true,
-						useHTML: true
-					},
-					plotOptions: {
-						column: { pointPadding: 0.2, borderWidth: 0 }
-					},
-					series: [{
-						name: 'Muy Bueno',
-						data: null
-					}, {
-						name: 'Bueno',
-						data: null
-					}, {
-						name: 'Malo',
-						data: null
-					}, {
-						name: 'Muy Malo',
-						data: null
-					}]
-				},
 				optionsChartLocal: {
 					chart: {
 						plotBackgroundColor: null,
@@ -1091,8 +813,6 @@
 						3: [numServ4, this.getPercentage(numServ4, total)]
 					}
 				}
-
-				console.log(this.assessments.stats)
 			},
 
 			getChartCustom() {
@@ -1137,19 +857,11 @@
 				let partials = partialsGood + partialsBad
 
 				this.indicatorsGlobal.satisfaction = this.getPercentage(partialsGood, partials)
-				if (isNaN(this.indicatorsGlobal.satisfaction)) this.indicatorsGlobal.satisfaction = 0.00
 				
 				this.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
-				if (isNaN(this.indicatorsGlobal.complain[0])) this.indicatorsGlobal.complain[0] = 0.00
-				
 				this.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
-				if (isNaN(this.indicatorsGlobal.comment[0])) this.indicatorsGlobal.comment[0] = 0.00
-
 				this.indicatorsGlobal.service = [services, this.getPercentage(services, total)]
-				if (isNaN(this.indicatorsGlobal.service[0])) this.indicatorsGlobal.service[0] = 0.00
-
 				this.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, total)]
-				if (isNaN(this.indicatorsGlobal.reason[0])) this.indicatorsGlobal.reason[0] = 0.00
 			},
 
 			getIndicatorsLocal() {

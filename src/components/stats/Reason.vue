@@ -1,10 +1,10 @@
 <template lang="pug">
   div.container
-    div.justification(v-for="service in services")
-      img.pr-3(:src="service.url" width=158 height=138)
-      span.justification-span {{ service.title }}
+    div.justification(v-for="reason in reasons")
+      img.pr-3(:src="reason.url" width=158 height=138)
+      span.justification-span {{ reason.title }}
       div.text
-        span {{service.percentage}}% | {{service.value}} resp.
+        span {{reason.percentage}}% | {{reason.value}} resp.
 </template>
 
 <script>
@@ -19,19 +19,19 @@
     props: ['data'],
     data () {
       return {
-				services: {
-					0: { url: "./../../../static/services/pago-servicios.png", title: 'Pago Servicios', value: 0, percentage: 0 },
-					1: { url: "./../../../static/services/envio-internacional.png", title: 'Envío Internacional', value: 0, percentage: 0 },
-					2: { url: "./../../../static/services/pago-servicios.png", title: 'Envío Nacional', value: 0, percentage: 0 },
-					3: { url: "./../../../static/services/casa-cambio.png", title: 'Casa de Cambio', value: 0, percentage: 0 },
+				reasons: {
+					0: { url: "./../../../static/reasons/atencion-cajero.png", title: 'Atención del Cajero', value: 0, percentage: 0 },
+					1: { url: "./../../../static/reasons/tiempo-espera.png", title: 'Tiempo de Espera', value: 0, percentage: 0 },
+					2: { url: "./../../../static/reasons/estado-local.png", title: 'Estado del Local', value: 0, percentage: 0 },
+					3: { url: "./../../../static/reasons/servicio-utilizado.png", title: 'Servicio Utilizado', value: 0, percentage: 0 },
 				},
       }
     },
     watch: {
       data() {
-        for (let service in this.services) {
-          this.services[service].value = this.$props.data[service][0]
-          this.services[service].percentage = this.$props.data[service][1]
+        for (let reason in this.reasons) {
+          this.reasons[reason].value = this.$props.data[reason][0]
+          this.reasons[reason].percentage = this.$props.data[reason][1]
         }
       }
     }
