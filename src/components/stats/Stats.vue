@@ -84,6 +84,12 @@
 					v-divider
 			v-flex(xs9 offset-xs2)
 				Reason.pb-5(:data="assessments.stats")
+			v-flex(xs12)
+				div.pb-5
+					span.display-1 Jefe Zonales
+					v-divider
+			v-flex(xs9 offset-xs2)
+				Zone.pb-5(:data="assessments.stats")
 			v-flex.pt-5(xs6 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
 			v-flex.pt-5(xs6 v-if="assessments")
@@ -312,6 +318,7 @@
 	import Service from './Service.vue'
 	import Reason from './Reason.vue'
 	import Face from './Face.vue'
+	import Zone from './Zone.vue'
 
 	require('highcharts/modules/exporting')(Highcharts)
 
@@ -320,7 +327,8 @@
 			Chart,
 			Face,
 			Service,
-			Reason
+			Reason,
+			Zone
 		},
 		mixins: [validationMixin],
 		validations: {},
@@ -347,7 +355,7 @@
 				loading: false,
 				loader: null,
 				dateFormatted2: null,
-				locals: false,
+				locals: null,
 				currentLocal: { title: null },
 				assessments: [],
 				indicatorsGlobal: { satisfaction: null, complain: [], comment: [], service: [], reason: [] },
@@ -617,17 +625,15 @@
 			this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
 			.onSnapshot(querySnapshot => { 
 				this.assessments = []
-				querySnapshot.forEach(doc => this.assessments.push(doc.data()) )
-				this.getChartGlobal()
-				this.getChartGlobalDatesHour()
-				this.getChartGlobalDatesDayW()
-				this.getChartGlobalDatesDay()
-				this.getChartGlobalDatesMonth()
-				this.getIndicatorsGlobal()
+				querySnapshot.forEach(doc => {
+					let assessment = doc.data()
+					assessment.id = doc.id
+					this.assessments.unshift(assessment)
+				})
 				this.$firebase.firestore().collection('locals').where('business', '==', this.userStorage.business)
-				.onSnapshot(querySnapshot => {
+				.onSnapshot(async querySnapshot => {
 					this.locals = []
-					querySnapshot.forEach(doc => {
+					await querySnapshot.forEach(doc => {
 						let local = doc.data()
 						local.id = doc.id
 						local.assessments = { total: 0, veryGood: 0, good: 0, bad: 0, veryBad: 0, percentages: [] }
@@ -635,6 +641,12 @@
 						this.locals.unshift(local)
 					})
 					if (!this.locals.length) this.locals = false
+					this.getChartGlobal()
+					this.getChartGlobalDatesHour()
+					this.getChartGlobalDatesDayW()
+					this.getChartGlobalDatesDay()
+					this.getChartGlobalDatesMonth()
+					this.getIndicatorsGlobal()
 					this.getChartLocal()
 					this.getChartLocalDatesHour()
 					this.getIndicatorsLocal()
@@ -764,12 +776,38 @@
 				return isNaN(result) ? 0 : result
 			},
 			
-			getChartGlobal() {
+			async getChartGlobal() {
 				const total = this.assessments.length
 				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
-				let numServ1 = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
+				let numServ = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
+				let numReas = 0, numReas2 = 0, numReas3 = 0, numReas4 = 0
+				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
 				
 				for (let assesment of this.assessments) {
+					for (let local of this.locals) {
+						if (local.id == assesment.local) {
+							switch(local.zone) {
+								case 'MM3exjMdkKaQ0cUkAkM2':
+									zoneWM++
+								break
+								case 'MopGQtv8fBJU4Pbad7vD':
+									zoneLB++
+								break
+								case 'Ngw5aiu8JFFKlHMDeZVd':
+									zoneCM++
+								break
+								case 'cRc6N1NsFEXInsBtkB9w':
+									zoneDR++
+								break
+								case 'mTMi65jxCFXXglPMEARV':
+									zoneDL++
+								break
+								case 'wk77ITDgnPYUjZ28MxJK':
+									zoneFC++
+								break
+							}
+						}
+					}
 					switch(assesment.face) {
 						case 'veryGood':
 							numVeryGood++
@@ -787,7 +825,7 @@
 
 					switch(assesment.justification) {
 						case 'Pago de servicios':
-							numServ1++
+							numServ++
 						break
 						case 'Envío internacional':
 							numServ2++
@@ -799,6 +837,21 @@
 							numServ4++
 						break
 					}
+
+					switch(assesment.justificationTwo) {
+						case 'Atención del Cajero':
+							numReas++
+						break
+						case 'Tiempo de Espera':
+							numReas2++
+						break
+						case 'Estado del Local':
+							numReas3++
+						break
+						case 'Servicio Utilizado':
+							numReas4++
+						break
+					}
 				}
 
 				this.assessments.stats = {
@@ -807,12 +860,28 @@
 					bad: [numBad, this.getPercentage(numBad, total)],
 					veryBad: [numVeryBad, this.getPercentage(numVeryBad, total)],
 					services: {
-						0: [numServ1, this.getPercentage(numServ1, total)],
+						0: [numServ, this.getPercentage(numServ, total)],
 						1: [numServ2, this.getPercentage(numServ2, total)],
 						2: [numServ3, this.getPercentage(numServ3, total)],
 						3: [numServ4, this.getPercentage(numServ4, total)]
+					},
+					reasons: {
+						0: [numReas, this.getPercentage(numReas, total)],
+						1: [numReas2, this.getPercentage(numReas2, total)],
+						2: [numReas3, this.getPercentage(numReas3, total)],
+						3: [numReas4, this.getPercentage(numReas4, total)]						
+					},
+					zones: {
+						0: [zoneWM, this.getPercentage(zoneWM, total)],
+						1: [zoneLB, this.getPercentage(zoneLB, total)],
+						2: [zoneCM, this.getPercentage(zoneCM, total)],
+						3: [zoneDR, this.getPercentage(zoneDR, total)],
+						4: [zoneDL, this.getPercentage(zoneDL, total)],
+						5: [zoneFC, this.getPercentage(zoneFC, total)],						
 					}
 				}
+
+				console.log(this.assessments.stats)
 			},
 
 			getChartCustom() {

@@ -30,8 +30,8 @@
     watch: {
       data() {
         for (let reason in this.reasons) {
-          this.reasons[reason].value = this.$props.data[reason][0]
-          this.reasons[reason].percentage = this.$props.data[reason][1]
+          this.reasons[reason].value = this.$props.data.reasons[reason][0]
+          this.reasons[reason].percentage = this.$props.data.reasons[reason][1]
         }
       }
     }
