@@ -29,9 +29,11 @@
     },
     watch: {
       data() {
-        for (let service in this.services) {
-          this.services[service].value = this.$props.data.services[service][0]
-          this.services[service].percentage = this.$props.data.services[service][1]
+        if (this.$props.data) {
+          for (let service in this.services) {
+            this.services[service].value = this.$props.data.services[service][0]
+            this.services[service].percentage = this.$props.data.services[service][1]
+          }
         }
       }
     }

@@ -32,7 +32,7 @@
               min: 0,
               max: 100,
               title: {
-                text: 'Promedio de Valoraciones'
+                text: 'Índice'
               }
             },
             legend: {
@@ -127,7 +127,7 @@
     watch: {
       data() {
         this.types[this.$props.type].title.text = this.$props.title
-        this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => x.title)
+        this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp.`)
         this.types[this.$props.type].series[0].data = this.$props.data.map(x => x.veryGood)
         this.types[this.$props.type].series[1].data = this.$props.data.map(x => x.good)
         this.types[this.$props.type].series[2].data = this.$props.data.map(x => x.bad)

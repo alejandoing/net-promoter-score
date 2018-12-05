@@ -31,9 +31,11 @@
     },
     watch: {
       data() {
-        for (let zone in this.zones) {
-          this.zones[zone].value = this.$props.data.zones[zone][0]
-          this.zones[zone].percentage = this.$props.data.zones[zone][1]
+        if (this.$props.data) {
+          for (let zone in this.zones) {
+            this.zones[zone].value = this.$props.data.zones[zone][0]
+            this.zones[zone].percentage = this.$props.data.zones[zone][1]
+          }
         }
       }
     }

@@ -90,9 +90,13 @@
 					v-divider
 			v-flex(xs9 offset-xs2)
 				Zone.pb-5(:data="assessments.stats")
-			v-flex.pt-5(xs6 v-if="assessments")
+			v-flex(xs12)
+				div.pb-5
+					span.display-1 Locales
+					v-divider
+			v-flex(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
-			v-flex.pt-5(xs6 v-if="assessments")
+			v-flex(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="topLocals")
 			v-flex(xs12)
 				div.pb-5
@@ -782,6 +786,8 @@
 				let numServ = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
 				let numReas = 0, numReas2 = 0, numReas3 = 0, numReas4 = 0
 				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
+				let complains = new Array(2).fill(0)
+				let comments = new Array(2).fill(0)
 				
 				for (let assesment of this.assessments) {
 					for (let local of this.locals) {
@@ -811,15 +817,19 @@
 					switch(assesment.face) {
 						case 'veryGood':
 							numVeryGood++
+							assesment.comment ? comments[1]++ : comments[1]
 						break
 						case 'good':
 							numGood++
+							assesment.comment ? comments[0]++ : comments[0]
 						break
 						case 'bad':
 							numBad++
+							assesment.complain ? complains[0]++ : complains[0]
 						break
 						case 'veryBad':
 							numVeryBad++
+							assesment.complain ? complains[1]++ : complains[1]
 						break
 					}
 
@@ -855,10 +865,10 @@
 				}
 
 				this.assessments.stats = {
-					veryGood: [numVeryGood, this.getPercentage(numVeryGood, total)],
-					good: [numGood, this.getPercentage(numGood, total)],
-					bad: [numBad, this.getPercentage(numBad, total)],
-					veryBad: [numVeryBad, this.getPercentage(numVeryBad, total)],
+					veryGood: [numVeryGood, this.getPercentage(numVeryGood, total), comments[1]],
+					good: [numGood, this.getPercentage(numGood, total), comments[0]],
+					bad: [numBad, this.getPercentage(numBad, total), complains[0]],
+					veryBad: [numVeryBad, this.getPercentage(numVeryBad, total), complains[1]],
 					services: {
 						0: [numServ, this.getPercentage(numServ, total)],
 						1: [numServ2, this.getPercentage(numServ2, total)],
@@ -880,8 +890,6 @@
 						5: [zoneFC, this.getPercentage(zoneFC, total)],						
 					}
 				}
-
-				console.log(this.assessments.stats)
 			},
 
 			getChartCustom() {
@@ -911,7 +919,12 @@
 			},
 
 			getIndicatorsGlobal() {
-				let total = this.assessments.length
+				const PRC_VERY_GOOD = 0.05, PRC_GOOD_C = 0.15, PRC_GOOD = 0.20
+				const PRC_BAD = 0.40, PRC_BAD_Q = 0.45, PRC_VERY_BAD = 0.75, PRC_VERY_BAD_Q = 0.80
+				
+				const total = this.assessments.length
+				const stats = this.assessments.stats
+				
 				let complains = 0, comments = 0, services = 0, reasons = 0
 
 				for (let assessment of this.assessments) {
@@ -921,11 +934,18 @@
 					assessment.flow.justificationTwo ? reasons++ : reasons
 				}
 
-				let partialsGood = ((this.assessments.stats.veryGood[0] * 2) + this.assessments.stats.good[0]) + (comments * 3)
-				let partialsBad =  ((this.assessments.stats.veryBad[0] * 2) + this.assessments.stats.bad[0]) + (complains * 3)
-				let partials = partialsGood + partialsBad
+				const partialVeryGood = (stats.veryGood[0] - stats.veryGood[2]) * PRC_VERY_GOOD
+				const partialGoodC = stats.good[2] ? (stats.good[2] * PRC_GOOD_C) : 0
+				const partialGood = (stats.good[0] - stats.good[2]) * PRC_GOOD
+				const partialBad = (stats.bad[0] - stats.bad[2]) * PRC_BAD
+				const partialBadQ = stats.bad[2] ? (stats.bad[2] * PRC_BAD_Q) : 0
+				const partialVeryBad = (stats.veryBad[0] - stats.veryBad[2]) * PRC_VERY_BAD
+				const partialVeryBadQ = stats.bad[2] ? (stats.veryBad[2] * PRC_VERY_BAD_Q) : 0
+				
+				const partialsGood = partialVeryGood + partialGoodC + partialGood
+				const partialsBad = partialBad + partialBadQ + partialVeryBad + partialVeryBadQ
 
-				this.indicatorsGlobal.satisfaction = this.getPercentage(partialsGood, partials)
+				this.indicatorsGlobal.satisfaction = 100 - this.getPercentage((partialsGood + partialsBad), total)
 				
 				this.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
 				this.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
@@ -933,23 +953,22 @@
 				this.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, total)]
 			},
 
-			getIndicatorsLocal() {
-				for (const [index, local] of this.locals.entries()) {
-					let total = local.assessments.total
-					let justification = 0
-					let partialsGood = (local.assessments.veryGood * 2) + local.assessments.good
-					let partialsBad =  (local.assessments.veryBad * 2) + local.assessments.bad
-					let partials = partialsGood + partialsBad
+			getIndicatorsLocal(local) {
+				return 0
+					// let total = local.assessments.total
+					// let justification = 0
+					// let partialsGood = (local.assessments.veryGood * 2) + local.assessments.good
+					// let partialsBad =  (local.assessments.veryBad * 2) + local.assessments.bad
+					// let partials = partialsGood + partialsBad
 
-					for (let assessment of this.assessments) {
-						if (assessment.local.id == local.id) {
-							if (assessment.flow.justification) justification++
-						}
-					}
+					// for (let assessment of this.assessments) {
+					// 	if (assessment.local == local.id) {
+					// 		if (assessment.flow.justification) justification++
+					// 	}
+					// }
 
-					local.indicators.satisfaction = ((partialsGood * 100) / partials).toFixed(2)
-					local.indicators.justification = ((justification * 100) / total).toFixed(2)
-				}
+					// local.indicators.satisfaction = ((partialsGood * 100) / partials).toFixed(2)
+					// local.indicators.justification = ((justification * 100) / total).toFixed(2)
 			},
 
 			getChartGlobalDatesHour() {

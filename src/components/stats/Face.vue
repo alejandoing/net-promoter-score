@@ -29,9 +29,11 @@
     },
     watch: {
       data() {
-        for (let face in this.faces) {
-          this.faces[face].value = this.$props.data[face][0]
-          this.faces[face].percentage = this.$props.data[face][1]
+        if (this.$props.data) {
+          for (let face in this.faces) {
+            this.faces[face].value = this.$props.data[face][0]
+            this.faces[face].percentage = this.$props.data[face][1]
+          }
         }
       }
     }
