@@ -136,11 +136,11 @@
 			step() {
 				const STEPPER = document.getElementById("stepper")
 				STEPPER.style.height = '460px'
+				this.i = 0
 				
 				if (this.step == 1) {
 					clearInterval(this.timer)
 					this.timer = null
-					this.i = 0
 				}
 				else {
 					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
@@ -158,7 +158,6 @@
 
 		methods: {
 			async waiting(i) {
-				//console.log(this.i)
 				i++
 				if (i == 15) {
 					clearInterval(this.timer)
@@ -390,6 +389,9 @@
 	@media (max-height: 600px)
 		.stepper
 			height: 90% !important
+	@media (min-height: 730px)
+		.stepper
+			height: 70% !important
 			
 </style>
 

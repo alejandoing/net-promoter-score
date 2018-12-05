@@ -919,8 +919,8 @@
 			},
 
 			getIndicatorsGlobal() {
-				const PRC_VERY_GOOD = 0.05, PRC_GOOD_C = 0.15, PRC_GOOD = 0.20
-				const PRC_BAD = 0.40, PRC_BAD_Q = 0.45, PRC_VERY_BAD = 0.75, PRC_VERY_BAD_Q = 0.80
+				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
+				console.log(this.assessments.stats)
 				
 				const total = this.assessments.length
 				const stats = this.assessments.stats
@@ -934,18 +934,13 @@
 					assessment.flow.justificationTwo ? reasons++ : reasons
 				}
 
-				const partialVeryGood = (stats.veryGood[0] - stats.veryGood[2]) * PRC_VERY_GOOD
-				const partialGoodC = stats.good[2] ? (stats.good[2] * PRC_GOOD_C) : 0
-				const partialGood = (stats.good[0] - stats.good[2]) * PRC_GOOD
-				const partialBad = (stats.bad[0] - stats.bad[2]) * PRC_BAD
-				const partialBadQ = stats.bad[2] ? (stats.bad[2] * PRC_BAD_Q) : 0
-				const partialVeryBad = (stats.veryBad[0] - stats.veryBad[2]) * PRC_VERY_BAD
-				const partialVeryBadQ = stats.bad[2] ? (stats.veryBad[2] * PRC_VERY_BAD_Q) : 0
+				const partialGood = stats.good[0] * PRC_GOOD
+				const partialBad = stats.bad[0] * PRC_BAD
+				const partialVeryBad = stats.veryBad[0] * PRC_VERY_BAD
 				
-				const partialsGood = partialVeryGood + partialGoodC + partialGood
-				const partialsBad = partialBad + partialBadQ + partialVeryBad + partialVeryBadQ
+				const partials = partialGood + partialBad + partialVeryBad
 
-				this.indicatorsGlobal.satisfaction = 100 - this.getPercentage((partialsGood + partialsBad), total)
+				this.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
 				
 				this.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
 				this.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]

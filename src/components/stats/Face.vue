@@ -3,7 +3,7 @@
     div.faces(v-for="face in faces")
       img.pr-3(:src="face.url")
       div.text
-        span {{face.percentage}}%
+        span.percentage {{face.percentage}}%
         span {{face.value}} resp.
 </template>
 
@@ -54,6 +54,8 @@
         display: grid
         grid-template: .5fr .5fr / 1fr;
         span
-          font-size: 24px;
+          font-size: 20px;
           align-self: center;
+        .percentage
+          font-size: 30px
 </style>
