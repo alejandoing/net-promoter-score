@@ -118,7 +118,7 @@
 				telephone: null,
 				description: null,
 				complain: 0,
-				comment: 0,
+				comment: null,
 				flow: {
 					justification: false,
 					justificationTwo: false,
@@ -235,8 +235,8 @@
 					telephone: this.telephone,
 					complain: this.complain,
 					comment: this.comment,
+					answer: null,
 					status: 0,
-					leido: false,
 					business: this.userStorage.business,
 					local: this.$route.params.localId,
 					poll: this.$route.params.id

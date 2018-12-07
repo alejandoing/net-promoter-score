@@ -19,7 +19,7 @@
 			v-flex(xs12 md6)
 				v-text-field(
 					label="Local"
-					v-model.trim="ticket.local.title"
+					v-model.trim="localTitle"
 					readonly
 				)
 			v-flex(xs12 md6)
@@ -36,8 +36,34 @@
 					readonly
 				)
 		v-layout(row child-flex justify-center align-center wrap)
-			v-flex.py-5(fill-height xs12 offset-xs5)
-				v-btn#submit(large outline to="/tickets/") Regresar
+			v-flex.py-5(fill-height xs12 offset-xs4)
+				v-btn.action(large outline @click.native="dialog = true" v-if="ticket.answer") Ver Comentario
+				v-btn.action(large outline @click.native="dialog = true" v-else) Comentar
+				v-btn.action(large outline to="/tickets/") Regresar
+		v-dialog(v-model="dialog" persistent max-width="500")
+			v-card
+				v-card-title(class="headline") Escribí tu comentario
+				v-card-text
+					v-flex(xs12)
+						v-text-field(
+							label="Comentario"
+							v-model.trim="ticket.answer"
+							:readonly="comment"
+							multi-line
+						)
+				v-card-actions
+					v-spacer
+						v-btn(v-if="!comment" color="green darken-1" flat :loading="loading" @click.native="uploadComment") Enviar
+							span.custom-loader(slot="loader")
+								v-icon(light) cached
+						v-btn(color="green darken-1" flat @click.native="dialog = false") Regresar
+		v-dialog(v-model="dialogConfirm" persistent max-width="500")
+			v-card
+				v-card-title(class="headline") ¡Enhorabuena!
+				v-card-text Tu comentario ha sido registrado
+				v-card-actions
+					v-spacer
+						v-btn(color="green darken-1" flat @click.native="finalize") Entendido
 </template>
 
 <script>
@@ -55,33 +81,46 @@
 
 		data () {
 			return {
+				loader: null,
+				loading: false,
 				ticket: {
 					email: null,
 					telephone: null,
 					description: null,
-					local: { title: null, id: null },
+					local: null,
 					poll: null
 				},
+				localTitle: null,
+				dialog: null,
+				dialogConfirm: null,
+				comment: false
 			}
 		},
 
-		created() {
+		async created() {
 			let ticket = this.$firebase.firestore().doc('tickets/' + this.$route.params.id)
-			ticket.get().then(doc => {
+			await ticket.get().then(async doc => {
 				this.ticket = doc.data()
-				if (!this.ticket.leido) {
-					ticket.update({
-						business: this.ticket.business,
-						date: this.ticket.date,
-						description: this.ticket.description,
-						email: this.ticket.email,
-						leido: !this.ticket.leido,
-						local: this.ticket.local,
-						poll: this.ticket.poll,
-						telephone: this.ticket.telephone
-					})
-					.then(() => console.log('Actualizado correctamente VIEW'))
-				}
+				if (this.ticket.answer) this.comment = true
+					// if (this.comment) {
+					// 	ticket.update({
+					// 		business: this.ticket.business,
+					// 		date: this.ticket.date,
+					// 		description: this.ticket.description,
+					// 		email: this.ticket.email,
+					// 		local: this.ticket.local,
+					// 		poll: this.ticket.poll,
+					// 		telephone: this.ticket.telephone,
+					// 		comment: this.comment,
+					// 		status: 1
+					// 	})
+					// 	.then(() => console.log(''))
+					// }
+			})
+
+			let localTitle = this.$firebase.firestore().doc('locals/' + this.ticket.local)
+			localTitle.get().then(doc => {
+				this.localTitle = doc.data().title
 			})
 		},
 
@@ -107,12 +146,46 @@
 					this.loader = null
 					this.dialog = true
 				})
+			},
+
+			async uploadComment() {
+				this.loader = 'loading'
+				let ticket = this.$firebase.firestore().doc('tickets/' + this.$route.params.id)
+				await ticket.get().then(async doc => {
+					if (this.ticket.answer) {
+						ticket.update({
+							business: this.ticket.business,
+							date: this.ticket.date,
+							description: this.ticket.description,
+							email: this.ticket.email,
+							local: this.ticket.local,
+							poll: this.ticket.poll,
+							telephone: this.ticket.telephone,
+							comment: this.ticket.comment,
+							answer: this.ticket.answer,
+							status: 2
+						})
+						.then(() => {
+							this['loading'] = false
+							this.loader = null
+							this.dialogConfirm = true
+							this.comment = true
+						})
+					}
+				})
+			},
+
+			finalize() {
+				this.dialogConfirm = false
+				this.dialog = false
 			}
 		}
 	}
 </script>
 
 <style lang="sass" scoped>
+	.action
+		width: 200px
 	a
 		text-decoration: none
 	.hidden

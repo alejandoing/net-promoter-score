@@ -31,7 +31,7 @@
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.indicatorsTwoTitle Comentarios: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
+									span.indicatorsTwoTitle Com. Positivos: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
 			v-flex(xs6 md3)
@@ -40,7 +40,7 @@
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.indicatorsTwoTitle Just. Servicio: {{ indicatorsGlobal.service[1] }}% - {{ indicatorsGlobal.service[0] }} total
+									span.indicatorsTwoTitle Resp. Servicio: {{ indicatorsGlobal.service[1] }}% - {{ indicatorsGlobal.service[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
 			v-flex(xs6 md3)
@@ -49,7 +49,7 @@
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.indicatorsTwoTitle Just. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
+									span.indicatorsTwoTitle Resp. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
 			v-tabs(fixed centered)
