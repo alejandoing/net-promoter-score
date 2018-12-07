@@ -16,7 +16,7 @@
 									span.display-1.headline Satisfacción de Cliente: {{ indicatorsGlobal.satisfaction }}%
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
-			v-flex(xs3)
+			v-flex(xs6 md3)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
@@ -25,7 +25,7 @@
 									span.indicatorsTwoTitle Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
-			v-flex(xs3)
+			v-flex(xs6 md3)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
@@ -34,7 +34,7 @@
 									span.indicatorsTwoTitle Comentarios: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
-			v-flex(xs3)
+			v-flex(xs6 md3)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
@@ -43,7 +43,7 @@
 									span.indicatorsTwoTitle Just. Servicio: {{ indicatorsGlobal.service[1] }}% - {{ indicatorsGlobal.service[0] }} total
 					v-card-title
 						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
-			v-flex(xs3)
+			v-flex(xs6 md3)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
@@ -98,217 +98,217 @@
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
 			v-flex(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="topLocals")
-			v-flex(xs12)
-				div.pb-5
-					span.display-1 Resultados por Local
-					v-divider
-			template(v-if="locals")
-				v-flex(xs4 v-for="local in locals" :key="local.title")
-					v-card.my-1.mr-1(flat tile)
-						v-card-media.white--text.primary(height="100px")
-							v-container(fill-height fluid)
-								v-layout(fill-height)
-									v-flex(xs12 align-end flexbox)
-										span.display-1.headline {{ local.title }}
-										v-divider
-						v-card-title
-							v-layout(row wrap)
-								v-flex(xs12)
-									v-badge(right color="blue")
-										span(slot="badge") {{ local.assessments.total }}
-										span Valoraciones
-								v-flex.my-2(xs12 v-if="local.assessments.total")
-									span Satisfacción de Cliente {{ local.indicators.satisfaction }} %
-									v-progress-linear(:value="local.indicators.satisfaction" height="20" color="info")
-								v-flex.my-2(xs12 v-if="local.assessments.total")
-									span Indice de Justificación {{ local.indicators.justification }} %
-									v-progress-linear(:value="local.indicators.justification" height="20" color="info")
-						v-card-actions
-							v-btn(flat color="primary" @click.native="selectLocal(local)" :disabled="!local.assessments.total") Ver Resultados
-							v-btn(:to="'/locals/' + local.id" flat color="primary") Ir al Local
-			v-flex(xs12 sm12 v-else) 
-				span.message ¡Aún no se han registrado locales para esta organización!
-			v-layout.py-5(row child-flex justify-center align-center wrap v-if='!locals')
-				v-flex(fill-height xs12 offset-xs5)
-					v-btn(to="/locals/new/" large outline color="primary") Registrar Local
-			v-flex(xs12)
-				div.pb-5
-					span.display-1 Resultados Personalizados
-					v-divider
-			v-flex(xs12 sm4 offset-sm2)
-				v-menu(
-					lazy
-					:close-on-click="false"
-					v-model="menuDateSince"
-					transition="scale-transition"
-					offset-y
-					full-width
-					:nudge-right="40"
-					max-width="290px"
-					min-width="290px"
-				)
-					v-text-field(
-						slot="activator" 
-						label="Fecha Desde" 
-						v-model="dateSinceFormatted" 
-						prepend-icon="event" 
-						@click="activeDateMenus"
-					)
-					v-date-picker(
-						locale="es-sp"
-						v-model="dateSince"
-						@input="dateSinceFormatted = formatDate($event)"
-						no-title
-						scrollable
-						actions
-					)
-						template(slot-scope="{ save, cancel }")
-							v-card-actions
-								v-spacer
-								v-btn(flat color="primary" @click="save") Seleccionar
-								v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
-			v-flex(xs12 sm4)
-				v-menu(
-					lazy
-					:close-on-click="false"
-					v-model="menuDateUntil"
-					transition="scale-transition"
-					offset-y
-					full-width
-					:nudge-right="40"
-					max-width="290px"
-					min-width="290px"
-				)
-					v-text-field(
-						slot="activator" 
-						label="Fecha Hasta" 
-						v-model="dateUntilFormatted" 
-						prepend-icon="event"
-					)
-					v-date-picker(
-						locale="es-sp" 
-						v-model="dateUntil" 
-						@input="dateUntilFormatted = formatDate($event)" 
-						no-title 
-						scrollable
-						actions
-					)
-						template(slot-scope="{ save, cancel }")
-							v-card-actions
-								v-spacer
-								v-btn(flat color="primary" @click="save") Seleccionar
-								v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
-			v-flex(xs12 sm4 offset-sm2)
-				v-menu(
-					lazy
-					:close-on-content-click="false"
-					v-model="menuTimeSince"
-					transition="scale-transition"
-					offset-y
-					full-width
-					:nudge-right="40"
-					max-width="290px"
-					min-width="290px"
-				)
-					v-text-field(
-						slot="activator"
-						label="Hora Desde"
-						v-model="timeSince"
-						prepend-icon="access_time"
-						readonly
-					)
-					v-time-picker(v-model="timeSince" autosave format="24hr")
-						template(slot-scope="{ save, cancel }")
-							v-card-actions
-								v-btn(flat color="primary" @click="desactiveTimeMenuSince") Cancelar
-			v-flex(xs12 sm4)
-				v-menu(
-					lazy
-					:close-on-content-click="false"
-					v-model="menuTimeUntil"
-					transition="scale-transition"
-					offset-y
-					full-width
-					:nudge-right="40"
-					max-width="290px"
-					min-width="290px"
-				)
-					v-text-field(
-						slot="activator"
-						label="Hora Hasta"
-						v-model="timeUntil"
-						prepend-icon="access_time"
-						readonly
-					)
-					v-time-picker(v-model="timeUntil" autosave format="24hr")
-						template(slot-scope="{ save, cancel }")
-							v-card-actions
-								v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
-		v-layout(row child-flex justify-center align-center wrap)
-			v-flex.py-5(fill-height xs12 offset-xs5)
-				v-btn#submit(large outline :loading="loading" :disabled="loading || (!timeSince && !dateSince)" @click.native="searchStats" color="primary") Obtener Resultados
-					span.custom-loader(slot="loader")
-						v-icon(light) cached
-				div(style="flex: 1 1 auto;")
-		v-dialog(v-model="dialog" persistent max-width="500" fullscreen transition="dialog-bottom-transition" :overlay=false scrollable)
-			v-card
-				v-toolbar(style="flex: 0 0 auto;" dark class="primary")
-					v-btn(icon @click.native="dialog = false" dark)
-						v-icon close
-					v-toolbar-title Resultados de local: {{ currentLocal.title }}
-				v-card-text
-					v-flex(xs12)
-						highcharts(:options="optionsChartLocal" ref="highcharts")
-					v-tabs(fixed centered)
-						v-tabs-bar(class="primary" dark)
-							v-tabs-slider(class="yellow")
-							v-tabs-item(href="#hour-local" ripple) Por hora
-							v-tabs-item(href="#day-local" ripple) Por día
-							v-tabs-item(href="#month-local" ripple) Por mes
-						v-tabs-items
-							v-tabs-content(id="hour-local")
-								v-flex.py-5(xs12)
-									highcharts(:options="optionsChartLocalDatesHour" ref="highcharts")
-							v-tabs-content(id="day-local")
-								v-flex.py-5(xs12)
-									highcharts(:options="optionsChartLocalDatesDay" ref="highcharts")
-							v-tabs-content(id="month-local")
-								v-flex.py-5(xs12)
-									highcharts(:options="optionsChartLocalDatesMonth" ref="highcharts")
-				div(style="flex: 1 1 auto;")
-		v-dialog(v-model="dialogPreResults" persistent max-width="500")
-			v-card
-				v-card-title.headline(v-html="titleDialogPreResults")
-				v-card-text(v-html="textDialogPreResults")
-				v-card-actions
-					v-spacer
-					v-btn(color="green darken-1" flat @click.native="dialogPreResults = false") Entendido
-		v-dialog(v-model="dialogResults" persistent max-width="500" fullscreen transition="dialog-bottom-transition" :overlay=false scrollable)
-			v-card
-				v-toolbar(style="flex: 0 0 auto;" dark class="primary")
-					v-btn(icon @click.native="dialogResults = false" dark)
-						v-icon close
-					v-toolbar-title Resultados personalizados:
-				v-card-text
-					v-flex(xs12)
-						highcharts(:options="optionsChartCustom" ref="highcharts")
-					v-tabs(fixed centered)
-						v-tabs-bar(class="primary" dark)
-							v-tabs-slider(class="yellow")
-							v-tabs-item(href="#hour-custom" ripple) Por hora
-							v-tabs-item(href="#day-custom" ripple) Por día
-							v-tabs-item(href="#month-custom" ripple) Por mes
-						v-tabs-items
-							v-tabs-content(id="hour-custom")
-								v-flex.py-5(xs12)
-									highcharts(:options="optionsChartCustomDatesHour" ref="highcharts")
-							v-tabs-content(id="day-custom")
-								v-flex.py-5(xs12)
-									highcharts(:options="optionsChartCustomDatesDay" ref="highcharts")
-							v-tabs-content(id="month-custom")
-								v-flex.py-5(xs12)
-									highcharts(:options="optionsChartCustomDatesMonth" ref="highcharts")
-				div(style="flex: 1 1 auto;")
+		//- 	v-flex(xs12)
+		//- 		div.pb-5
+		//- 			span.display-1 Resultados por Local
+		//- 			v-divider
+		//- 	template(v-if="locals")
+		//- 		v-flex(xs4 v-for="local in locals" :key="local.title")
+		//- 			v-card.my-1.mr-1(flat tile)
+		//- 				v-card-media.white--text.primary(height="100px")
+		//- 					v-container(fill-height fluid)
+		//- 						v-layout(fill-height)
+		//- 							v-flex(xs12 align-end flexbox)
+		//- 								span.display-1.headline {{ local.title }}
+		//- 								v-divider
+		//- 				v-card-title
+		//- 					v-layout(row wrap)
+		//- 						v-flex(xs12)
+		//- 							v-badge(right color="blue")
+		//- 								span(slot="badge") {{ local.assessments.total }}
+		//- 								span Valoraciones
+		//- 						v-flex.my-2(xs12 v-if="local.assessments.total")
+		//- 							span Satisfacción de Cliente {{ local.indicators.satisfaction }} %
+		//- 							v-progress-linear(:value="local.indicators.satisfaction" height="20" color="info")
+		//- 						v-flex.my-2(xs12 v-if="local.assessments.total")
+		//- 							span Indice de Justificación {{ local.indicators.justification }} %
+		//- 							v-progress-linear(:value="local.indicators.justification" height="20" color="info")
+		//- 				v-card-actions
+		//- 					v-btn(flat color="primary" @click.native="selectLocal(local)" :disabled="!local.assessments.total") Ver Resultados
+		//- 					v-btn(:to="'/locals/' + local.id" flat color="primary") Ir al Local
+		//- 	v-flex(xs12 sm12 v-else) 
+		//- 		span.message ¡Aún no se han registrado locales para esta organización!
+		//- 	v-layout.py-5(row child-flex justify-center align-center wrap v-if='!locals')
+		//- 		v-flex(fill-height xs12 offset-xs5)
+		//- 			v-btn(to="/locals/new/" large outline color="primary") Registrar Local
+		//- 	v-flex(xs12)
+		//- 		div.pb-5
+		//- 			span.display-1 Resultados Personalizados
+		//- 			v-divider
+		//- 	v-flex(xs12 sm4 offset-sm2)
+		//- 		v-menu(
+		//- 			lazy
+		//- 			:close-on-click="false"
+		//- 			v-model="menuDateSince"
+		//- 			transition="scale-transition"
+		//- 			offset-y
+		//- 			full-width
+		//- 			:nudge-right="40"
+		//- 			max-width="290px"
+		//- 			min-width="290px"
+		//- 		)
+		//- 			v-text-field(
+		//- 				slot="activator" 
+		//- 				label="Fecha Desde" 
+		//- 				v-model="dateSinceFormatted" 
+		//- 				prepend-icon="event" 
+		//- 				@click="activeDateMenus"
+		//- 			)
+		//- 			v-date-picker(
+		//- 				locale="es-sp"
+		//- 				v-model="dateSince"
+		//- 				@input="dateSinceFormatted = formatDate($event)"
+		//- 				no-title
+		//- 				scrollable
+		//- 				actions
+		//- 			)
+		//- 				template(slot-scope="{ save, cancel }")
+		//- 					v-card-actions
+		//- 						v-spacer
+		//- 						v-btn(flat color="primary" @click="save") Seleccionar
+		//- 						v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
+		//- 	v-flex(xs12 sm4)
+		//- 		v-menu(
+		//- 			lazy
+		//- 			:close-on-click="false"
+		//- 			v-model="menuDateUntil"
+		//- 			transition="scale-transition"
+		//- 			offset-y
+		//- 			full-width
+		//- 			:nudge-right="40"
+		//- 			max-width="290px"
+		//- 			min-width="290px"
+		//- 		)
+		//- 			v-text-field(
+		//- 				slot="activator" 
+		//- 				label="Fecha Hasta" 
+		//- 				v-model="dateUntilFormatted" 
+		//- 				prepend-icon="event"
+		//- 			)
+		//- 			v-date-picker(
+		//- 				locale="es-sp" 
+		//- 				v-model="dateUntil" 
+		//- 				@input="dateUntilFormatted = formatDate($event)" 
+		//- 				no-title 
+		//- 				scrollable
+		//- 				actions
+		//- 			)
+		//- 				template(slot-scope="{ save, cancel }")
+		//- 					v-card-actions
+		//- 						v-spacer
+		//- 						v-btn(flat color="primary" @click="save") Seleccionar
+		//- 						v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
+		//- 	v-flex(xs12 sm4 offset-sm2)
+		//- 		v-menu(
+		//- 			lazy
+		//- 			:close-on-content-click="false"
+		//- 			v-model="menuTimeSince"
+		//- 			transition="scale-transition"
+		//- 			offset-y
+		//- 			full-width
+		//- 			:nudge-right="40"
+		//- 			max-width="290px"
+		//- 			min-width="290px"
+		//- 		)
+		//- 			v-text-field(
+		//- 				slot="activator"
+		//- 				label="Hora Desde"
+		//- 				v-model="timeSince"
+		//- 				prepend-icon="access_time"
+		//- 				readonly
+		//- 			)
+		//- 			v-time-picker(v-model="timeSince" autosave format="24hr")
+		//- 				template(slot-scope="{ save, cancel }")
+		//- 					v-card-actions
+		//- 						v-btn(flat color="primary" @click="desactiveTimeMenuSince") Cancelar
+		//- 	v-flex(xs12 sm4)
+		//- 		v-menu(
+		//- 			lazy
+		//- 			:close-on-content-click="false"
+		//- 			v-model="menuTimeUntil"
+		//- 			transition="scale-transition"
+		//- 			offset-y
+		//- 			full-width
+		//- 			:nudge-right="40"
+		//- 			max-width="290px"
+		//- 			min-width="290px"
+		//- 		)
+		//- 			v-text-field(
+		//- 				slot="activator"
+		//- 				label="Hora Hasta"
+		//- 				v-model="timeUntil"
+		//- 				prepend-icon="access_time"
+		//- 				readonly
+		//- 			)
+		//- 			v-time-picker(v-model="timeUntil" autosave format="24hr")
+		//- 				template(slot-scope="{ save, cancel }")
+		//- 					v-card-actions
+		//- 						v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
+		//- v-layout(row child-flex justify-center align-center wrap)
+		//- 	v-flex.py-5(fill-height xs12 offset-xs5)
+		//- 		v-btn#submit(large outline :loading="loading" :disabled="loading || (!timeSince && !dateSince)" @click.native="searchStats" color="primary") Obtener Resultados
+		//- 			span.custom-loader(slot="loader")
+		//- 				v-icon(light) cached
+		//- 		div(style="flex: 1 1 auto;")
+		//- v-dialog(v-model="dialog" persistent max-width="500" fullscreen transition="dialog-bottom-transition" :overlay=false scrollable)
+		//- 	v-card
+		//- 		v-toolbar(style="flex: 0 0 auto;" dark class="primary")
+		//- 			v-btn(icon @click.native="dialog = false" dark)
+		//- 				v-icon close
+		//- 			v-toolbar-title Resultados de local: {{ currentLocal.title }}
+		//- 		v-card-text
+		//- 			v-flex(xs12)
+		//- 				highcharts(:options="optionsChartLocal" ref="highcharts")
+		//- 			v-tabs(fixed centered)
+		//- 				v-tabs-bar(class="primary" dark)
+		//- 					v-tabs-slider(class="yellow")
+		//- 					v-tabs-item(href="#hour-local" ripple) Por hora
+		//- 					v-tabs-item(href="#day-local" ripple) Por día
+		//- 					v-tabs-item(href="#month-local" ripple) Por mes
+		//- 				v-tabs-items
+		//- 					v-tabs-content(id="hour-local")
+		//- 						v-flex.py-5(xs12)
+		//- 							highcharts(:options="optionsChartLocalDatesHour" ref="highcharts")
+		//- 					v-tabs-content(id="day-local")
+		//- 						v-flex.py-5(xs12)
+		//- 							highcharts(:options="optionsChartLocalDatesDay" ref="highcharts")
+		//- 					v-tabs-content(id="month-local")
+		//- 						v-flex.py-5(xs12)
+		//- 							highcharts(:options="optionsChartLocalDatesMonth" ref="highcharts")
+		//- 		div(style="flex: 1 1 auto;")
+		//- v-dialog(v-model="dialogPreResults" persistent max-width="500")
+		//- 	v-card
+		//- 		v-card-title.headline(v-html="titleDialogPreResults")
+		//- 		v-card-text(v-html="textDialogPreResults")
+		//- 		v-card-actions
+		//- 			v-spacer
+		//- 			v-btn(color="green darken-1" flat @click.native="dialogPreResults = false") Entendido
+		//- v-dialog(v-model="dialogResults" persistent max-width="500" fullscreen transition="dialog-bottom-transition" :overlay=false scrollable)
+		//- 	v-card
+		//- 		v-toolbar(style="flex: 0 0 auto;" dark class="primary")
+		//- 			v-btn(icon @click.native="dialogResults = false" dark)
+		//- 				v-icon close
+		//- 			v-toolbar-title Resultados personalizados:
+		//- 		v-card-text
+		//- 			v-flex(xs12)
+		//- 				highcharts(:options="optionsChartCustom" ref="highcharts")
+		//- 			v-tabs(fixed centered)
+		//- 				v-tabs-bar(class="primary" dark)
+		//- 					v-tabs-slider(class="yellow")
+		//- 					v-tabs-item(href="#hour-custom" ripple) Por hora
+		//- 					v-tabs-item(href="#day-custom" ripple) Por día
+		//- 					v-tabs-item(href="#month-custom" ripple) Por mes
+		//- 				v-tabs-items
+		//- 					v-tabs-content(id="hour-custom")
+		//- 						v-flex.py-5(xs12)
+		//- 							highcharts(:options="optionsChartCustomDatesHour" ref="highcharts")
+		//- 					v-tabs-content(id="day-custom")
+		//- 						v-flex.py-5(xs12)
+		//- 							highcharts(:options="optionsChartCustomDatesDay" ref="highcharts")
+		//- 					v-tabs-content(id="month-custom")
+		//- 						v-flex.py-5(xs12)
+		//- 							highcharts(:options="optionsChartCustomDatesMonth" ref="highcharts")
+		//- 		div(style="flex: 1 1 auto;")
 </template>
 
 <script>
@@ -626,35 +626,43 @@
 		},
 		
 		created() {
+			let assessment = null
+			let i = 0
+
 			this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
-			.onSnapshot(querySnapshot => { 
-				this.assessments = []
-				querySnapshot.forEach(doc => {
-					let assessment = doc.data()
-					assessment.id = doc.id
-					this.assessments.unshift(assessment)
-				})
-				this.$firebase.firestore().collection('locals').where('business', '==', this.userStorage.business)
-				.onSnapshot(async querySnapshot => {
-					this.locals = []
-					await querySnapshot.forEach(doc => {
-						let local = doc.data()
-						local.id = doc.id
-						local.assessments = { total: 0, veryGood: 0, good: 0, bad: 0, veryBad: 0, percentages: [] }
-						local.indicators = { satisfaction: null, justification: null }
-						this.locals.unshift(local)
+				.onSnapshot(querySnapshot => {
+					this.assessments = []
+					querySnapshot.forEach(doc => {
+						assessment = doc.data()
+						assessment.id = doc.id
+						this.assessments.unshift(assessment)
 					})
-					if (!this.locals.length) this.locals = false
-					this.getChartGlobal()
-					this.getChartGlobalDatesHour()
-					this.getChartGlobalDatesDayW()
-					this.getChartGlobalDatesDay()
-					this.getChartGlobalDatesMonth()
-					this.getIndicatorsGlobal()
-					this.getChartLocal()
-					this.getChartLocalDatesHour()
-					this.getIndicatorsLocal()
-				})
+					this.$firebase.firestore().collection('locals').where('business', '==', this.userStorage.business)
+						.onSnapshot(async querySnapshot => {
+							this.locals = []
+							await querySnapshot.forEach(doc => {
+								let local = doc.data()
+								local.id = doc.id
+								local.assessments = []
+								for (let assesment of this.assessments) {
+									if (assesment.local == local.id) {
+										local.assessments.push(assesment)
+									}
+								}
+								local.indicators = { satisfaction: null, justification: null }
+								this.locals.unshift(local)
+							})
+
+
+							if (!this.locals.length) this.locals = false
+
+							this.getChartGlobal()
+							this.getChartGlobalDatesHour()
+							this.getChartGlobalDatesDayW()
+							this.getChartGlobalDatesDay()
+							this.getChartGlobalDatesMonth()
+							this.getIndicatorsGlobal()
+						})
 			})
 		},
 		methods: {
@@ -780,7 +788,8 @@
 				return isNaN(result) ? 0 : result
 			},
 			
-			async getChartGlobal() {
+			getChartGlobal() {
+				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 				const total = this.assessments.length
 				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
 				let numServ = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
@@ -788,9 +797,15 @@
 				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
 				let complains = new Array(2).fill(0)
 				let comments = new Array(2).fill(0)
+				let activeLocals = []
+				let setUpLocals = []
 				
 				for (let assesment of this.assessments) {
 					for (let local of this.locals) {
+						if (local.assessments.length && !setUpLocals.includes(local)) {
+							setUpLocals.push(local)
+							activeLocals.push(this.getChartLocal(local))
+						}
 						if (local.id == assesment.local) {
 							switch(local.zone) {
 								case 'MM3exjMdkKaQ0cUkAkM2':
@@ -814,6 +829,7 @@
 							}
 						}
 					}
+
 					switch(assesment.face) {
 						case 'veryGood':
 							numVeryGood++
@@ -890,6 +906,8 @@
 						5: [zoneFC, this.getPercentage(zoneFC, total)],						
 					}
 				}
+
+				this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
 			},
 
 			getChartCustom() {
@@ -920,7 +938,6 @@
 
 			getIndicatorsGlobal() {
 				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
-				console.log(this.assessments.stats)
 				
 				const total = this.assessments.length
 				const stats = this.assessments.stats
@@ -949,21 +966,35 @@
 			},
 
 			getIndicatorsLocal(local) {
-				return 0
-					// let total = local.assessments.total
-					// let justification = 0
-					// let partialsGood = (local.assessments.veryGood * 2) + local.assessments.good
-					// let partialsBad =  (local.assessments.veryBad * 2) + local.assessments.bad
-					// let partials = partialsGood + partialsBad
+				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
+				
+				const total = local.assessments.stats.total
+				const stats = local.assessments.stats
+				
+				let complains = 0, comments = 0, services = 0, reasons = 0
+				local.indicatorsGlobal = {}
 
-					// for (let assessment of this.assessments) {
-					// 	if (assessment.local == local.id) {
-					// 		if (assessment.flow.justification) justification++
-					// 	}
-					// }
+				for (let assessment of local.assessments) {
+					assessment.complain ? complains++ : complains
+					assessment.comment ? comments++ : comments
+					assessment.flow.justification ? services++ : services
+					assessment.flow.justificationTwo ? reasons++ : reasons
+				}
 
-					// local.indicators.satisfaction = ((partialsGood * 100) / partials).toFixed(2)
-					// local.indicators.justification = ((justification * 100) / total).toFixed(2)
+				const partialGood = parseInt(stats.good * total / 100) * PRC_GOOD
+				const partialBad = parseInt(stats.bad * total / 100) * PRC_BAD
+				const partialVeryBad = parseInt(stats.veryBad * total / 100) * PRC_VERY_BAD
+				
+				const partials = partialGood + partialBad + partialVeryBad
+
+				local.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
+				
+				local.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
+				local.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
+				local.indicatorsGlobal.service = [services, this.getPercentage(services, total)]
+				local.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, total)]
+
+				return local.indicatorsGlobal
 			},
 
 			getChartGlobalDatesHour() {
@@ -995,7 +1026,7 @@
 				for (let i = 8; i < 23; i++) {
 					let total = timesVeryGood[i] + timesGood[i] + timesBad[i] + timesVeryBad[i]
 					this.chartHourGlobal.push({
-						title: i,
+						title: i + " hs",
 						total,
 						veryGood: this.getPercentage(timesVeryGood[i], total),
 						good: this.getPercentage(timesGood[i], total),
@@ -1103,8 +1134,8 @@
 				for (let i = 1; i < 32; i++) {
 					let total = daysVeryGood[i] + daysGood[i] + daysBad[i] + daysVeryBad[i]
 					this.chartDayGlobal.push({
-						title: i,
-						total,
+						title: "Día " + i,
+						total: isNaN(total) ? 0 : total,
 						veryGood: this.getPercentage(daysVeryGood[i], total),
 						good: this.getPercentage(daysGood[i], total),
 						bad: this.getPercentage(daysBad[i], total),
@@ -1170,7 +1201,7 @@
 
 				this.chartMonthGlobal = []
 
-				for (let i = 1; i < 13; i++) {
+				for (let i = 0; i < 12; i++) {
 					let total = monthsVeryGood[i] + monthsGood[i] + monthsBad[i] + monthsVeryBad[i]
 					this.chartMonthGlobal.push({
 						title: CATEGORIES[i],
@@ -1212,33 +1243,102 @@
 				this.optionsChartCustomDatesMonth.series[3].data = monthsVeryBad
 			},
 
-			getChartLocal() {
-				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
-				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0, activeLocals = []
+			getChartLocal(local) {
+				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
+				let numServ = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
+				let numReas = 0, numReas2 = 0, numReas3 = 0, numReas4 = 0
+				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
+				let complains = new Array(2).fill(0)
+				let comments = new Array(2).fill(0)
 				
-				for (let local of this.locals) {
-					for (let assessment of this.assessments) {
-						if(assessment.local.id == local.id || assessment.local == local.id) {
-							local.assessments.total++
-							local.assessments[assessment.face]++
-						}
+				for (let assesment of local.assessments) {
+					switch(assesment.face) {
+						case 'veryGood':
+							numVeryGood++
+						break
+						case 'good':
+							numGood++
+						break
+						case 'bad':
+							numBad++
+						break
+						case 'veryBad':
+							numVeryBad++
+						break
 					}
 
-					if (local.assessments.total)
-						activeLocals.push({
-							title: local.title,
-							veryGood: parseFloat(((local.assessments["veryGood"] * 100) / local.assessments.total).toFixed(2)),
-							good: parseFloat(((local.assessments["good"] * 100) / local.assessments.total).toFixed(2)),
-							bad: parseFloat(((local.assessments["bad"] * 100) / local.assessments.total).toFixed(2)),
-							veryBad: parseFloat(((local.assessments["veryBad"] * 100) / local.assessments.total).toFixed(2)),
-							total: local.assessments.total
-						})
+					switch(assesment.justification) {
+						case 'Pago de servicios':
+							numServ++
+						break
+						case 'Envío internacional':
+							numServ2++
+						break
+						case 'Envío nacional':
+							numServ3++
+						break
+						case 'Casa de cambio':
+							numServ4++
+						break
+					}
 
-					this.topLocals = activeLocals.sort(sortByProperty('veryGood')).slice(0,5)
-
-					localStorage.setItem('topLocals', JSON.stringify(this.topLocals))
-					this.badLocals = activeLocals.sort(sortByProperty('veryBad'))
+					switch(assesment.justificationTwo) {
+						case 'Atención del Cajero':
+							numReas++
+						break
+						case 'Tiempo de Espera':
+							numReas2++
+						break
+						case 'Estado del Local':
+							numReas3++
+						break
+						case 'Servicio Utilizado':
+							numReas4++
+						break
+					}
 				}
+
+				let total = numVeryGood + numGood + numBad + numVeryBad
+
+				local.assessments.stats = {
+					title: local.title,
+					veryGood: this.getPercentage(numVeryGood, total),
+					good: this.getPercentage(numGood, total),
+					bad: this.getPercentage(numBad, total),
+					veryBad: this.getPercentage(numVeryBad, total),
+					total
+				}
+
+				local.assessments.stats.satisfaction = this.getIndicatorsLocal(local).satisfaction
+
+				return local.assessments.stats
+
+				// const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
+				// let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0, activeLocals = []
+				
+				// for (let local of this.locals) {
+				// 	for (let assessment of this.assessments) {
+				// 		if(assessment.local == local.id) {
+				// 			local.assessments.total++
+				// 			local.assessments[assessment.face]++
+				// 		}
+				// 	}
+
+				// 	if (local.assessments.total)
+				// 		activeLocals.push({
+				// 			title: local.title,
+				// 			veryGood: parseFloat(((local.assessments["veryGood"] * 100) / local.assessments.total).toFixed(2)),
+				// 			good: parseFloat(((local.assessments["good"] * 100) / local.assessments.total).toFixed(2)),
+				// 			bad: parseFloat(((local.assessments["bad"] * 100) / local.assessments.total).toFixed(2)),
+				// 			veryBad: parseFloat(((local.assessments["veryBad"] * 100) / local.assessments.total).toFixed(2)),
+				// 			total: local.assessments.total
+				// 		})
+
+				// 	this.topLocals = activeLocals.sort(sortByProperty('veryGood')).slice(0,5)
+
+				// 	localStorage.setItem('topLocals', JSON.stringify(this.topLocals))
+				// 	this.badLocals = activeLocals.sort(sortByProperty('veryBad'))
+				// }
 			},
 
 			selectLocal(local) {
@@ -1393,4 +1493,8 @@
 			transform: rotate(0)
 		to
 			transform: rotate(360deg)
+
+	@media (max-width: 1242px)
+		.indicatorsTwoTitle
+			font-size: 16px
 </style>
