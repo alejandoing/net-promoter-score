@@ -132,10 +132,10 @@
 					)
 				v-flex(xs12 sm4)
 					v-checkbox(
-						v-model="unread"
-						label="No Leído"
+						v-model="closed"
+						label="Cerrado"
 						type="checkbox"
-						style="position: relative; top: 20px; right: 80px"
+						style="position: relative; top: 20px; right: 130px"
 					)
 			v-layout(row).mb-5
 				v-flex(xs12 sm4 offset-sm2)
@@ -147,19 +147,28 @@
 					v-list
 						template(v-for="ticket in tickets")
 							v-list-tile(avatar)
-								v-list-tile-avatar.pr-5
+								v-list-tile-avatar.pr-5(v-if="ticket.status == 2")
+									span Cerrado
+									v-checkbox(
+										checked
+										input-value="true"
+										readonly
+										color="green"
+										hide-details
+									)
+								v-list-tile-avatar.pr-5(v-else)
 									span Leído
 									v-checkbox(
-										v-model="ticket.leido"
+										v-model="ticket.status"
 										@click="updateTicket(ticket)"
 										color="blue"
 										hide-details
 									)
 								v-spacer(style="flex-grow: .1 !important")
 								v-list-tile-content.ticket-content(ripple @click="viewTicket(ticket.id)")
-									v-list-tile-title.black-text Ticket Nro: {{ ticket.id }} ({{ ticket.dateFormat }})
+									v-list-tile-title.black-text {{ ticket.email }} - ({{ ticket.dateFormat }})
 									v-list-tile-sub-title
-										span.grey--text.text--darken-2 {{ ticket.email }}
+										span.grey--text.text--darken-2 {{ ticket.description }}
 							v-divider
 			v-flex(xs12 sm12 v-else) 
 				span.message Los tickets que se registren en el sistema aparecerán aquí
@@ -175,8 +184,8 @@
 				localID: null,
 				locals: null,
 				localsSelect: [],
-				read: true,
-				unread: true,
+				read: false,
+				closed: false,
 				menuDateSince: false,
 				menuDateUntil: false,
 				dateSince: null,
@@ -202,8 +211,8 @@
 			read() {
 				if (!this.read) this.unread = true
 			},
-			unread() {
-				if (!this.unread) this.read = true
+			closed() {
+				if (this.closed) this.read = true
 			}
 		},
 		created() {
@@ -273,12 +282,14 @@
 				let d = new Date(inputFormat)
 				let date = [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
 				let time = [pad(d.getHours()), pad(d.getMinutes())].join(':')
-				return date + " a las " + time + " hs"
+				return `${date} - ${time} hs`
 			},
 
 			searchTickets() {
 				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
-				if (this.read != this.unread) tickets = tickets.where('leido', '==', this.read)
+				let status = this.read ? 1 : 0
+				status = this.closed ? 2 : status
+				tickets = tickets.where('status', '==', status)
 				if (this.local) tickets = tickets.where('local.id', '==', this.localID)
 
 				let timeSince = '00:00'
@@ -383,7 +394,7 @@
 					date: ticket.date,
 					description: ticket.description,
 					email: ticket.email,
-					leido: !ticket.leido,
+					status: ticket.status == 0 ? 1 : 0,
 					local: ticket.local,
 					poll: ticket.poll,
 					telephone: ticket.telephone
