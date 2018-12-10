@@ -159,7 +159,7 @@
 		methods: {
 			async waiting(i) {
 				i++
-				if (i == 150000000) {
+				if (i == 15) {
 					clearInterval(this.timer)
 					await this.createAssessment()
 					this.i = 0
