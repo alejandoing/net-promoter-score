@@ -84,6 +84,8 @@
 					v-divider
 			v-flex(xs9 offset-xs2)
 				Reason.pb-5(:data="assessments.stats")
+			//- v-flex(xs12)
+			//- 	Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="topLocals")
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Jefe Zonales
@@ -794,6 +796,7 @@
 				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
 				let numServ = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
 				let numReas = 0, numReas2 = 0, numReas3 = 0, numReas4 = 0
+				let reasVeryGood = 0, reasGood = 0, reasBad = 0, reasVeryBad = 0
 				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
 				let complains = new Array(2).fill(0)
 				let comments = new Array(2).fill(0)
@@ -867,18 +870,24 @@
 					switch(assesment.justificationTwo) {
 						case 'Atención del Cajero':
 							numReas++
+							assesment.face == "veryGood" ? reasVeryGood++ : assesment.face == "good" ? reasGood++ : assesment.face == "bad" ? reasBad++ : reasVeryBad++
 						break
 						case 'Tiempo de Espera':
 							numReas2++
+							assesment.face == "veryGood" ? reasVeryGood++ : assesment.face == "good" ? reasGood++ : assesment.face == "bad" ? reasBad++ : reasVeryBad++
 						break
 						case 'Estado del Local':
 							numReas3++
+							assesment.face == "veryGood" ? reasVeryGood++ : assesment.face == "good" ? reasGood++ : assesment.face == "bad" ? reasBad++ : reasVeryBad++
 						break
 						case 'Servicio Utilizado':
 							numReas4++
+							assesment.face == "veryGood" ? reasVeryGood++ : assesment.face == "good" ? reasGood++ : assesment.face == "bad" ? reasBad++ : reasVeryBad++
 						break
 					}
 				}
+
+				console.log(reasVeryGood, reasGood, reasBad, reasVeryBad)
 
 				this.assessments.stats = {
 					veryGood: [numVeryGood, this.getPercentage(numVeryGood, total), comments[1]],
@@ -906,6 +915,13 @@
 						5: [zoneFC, this.getPercentage(zoneFC, total)],						
 					}
 				}
+
+				let reasonsChart = [{
+					veryGood: this.assessments.stats.reasons[0],
+					good: this.assessments.stats.reasons[1],
+					bad: this.assessments.stats.reasons[2],
+					veryBad: this.assessments.stats.reasons[3],
+				}]
 
 				this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
 			},

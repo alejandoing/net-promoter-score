@@ -159,7 +159,7 @@
 		methods: {
 			async waiting(i) {
 				i++
-				if (i == 15) {
+				if (i == 150000000) {
 					clearInterval(this.timer)
 					await this.createAssessment()
 					this.i = 0
@@ -340,17 +340,17 @@
 			left: 0
 			right: 0
 			height: 400px
-			opacity: 0.8
+			background-color: rgba(255, 255, 255, 0.8)
 			margin: auto
 			.question
 				display: block
 				font-size: 36px
 				text-align: center
 			.card
+				background-color: rgba(255, 255, 255, 0.0) !important
 				display: flex
 				justify-content: center
 				align-items: center
-				opacity: 1
 				.contact
 					input
 						padding-left: 20px
