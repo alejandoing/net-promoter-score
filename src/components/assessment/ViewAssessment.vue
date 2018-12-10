@@ -144,7 +144,7 @@
 				}
 				else {
 					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
-					this.step == 4 ? STEPPER.style.height = '67%' : null
+					this.step == 4 ? STEPPER.style.height = '67%' : STEPPER.style.height = '500px'
 				}
 			},
 			email() { this.i = 0 },
@@ -388,11 +388,10 @@
 	
 	@media (max-height: 600px)
 		.stepper
-			height: 90% !important
+			height: 85% !important
 	@media (min-height: 730px)
 		.stepper
 			height: 70% !important
-			
 </style>
 
 <style lang="sass">

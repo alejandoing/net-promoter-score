@@ -166,9 +166,13 @@
 									)
 								v-spacer(style="flex-grow: .1 !important")
 								v-list-tile-content.ticket-content(ripple @click="viewTicket(ticket.id)")
-									v-list-tile-title.black-text {{ ticket.email }} - ({{ ticket.dateFormat }})
+									v-list-tile-title.black-text 
+										| {{ ticket.email }} - ({{ ticket.dateFormat }})
 									v-list-tile-sub-title
 										span.grey--text.text--darken-2 {{ ticket.description }}
+								v-spacer(style="flex-grow: .1 !important")
+								v-btn(v-if="ticket.complain" color="error" small) Queja
+								v-btn(v-else color="success" small) Com. Positivo
 							v-divider
 			v-flex(xs12 sm12 v-else) 
 				span.message Los tickets que se registren en el sistema aparecerán aquí
@@ -222,6 +226,7 @@
 				querySnapshot.forEach(doc => {
 					let ticket = doc.data()
 					ticket.dateFormat = this.convertDate(doc.data().date)
+					ticket.kind = ticket.complain ? 'Queja' : 'Comentario Positivo'
 					ticket.id = doc.id
 					this.tickets.unshift(ticket)
 				})
