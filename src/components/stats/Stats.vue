@@ -99,7 +99,7 @@
 			v-flex(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
 			v-flex(xs12 v-if="assessments")
-				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="topLocals")
+				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="badLocals")
 		//- 	v-flex(xs12)
 		//- 		div.pb-5
 		//- 			span.display-1 Resultados por Local
@@ -787,7 +787,7 @@
 			},
 
 			getPercentage(part, universe) {
-				let result = parseFloat(((part * 100) / universe).toFixed(0)) 
+				let result = parseFloat(((part * 100) / universe).toFixed(2))
 				return isNaN(result) ? 0 : result
 			},
 			
@@ -944,10 +944,19 @@
 					satisfaction: this.getIndicatorsReason(numReas4, this.getPercentage(reas4Good, numReas4), this.getPercentage(reas4Bad, numReas4), this.getPercentage(reas4VeryBad, numReas4))
 				}]
 
-
 				this.reasonChart = reasonChart.sort(sortByProperty('satisfaction')).reverse()
-
 				this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
+				console.log(this.topLocals)
+				function reverseArrayInPlace(arr) {
+					for (var i = 0; i <= Math.floor((arr.length - 1) / 2); i++) {
+						let el = arr[i]
+							arr[i] = arr[arr.length - 1 - i]
+							arr[arr.length - 1 - i] = el
+					}
+					return arr
+				}
+				
+				this.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse()
 			},
 
 			getChartCustom() {
