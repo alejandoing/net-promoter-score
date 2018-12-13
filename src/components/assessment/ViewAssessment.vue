@@ -125,7 +125,7 @@
 					contact: false
 				},
 				dialog: false,
-				local: null
+				local: null,
 			}
 		},
 		watch: {
@@ -134,9 +134,12 @@
 				this[l] = !this[l]
 			},
 			step() {
+				console.log("HERE")
 				const STEPPER = document.getElementById("stepper")
 				STEPPER.style.height = '460px'
 				this.i = 0
+
+				console.log(this.timer)
 				
 				if (this.step == 1) {
 					clearInterval(this.timer)
@@ -144,12 +147,17 @@
 				}
 				else {
 					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
-					this.step == 4 ? STEPPER.style.height = '67%' : STEPPER.style.height = '500px'
+					this.step == 4 ? STEPPER.style.height = '100%' : STEPPER.style.height = '500px'
 				}
 			},
 			email() { this.i = 0 },
 			telephone() { this.i = 0 },
-			description() { this.i = 0 }
+			description() { this.i = 0 },
+			dialog() {
+				if (this.dialog) {
+					this.timer = setInterval(() => { this.waiting(this.i) }, 300)
+				}
+			}
 		},
 
 		destroyed() {
@@ -159,9 +167,11 @@
 		methods: {
 			async waiting(i) {
 				i++
+				console.log(i)
 				if (i == 15) {
 					clearInterval(this.timer)
-					await this.createAssessment()
+					if (!this.dialog) await this.createAssessment()
+					else this.finalize()
 					this.i = 0
 					this.step = 1
 				}
@@ -210,7 +220,7 @@
 					justification: this.justification,
 					justificationTwo: this.justificationTwo,
 					poll: this.$route.params.id,
-					business: this.userStorage.business,
+					business: this.local.business,
 					local: this.$route.params.localId,
 					complain: this.complain,
 					comment: this.comment
@@ -237,7 +247,7 @@
 					comment: this.comment,
 					answer: null,
 					status: 0,
-					business: this.userStorage.business,
+					business: this.local.business,
 					local: this.$route.params.localId,
 					poll: this.$route.params.id
 				})
@@ -259,6 +269,7 @@
 
 			finalize() {
 				this.dialog = false,
+				this.timer = null,
 				this.step = 1
 				this.email = null
 				this.telephone = null
@@ -385,7 +396,6 @@
 	@media (max-width: 1264px)
 		.card
 			display: grid
-	
 	@media (max-height: 600px)
 		.stepper
 			height: 85% !important
@@ -398,6 +408,3 @@
 	textarea
 		resize: none
 </style>
-
-
-
