@@ -69,6 +69,7 @@
 <script>
 	import { validationMixin } from 'vuelidate'
 	import { required, maxLength, email, sameAs } from 'vuelidate/lib/validators'
+	import axios from 'axios'
 
 	export default {
 		mixins: [validationMixin],

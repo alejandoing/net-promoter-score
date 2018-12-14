@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "prod": "webpack-dev-server --inline --progress --config build/webpack.prod.conf.js",
     "start": "npm run dev",
     "unit": "jest test/unit/specs --coverage",
     "e2e": "node test/e2e/runner.js",
@@ -14,10 +15,12 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "firebase": "^4.8.0",
     "fs": "0.0.1-security",
     "highcharts": "^6.0.4",
     "prod": "^1.0.1",
+    "uglifyjs-webpack-plugin": "^2.0.1",
     "vue": "^2.5.3",
     "vue-google-charts": "^0.3.2",
     "vue-highcharts": "0.0.10",
@@ -118,5 +121,6 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "proxy": "http://localhost:5000/"
 }
