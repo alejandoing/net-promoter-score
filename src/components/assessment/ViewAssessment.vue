@@ -69,7 +69,6 @@
 <script>
 	import { validationMixin } from 'vuelidate'
 	import { required, maxLength, email, sameAs } from 'vuelidate/lib/validators'
-	import axios from 'axios'
 
 	export default {
 		mixins: [validationMixin],
@@ -135,12 +134,12 @@
 				this[l] = !this[l]
 			},
 			step() {
-				console.log("HERE")
+				//console.log("HERE")
 				const STEPPER = document.getElementById("stepper")
 				STEPPER.style.height = '460px'
 				this.i = 0
 
-				console.log(this.timer)
+				//console.log(this.timer)
 				
 				if (this.step == 1) {
 					clearInterval(this.timer)
@@ -158,6 +157,9 @@
 				if (this.dialog) {
 					this.timer = setInterval(() => { this.waiting(this.i) }, 300)
 				}
+				else {
+					this.timer = null
+				}
 			}
 		},
 
@@ -168,7 +170,7 @@
 		methods: {
 			async waiting(i) {
 				i++
-				console.log(i)
+				//console.log(i)
 				if (i == 15) {
 					clearInterval(this.timer)
 					if (!this.dialog) await this.createAssessment()
@@ -206,6 +208,8 @@
 			},
 
 			createAssessment() {
+				clearInterval(this.timer)
+				this.i = 0
 				if (this.description) { 
 					this.flow.contact = true
 					if (this.assessment == "bad" || this.assessment == "veryBad") this.complain = 1
@@ -269,6 +273,8 @@
 			},
 
 			finalize() {
+				//console.log("FINALIZE")
+				clearInterval(this.timer)
 				this.dialog = false,
 				this.timer = null,
 				this.step = 1
