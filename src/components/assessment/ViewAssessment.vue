@@ -69,6 +69,7 @@
 <script>
 	import { validationMixin } from 'vuelidate'
 	import { required, maxLength, email, sameAs } from 'vuelidate/lib/validators'
+	import axios from 'axios'
 
 	export default {
 		mixins: [validationMixin],
@@ -290,14 +291,35 @@
 
 		async created() {
 			localStorage.setItem('assessment', 'assessment/' + this.$route.params.id + '/local/' + this.$route.params.localId)
-			let poll = this.$firebase.firestore().doc('polls/' + this.$route.params.id)
-			poll.onSnapshot(doc => this.poll = doc.data())
+			
+			// let poll = this.$firebase.firestore().doc('polls/' + this.$route.params.id)
+			// //console.log(poll)
+			// poll.onSnapshot(doc => {
+			// 	//.log(doc.data())
+			// 	//this.poll = doc.data()
+			// })
 
-			let local = this.$firebase.firestore().doc('locals/' + this.$route.params.localId)
-			local.onSnapshot(doc => this.local = doc.data())
+			//console.log(this.$firebase.firestore().doc('locals/' + this.$route.params.localId))
 
-			let imageRef = this.$firebase.storage().ref().child('polls/backgrounds/' + this.$route.params.id)
-			this.backgroundImage = await imageRef.getDownloadURL()
+			// let local = this.$firebase.firestore().doc('locals/' + this.$route.params.localId)
+			// local.onSnapshot(doc => {
+			// 	this.local = doc.data()
+			// 	//console.log(doc.data())
+			// })
+
+			const url = `http://localhost:5000/firestore/poll/${this.$route.params.id}`
+			axios.get(url)
+			.then(data => {
+				console.log(data)
+				this.poll = data.data
+				this.local = this.$route.params.localId
+			})
+			.catch(err => console.log(err))
+			
+			//let imageRef = this.$firebase.storage().ref().child('polls/backgrounds/' + this.$route.params.id)
+			//console.log(this.$firebase.storage())
+			//this.backgroundImage = await imageRef.getDownloadURL()
+			this.backgroundImage = 'http://localhost:5000/background'
 		}
 	}
 </script>
