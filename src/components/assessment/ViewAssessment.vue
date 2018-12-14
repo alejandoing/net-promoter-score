@@ -226,7 +226,7 @@
 					justification: this.justification,
 					justificationTwo: this.justificationTwo,
 					poll: this.$route.params.id,
-					business: this.local.business,
+					business: this.poll.business,
 					local: this.$route.params.localId,
 					complain: this.complain,
 					comment: this.comment
