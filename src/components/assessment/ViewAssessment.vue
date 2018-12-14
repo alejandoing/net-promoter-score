@@ -307,7 +307,7 @@
 			// 	//console.log(doc.data())
 			// })
 
-			const url = `http://localhost:5000/firestore/poll/${this.$route.params.id}`
+			const url = `http://174.36.119.5:23/firestore/poll/${this.$route.params.id}`
 			axios.get(url)
 			.then(data => {
 				console.log(data)
@@ -319,7 +319,7 @@
 			//let imageRef = this.$firebase.storage().ref().child('polls/backgrounds/' + this.$route.params.id)
 			//console.log(this.$firebase.storage())
 			//this.backgroundImage = await imageRef.getDownloadURL()
-			this.backgroundImage = 'http://localhost:5000/background'
+			this.backgroundImage = 'http://174.36.119.5:23/background'
 		}
 	}
 </script>
