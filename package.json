@@ -16,11 +16,10 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "firebase": "^4.8.0",
+    "firebase": "^5.7.1",
     "fs": "0.0.1-security",
     "highcharts": "^6.0.4",
     "prod": "^1.0.1",
-    "uglifyjs-webpack-plugin": "^2.0.1",
     "vue": "^2.5.3",
     "vue-google-charts": "^0.3.2",
     "vue-highcharts": "0.0.10",

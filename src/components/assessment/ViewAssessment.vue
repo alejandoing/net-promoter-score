@@ -39,12 +39,16 @@
 										prepend-icon="email"
 										v-model.trim="email"
 										required
+										ref="email"
+										id="email"
 									)
 								v-flex(xs12 md6)
 									v-text-field(
 										label="Teléfono"
 										prepend-icon="phone"
 										v-model.trim="telephone"
+										ref="telephone"
+										id="telephone"
 									)
 								v-flex.pb-3(xs12)
 									v-text-field(
@@ -52,6 +56,8 @@
 										v-model.trim="description"
 										multi-line
 										required
+										ref="message"
+										id="message"
 									)
 								v-btn(color="primary" :loading="loading" :disabled="loading || $v.$invalid || !description" @click.native="createAssessment") Enviar datos
 									span.custom-loader(slot="loader")
@@ -172,7 +178,7 @@
 			async waiting(i) {
 				i++
 				//console.log(i)
-				if (i == 15) {
+				if (i == 150000000000000000) {
 					clearInterval(this.timer)
 					if (!this.dialog) await this.createAssessment()
 					else this.finalize()
@@ -216,47 +222,84 @@
 					if (this.assessment == "bad" || this.assessment == "veryBad") this.complain = 1
 					if (this.assessment == "veryGood" || this.assessment == "good") this.comment = 1
 				}
-				const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
+				// const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
 				this.loader = 'loading'
 
-				ASSESSMENT_COLLECTION.add({
-					face: this.assessment,
-					date: new Date(),
-					flow: this.flow,
-					justification: this.justification,
-					justificationTwo: this.justificationTwo,
-					poll: this.$route.params.id,
-					business: this.poll.business,
-					local: this.$route.params.localId,
-					complain: this.complain,
-					comment: this.comment
+				const urlAssessment = 'http://174.36.119.5:443/firestore/assessment/add/'
+				axios.post(urlAssessment, {
+				 	face: this.assessment,
+				 	date: new Date(),
+				 	flow: this.flow,
+				 	justification: this.justification,
+				 	justificationTwo: this.justificationTwo,
+				 	poll: this.$route.params.id,
+				 	business: this.poll.business,
+				 	local: this.$route.params.localId,
+				 	complain: this.complain,
+					comment: this.comment					
 				})
 				.then(() => {
-					if (this.flow.contact) this.createTicket()
-					else {
-						this['loading'] = false
-						this.loader = null
+				 	if (this.flow.contact) this.createTicket()
+				 	else {
+				 		this['loading'] = false
+				 		this.loader = null
 						this.dialog = true
 					}
 				})
-				.catch((error) => { console.log(error) })
+				.catch(err => console.log(err))
+
+				// ASSESSMENT_COLLECTION.add({
+				// 	face: this.assessment,
+				// 	date: new Date(),
+				// 	flow: this.flow,
+				// 	justification: this.justification,
+				// 	justificationTwo: this.justificationTwo,
+				// 	poll: this.$route.params.id,
+				// 	business: this.poll.business,
+				// 	local: this.$route.params.localId,
+				// 	complain: this.complain,
+				// 	comment: this.comment
+				// })
+				// .then(() => {
+				// 	if (this.flow.contact) this.createTicket()
+				// 	else {
+				// 		this['loading'] = false
+				// 		this.loader = null
+				// 		this.dialog = true
+				// 	}
+				// })
+				// .catch((error) => { console.log(error) })
 			},
 
 			createTicket() {
-				const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')
-				TICKETS_COLLECTION.add({
-					date: new Date(),
-					description: this.description,
-					email: this.email,
-					telephone: this.telephone,
+				const urlTicket = 'http://174.36.119.5:443/firestore/ticket/add/'
+				axios.post(urlTicket, {
+				 	date: new Date(),
+				 	description: this.description,
+				 	email: this.email,
+				 	telephone: this.telephone,
 					complain: this.complain,
-					comment: this.comment,
-					answer: null,
-					status: 0,
-					business: this.local.business,
-					local: this.$route.params.localId,
-					poll: this.$route.params.id
+				 	comment: this.comment,
+				 	answer: null,
+				 	status: 0,
+				 	business: this.local.business,
+				 	local: this.$route.params.localId,
+				 	poll: this.$route.params.id			
 				})
+				// const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')
+				// TICKETS_COLLECTION.add({
+				// 	date: new Date(),
+				// 	description: this.description,
+				// 	email: this.email,
+				// 	telephone: this.telephone,
+				// 	complain: this.complain,
+				// 	comment: this.comment,
+				// 	answer: null,
+				// 	status: 0,
+				// 	business: this.local.business,
+				// 	local: this.$route.params.localId,
+				// 	poll: this.$route.params.id
+				// })
 				.then(() => {
 						this['loading'] = false
 						this.loader = null
@@ -286,6 +329,7 @@
 				this.comment = 0
 				this.flow = { contact: false, justification: false, justificationTwo: false }
 				this.i = 0
+				location.reload()
 			}
 		},
 
@@ -307,19 +351,44 @@
 			// 	//console.log(doc.data())
 			// })
 
-			const url = `http://174.36.119.5:23/firestore/poll/${this.$route.params.id}`
-			axios.get(url)
+			const urlPoll = `http://174.36.119.5:443/firestore/poll/${this.$route.params.id}`
+			axios.get(urlPoll)
 			.then(data => {
 				console.log(data)
 				this.poll = data.data
-				this.local = this.$route.params.localId
+			})
+			.catch(err => console.log(err))
+
+			const urlLocal = `http://174.36.119.5:443/firestore/local/${this.$route.params.localId}`
+			axios.get(urlLocal)
+			.then(data => {
+				console.log(data)
+				this.local = data.data
 			})
 			.catch(err => console.log(err))
 			
 			//let imageRef = this.$firebase.storage().ref().child('polls/backgrounds/' + this.$route.params.id)
 			//console.log(this.$firebase.storage())
 			//this.backgroundImage = await imageRef.getDownloadURL()
-			this.backgroundImage = 'http://174.36.119.5:23/background'
+			//this.backgroundImage = 'http://174.36.119.5/background'
+			this.backgroundImage = '../../../static/backgroundWU.png'
+		},
+
+		mounted() {
+			const ELEMENTS = ["email", "telephone", "message"]
+			addEventListener('keyup', (event) => {
+				let active = ELEMENTS.indexOf(document.activeElement.id) + 1
+				if (active === 3) active = 0
+				event.preventDefault()
+				if (event.keyCode === 13)
+					if (!this.description)
+						if (this.$v.email.$invalid) {
+							this.$refs.email.focus()
+						} else
+							this.$refs[ELEMENTS[active]].focus()
+					else if (!this.$v.$invalid && this.description)
+						this.createAssessment()
+			})
 		}
 	}
 </script>
