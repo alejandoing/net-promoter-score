@@ -946,7 +946,7 @@
 
 				this.reasonChart = reasonChart.sort(sortByProperty('satisfaction')).reverse()
 				this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
-				console.log(this.topLocals)
+
 				function reverseArrayInPlace(arr) {
 					for (var i = 0; i <= Math.floor((arr.length - 1) / 2); i++) {
 						let el = arr[i]
@@ -1175,7 +1175,7 @@
 				let daysVeryBad = new Array(31).fill(0)
 
 				for(let assessment of this.assessments) {
-					let currentDay = assessment.date.getDate()
+					let currentDay = new Date(assessment.date).getDate()
 					switch(assessment.face) {
 						case 'veryGood':
 							daysVeryGood[currentDay]++

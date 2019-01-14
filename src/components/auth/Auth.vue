@@ -101,8 +101,8 @@
 			signIn () {
 				this.loader = 'loading'
 				this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-				.then(user => {
-					this.getUser(user)
+				.then(data => {
+					this.getUser(data.user)
 				})
 				.catch((error) => {
 					console.log(error)
@@ -111,6 +111,7 @@
 			},
 
 			getUser(user) {
+				console.log(user)
 				this.$firebase.firestore().doc('users/' + user.uid).get()
 				.then(doc => {
 					console.log(doc)
@@ -256,7 +257,7 @@ body
 					z-index: 1
 					border-left: 5px solid $accent
 					margin: 0 0 35px
-					padding: 10px 0 10px 50px
+					padding: 10px 0 10px 30px
 					color: $accent
 					font-size: 30px !important
 					font-weight: 600
