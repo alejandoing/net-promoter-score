@@ -178,7 +178,7 @@
 			async waiting(i) {
 				i++
 				//console.log(i)
-				if (i == 150000000000000000) {
+				if (i == 15) {
 					clearInterval(this.timer)
 					if (!this.dialog) await this.createAssessment()
 					else this.finalize()
@@ -351,21 +351,32 @@
 			// 	//console.log(doc.data())
 			// })
 
-			const urlPoll = `http://174.36.119.5:443/firestore/poll/${this.$route.params.id}`
-			axios.get(urlPoll)
-			.then(data => {
-				console.log(data)
-				this.poll = data.data
-			})
-			.catch(err => console.log(err))
+			// const urlPoll = `http://174.36.119.5:443/firestore/poll/${this.$route.params.id}`
+			// axios.get(urlPoll)
+			// .then(data => {
+			// 	console.log(data)
+			// 	this.poll = data.data
+			// })
+			// .catch(err => console.log(err))
 
-			const urlLocal = `http://174.36.119.5:443/firestore/local/${this.$route.params.localId}`
-			axios.get(urlLocal)
-			.then(data => {
-				console.log(data)
-				this.local = data.data
-			})
-			.catch(err => console.log(err))
+			// const urlLocal = `http://174.36.119.5:443/firestore/local/${this.$route.params.localId}`
+			// axios.get(urlLocal)
+			// .then(data => {
+			// 	console.log(data)
+			// 	this.local = data.data
+			// })
+			// .catch(err => console.log(err))
+
+				axios.post('http:/174.36.119.5:443/firestore/all', {
+					local: this.$route.params.localId,
+					poll: this.$route.params.id
+				})
+				.then(res => {
+					console.log(res)
+					this.local = res.data.local
+					this.poll = res.data.poll
+				})
+				.catch(err => console.log(err))
 			
 			//let imageRef = this.$firebase.storage().ref().child('polls/backgrounds/' + this.$route.params.id)
 			//console.log(this.$firebase.storage())

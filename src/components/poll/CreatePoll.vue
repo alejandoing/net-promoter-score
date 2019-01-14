@@ -278,7 +278,6 @@
 
 				this.background = event.srcElement.files[0]
 				if (!background.value.length) return false
-				console.log(background.files[0])
 				if (background.files[0].type != 'image/jpeg' && background.files[0].type != 'image/png') this.dialogFile = true
 				UPLOAD_FILE.innerHTML = background.files[0].name
 				this.selectedFile = true

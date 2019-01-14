@@ -3,7 +3,7 @@
 		.container
 			.card
 			.card
-				h1.title NET-PROMOTER-SCORE
+				.title NET-PROMOTER-SCORE
 				form
 					.input-container
 						v-text-field(
@@ -101,7 +101,9 @@
 			signIn () {
 				this.loader = 'loading'
 				this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-				.then((user) => this.getUser(user))
+				.then(user => {
+					this.getUser(user)
+				})
 				.catch((error) => {
 					console.log(error)
 					this.showErrors(error)
@@ -110,12 +112,14 @@
 
 			getUser(user) {
 				this.$firebase.firestore().doc('users/' + user.uid).get()
-				.then((doc) => {
+				.then(doc => {
+					console.log(doc)
 					const USER = doc.data()
 					USER.id = doc.id
 					this.user = USER
 					this.saveStorage()
 				})
+				.catch (e => { console.log(e) })
 			},
 
 			saveStorage() {

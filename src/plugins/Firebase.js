@@ -1,5 +1,7 @@
-import firebase from 'firebase'
-import 'firebase/firestore'
+import * as firebase from 'firebase/app'
+require('firebase/auth')
+require('firebase/firestore')
+require('firebase/storage')
 
 let config = {
 	apiKey: "AIzaSyAg8xnIGkpKkSbcmfGMg2g2oqlTXiNMXA4",
@@ -18,7 +20,8 @@ let FirebasePlugin = {
 }
 
 export default function (Vue) {
-	if (!firebase.apps.length) firebase.initializeApp(config)
+	firebase.initializeApp(config)
+	FirebasePlugin.firestore().settings({ timestampsInSnapshots: true })
 	Vue.prototype.$firebase = FirebasePlugin
 }
 
