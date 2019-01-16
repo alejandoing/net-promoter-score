@@ -239,7 +239,7 @@
 					comment: this.comment					
 				})
 				.then(() => {
-				 	if (this.flow.contact) this.createTicket()
+				 	if (this.flow.contact && this.email) this.createTicket()
 				 	else {
 				 		this['loading'] = false
 				 		this.loader = null
