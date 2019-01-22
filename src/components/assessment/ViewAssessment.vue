@@ -367,7 +367,7 @@
 			// })
 			// .catch(err => console.log(err))
 
-				axios.post('http:/174.36.119.5:443/firestore/all', {
+				axios.post('http://174.36.119.5:443/firestore/all', {
 					local: this.$route.params.localId,
 					poll: this.$route.params.id
 				})
@@ -382,7 +382,7 @@
 			//console.log(this.$firebase.storage())
 			//this.backgroundImage = await imageRef.getDownloadURL()
 			//this.backgroundImage = 'http://174.36.119.5/background'
-			this.backgroundImage = '../../../static/backgroundWU.png'
+			this.backgroundImage = 'white'
 		},
 
 		mounted() {

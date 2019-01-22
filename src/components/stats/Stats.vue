@@ -85,7 +85,9 @@
 			v-flex(xs9 offset-xs2)
 				Reason.pb-5(:data="assessments.stats")
 			v-flex(xs12)
-				Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="reasonChart")
+				Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPoints")
+			v-flex(xs12)
+				Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPoints")
 			v-flex(xs12)
 				div.pb-5
 					span.display-1 Jefe Zonales
@@ -346,7 +348,8 @@
 				chartMonthGlobal: null,
 				topLocals: JSON.parse(localStorage.getItem('topLocals')),
 				badLocals: [],
-				reasonChart: null,
+				weakPoints: null,
+				strongPoints: null,
 				menuDateSince: false,
 				menuDateUntil: false,
 				dateSince: null,
@@ -797,23 +800,23 @@
 				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
 				let numServ = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
 				let numReas = 0, numReas2 = 0, numReas3 = 0, numReas4 = 0
-				let reasGood = 0, reasBad = 0, reasVeryBad = 0
-				let reas2Good = 0, reas2Bad = 0, reas2VeryBad = 0
-				let reas3Good = 0, reas3Bad = 0, reas3VeryBad = 0
-				let reas4Good = 0, reas4Bad = 0, reas4VeryBad = 0
+				let reasVeryGood = 0, reasGood = 0, reasBad = 0, reasVeryBad = 0
+				let reas2VeryGood = 0, reas2Good = 0, reas2Bad = 0, reas2VeryBad = 0
+				let reas3VeryGood = 0, reas3Good = 0, reas3Bad = 0, reas3VeryBad = 0
+				let reas4VeryGood = 0, reas4Good = 0, reas4Bad = 0, reas4VeryBad = 0
 				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
 				let complains = new Array(2).fill(0)
 				let comments = new Array(2).fill(0)
 				let activeLocals = []
 				let setUpLocals = []
 				
-				for (let assesment of this.assessments) {
+				for (let assessment of this.assessments) {
 					for (let local of this.locals) {
 						if (local.assessments.length && !setUpLocals.includes(local)) {
 							setUpLocals.push(local)
 							activeLocals.push(this.getChartLocal(local))
 						}
-						if (local.id == assesment.local) {
+						if (local.id == assessment.local) {
 							switch(local.zone) {
 								case 'MM3exjMdkKaQ0cUkAkM2':
 									zoneWM++
@@ -837,26 +840,26 @@
 						}
 					}
 
-					switch(assesment.face) {
+					switch(assessment.face) {
 						case 'veryGood':
 							numVeryGood++
-							assesment.comment ? comments[1]++ : comments[1]
+							assessment.comment ? comments[1]++ : comments[1]
 						break
 						case 'good':
 							numGood++
-							assesment.comment ? comments[0]++ : comments[0]
+							assessment.comment ? comments[0]++ : comments[0]
 						break
 						case 'bad':
 							numBad++
-							assesment.complain ? complains[0]++ : complains[0]
+							assessment.complain ? complains[0]++ : complains[0]
 						break
 						case 'veryBad':
 							numVeryBad++
-							assesment.complain ? complains[1]++ : complains[1]
+							assessment.complain ? complains[1]++ : complains[1]
 						break
 					}
 
-					switch(assesment.justification) {
+					switch(assessment.justification) {
 						case 'Pago de servicios':
 							numServ++
 						break
@@ -871,22 +874,22 @@
 						break
 					}
 
-					switch(assesment.justificationTwo) {
+					switch(assessment.justificationTwo) {
 						case 'Atención del Cajero':
 							numReas++
-							assesment.face == "good" ? reasGood++ : assesment.face == "bad" ? reasBad++ : assesment.face == "veryBad" ? reasVeryBad++ : null
+							assessment.face == "veryGood" ? reasVeryGood++ : assessment.face == "good" ? reasGood++ : assessment.face == "bad" ? reasBad++ : assessment.face == "veryBad" ? reasVeryBad++ : null
 						break
 						case 'Tiempo de Espera':
 							numReas2++
-							assesment.face == "good" ? reas2Good++ : assesment.face == "bad" ? reas2Bad++ : assesment.face == "veryBad" ? reas2VeryBad++ : null
+								assessment.face == "veryGood" ? reas2VeryGood++ : assessment.face == "good" ? reas2Good++ : assessment.face == "bad" ? reas2Bad++ : assessment.face == "veryBad" ? reas2VeryBad++ : null
 						break
 						case 'Estado del Local':
 							numReas3++
-							assesment.face == "good" ? reas3Good++ : assesment.face == "bad" ? reas3Bad++ : assesment.face == "veryBad" ? reas3VeryBad++ : null
+								assessment.face == "veryGood" ? reas3VeryGood++ : assessment.face == "good" ? reas3Good++ : assessment.face == "bad" ? reas3Bad++ : assessment.face == "veryBad" ? reas3VeryBad++ : null
 						break
 						case 'Servicio Utilizado':
 							numReas4++
-							assesment.face == "good" ? reas4Good++ : assesment.face == "bad" ? reas4Bad++ : assesment.face == "veryBad" ? reas4VeryBad++ : null
+								assessment.face == "veryGood" ? reas4VeryGood++ : assessment.face == "good" ? reas4Good++ : assessment.face == "bad" ? reas4Bad++ : assessment.face == "veryBad" ? reas4VeryBad++ : null
 						break
 					}
 				}
@@ -944,7 +947,35 @@
 					satisfaction: this.getIndicatorsReason(numReas4, this.getPercentage(reas4Good, numReas4), this.getPercentage(reas4Bad, numReas4), this.getPercentage(reas4VeryBad, numReas4))
 				}]
 
-				this.reasonChart = reasonChart.sort(sortByProperty('satisfaction')).reverse()
+				let reasonChartStrong = [{
+					title: 'Atención del Cajero',
+					good: this.getPercentage(reasGood, numReas),
+					veryGood: this.getPercentage(reasVeryGood, numReas),
+					total: numReas,
+					satisfaction: this.getIndicatorsReason(numReas, this.getPercentage(reasGood, numReas), this.getPercentage(reasBad, numReas), this.getPercentage(reasVeryBad, numReas))
+				}, {
+					title: 'Tiempo de Espera',
+					good: this.getPercentage(reas2Good, numReas2),
+					veryGood: this.getPercentage(reas2VeryGood, numReas2),
+					total: numReas2,
+					satisfaction: this.getIndicatorsReason(numReas2, this.getPercentage(reas2Good, numReas2), this.getPercentage(reas2Bad, numReas2), this.getPercentage(reas2VeryBad, numReas2))				
+				}, {
+					title: 'Estado del Local',
+					good: this.getPercentage(reas3Good, numReas3),
+					veryGood: this.getPercentage(reas3VeryGood, numReas3),
+					total: numReas3,
+					satisfaction: this.getIndicatorsReason(numReas3, this.getPercentage(reas3Good, numReas3), this.getPercentage(reas3Bad, numReas3), this.getPercentage(reas3VeryBad, numReas3))					
+				}, {
+					title: 'Servicio Utilizado',
+					good: this.getPercentage(reas4Good, numReas4),
+					veryGood: this.getPercentage(reas4VeryGood, numReas4),
+					total: numReas4,
+					satisfaction: this.getIndicatorsReason(numReas4, this.getPercentage(reas4Good, numReas4), this.getPercentage(reas4Bad, numReas4), this.getPercentage(reas4VeryBad, numReas4))
+				}]
+
+				this.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+				this.strongPoints = reasonChartStrong.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+
 				this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
 
 				function reverseArrayInPlace(arr) {
@@ -961,8 +992,8 @@
 
 			getChartCustom() {
 				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
-				for (let assesment of this.results) {
-					switch(assesment.face) {
+				for (let assessment of this.results) {
+					switch(assessment.face) {
 						case 'veryGood':
 							numVeryGood++
 						break
