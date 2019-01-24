@@ -225,7 +225,7 @@
 				// const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
 				this.loader = 'loading'
 
-				const urlAssessment = 'http://174.36.119.5:443/firestore/assessment/add/'
+				const urlAssessment = 'http://174.36.119.3:8080/firestore/assessment/add/'
 				axios.post(urlAssessment, {
 				 	face: this.assessment,
 				 	date: new Date(),
@@ -272,7 +272,7 @@
 			},
 
 			createTicket() {
-				const urlTicket = 'http://174.36.119.5:443/firestore/ticket/add/'
+				const urlTicket = 'http://174.36.119.3:8080/firestore/ticket/add/'
 				axios.post(urlTicket, {
 				 	date: new Date(),
 				 	description: this.description,
@@ -367,7 +367,7 @@
 			// })
 			// .catch(err => console.log(err))
 
-				axios.post('http://174.36.119.5:443/firestore/all', {
+				axios.post('http://174.36.119.3:8080/firestore/all', {
 					local: this.$route.params.localId,
 					poll: this.$route.params.id
 				})

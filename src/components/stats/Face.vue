@@ -3,8 +3,8 @@
     div.faces(v-for="face in faces")
       img.pr-3(:src="face.url")
       div.text
-        span.percentage {{face.percentage}}%
-        span {{face.value}} resp.
+        span.percentage {{ face.percentage }}%
+        span {{ face.value }} resp.
 </template>
 
 <script>
@@ -30,12 +30,17 @@
     watch: {
       data() {
         if (this.$props.data) {
+          console.log(this.$props.data)
           for (let face in this.faces) {
             this.faces[face].value = this.$props.data[face][0]
             this.faces[face].percentage = this.$props.data[face][1]
           }
+          //console.log("this.faces")
         }
       }
+    },
+    created() {
+      //console.log(this.faces)
     }
 	}
 </script>

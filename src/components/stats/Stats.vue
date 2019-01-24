@@ -342,6 +342,7 @@
 		validations: {},
     data () {
       return {
+				dynamicDialogAct: false,
 				chartHourGlobal: null,
 				chartDayWGlobal: null,
 				chartDayGlobal: null,
@@ -672,6 +673,10 @@
 			})
 		},
 		methods: {
+			dynamicDialog(data) {
+				this.dynamicDialogAct = !this.dynamicDialogAct
+				console.log(data)
+			},
 			searchStats() {
 				let timeSince = '00:00'
 				let timeUntil = '23:59'
@@ -804,6 +809,10 @@
 				let reas2VeryGood = 0, reas2Good = 0, reas2Bad = 0, reas2VeryBad = 0
 				let reas3VeryGood = 0, reas3Good = 0, reas3Bad = 0, reas3VeryBad = 0
 				let reas4VeryGood = 0, reas4Good = 0, reas4Bad = 0, reas4VeryBad = 0
+				let reasObjVeryGood = [], reasObjGood = [], reasObjBad = [], reasObjVeryBad = []
+				let reas2ObjVeryGood = [], reas2ObjGood = [], reas2ObjBad = [], reas2ObjVeryBad = []
+				let reas3ObjVeryGood = [], reas3ObjGood = [], reas3ObjBad = [], reas3ObjVeryBad = []
+				let reas4ObjVeryGood = [], reas4ObjGood = [], reas4ObjBad = [], reas4ObjVeryBad = []
 				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
 				let complains = new Array(2).fill(0)
 				let comments = new Array(2).fill(0)
@@ -878,18 +887,22 @@
 						case 'Atención del Cajero':
 							numReas++
 							assessment.face == "veryGood" ? reasVeryGood++ : assessment.face == "good" ? reasGood++ : assessment.face == "bad" ? reasBad++ : assessment.face == "veryBad" ? reasVeryBad++ : null
+							assessment.face == "veryGood" ? reasObjVeryGood.push(assessment) : assessment.face == "good" ? reasObjGood.push(assessment) : assessment.face == "bad" ? reasObjVeryBad.push(assessment) : assessment.face == "veryBad" ? reasObjVeryBad.push(assessment) : null
 						break
 						case 'Tiempo de Espera':
 							numReas2++
 								assessment.face == "veryGood" ? reas2VeryGood++ : assessment.face == "good" ? reas2Good++ : assessment.face == "bad" ? reas2Bad++ : assessment.face == "veryBad" ? reas2VeryBad++ : null
+								assessment.face == "veryGood" ? reas2ObjVeryGood.push(assessment) : assessment.face == "good" ? reas2ObjGood.push(assessment) : assessment.face == "bad" ? reas2ObjVeryBad.push(assessment) : assessment.face == "veryBad" ? reas2ObjVeryBad.push(assessment) : null
 						break
 						case 'Estado del Local':
 							numReas3++
 								assessment.face == "veryGood" ? reas3VeryGood++ : assessment.face == "good" ? reas3Good++ : assessment.face == "bad" ? reas3Bad++ : assessment.face == "veryBad" ? reas3VeryBad++ : null
+								assessment.face == "veryGood" ? reas3ObjVeryGood.push(assessment) : assessment.face == "good" ? reas3ObjGood.push(assessment) : assessment.face == "bad" ? reas3ObjVeryBad.push(assessment) : assessment.face == "veryBad" ? reas3ObjVeryBad.push(assessment) : null
 						break
 						case 'Servicio Utilizado':
 							numReas4++
 								assessment.face == "veryGood" ? reas4VeryGood++ : assessment.face == "good" ? reas4Good++ : assessment.face == "bad" ? reas4Bad++ : assessment.face == "veryBad" ? reas4VeryBad++ : null
+								assessment.face == "veryGood" ? reas4ObjVeryGood.push(assessment) : assessment.face == "good" ? reas4ObjGood.push(assessment) : assessment.face == "bad" ? reas4ObjVeryBad.push(assessment) : assessment.face == "veryBad" ? reas4ObjVeryBad.push(assessment) : null
 						break
 					}
 				}
@@ -906,10 +919,30 @@
 						3: [numServ4, this.getPercentage(numServ4, total)]
 					},
 					reasons: {
-						0: [numReas, this.getPercentage(numReas, total)],
-						1: [numReas2, this.getPercentage(numReas2, total)],
-						2: [numReas3, this.getPercentage(numReas3, total)],
-						3: [numReas4, this.getPercentage(numReas4, total)]						
+						0: [numReas, this.getPercentage(numReas, total), { 
+							veryGood: [reasObjVeryGood.length, this.getPercentage(reasObjVeryGood.length, numReas)],
+							good: [reasObjGood.length, this.getPercentage(reasObjGood.length, numReas)],
+							bad: [reasObjBad.length, this.getPercentage(reasObjBad.length, numReas)],
+							veryBad: [reasObjVeryBad.length, this.getPercentage(reasObjVeryBad.length, numReas)]
+						}],
+						1: [numReas2, this.getPercentage(numReas2, total), { 
+							veryGood: [reas2ObjVeryGood.length, this.getPercentage(reas2ObjVeryGood.length, numReas2)],
+							good: [reas2ObjGood.length, this.getPercentage(reas2ObjGood.length, numReas2)],
+							bad: [reas2ObjBad.length, this.getPercentage(reas2ObjBad.length, numReas2)],
+							veryBad: [reas2ObjVeryBad.length, this.getPercentage(reas2ObjVeryBad.length, numReas2)]
+						}],
+						2: [numReas3, this.getPercentage(numReas3, total), { 
+							veryGood: [reas3ObjVeryGood.length, this.getPercentage(reas3ObjVeryGood.length, numReas3), 0],
+							good: [reas3ObjGood.length, this.getPercentage(reas3ObjGood.length, numReas3), 0],
+							bad: [reas3ObjBad.length, this.getPercentage(reas3ObjBad.length, numReas3), 0],
+							veryBad: [reas3ObjVeryBad.length, this.getPercentage(reas3ObjVeryBad.length, numReas3), 0]
+						}],
+						3: [numReas4, this.getPercentage(numReas4, total), { 
+							veryGood: [reas4ObjVeryGood.length, this.getPercentage(reas4ObjVeryGood.length, numReas4)],
+							good: [reas4ObjGood.length, this.getPercentage(reas4ObjGood.length, numReas4)],
+							bad: [reas4ObjBad.length, this.getPercentage(reas4ObjBad.length, numReas4)],
+							veryBad: [reas4ObjVeryBad.length, this.getPercentage(reas4ObjVeryBad.length, numReas4)]
+						}]						
 					},
 					zones: {
 						0: [zoneWM, this.getPercentage(zoneWM, total)],
