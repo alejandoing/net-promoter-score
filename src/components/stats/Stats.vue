@@ -675,7 +675,6 @@
 		methods: {
 			dynamicDialog(data) {
 				this.dynamicDialogAct = !this.dynamicDialogAct
-				console.log(data)
 			},
 			searchStats() {
 				let timeSince = '00:00'
@@ -803,7 +802,18 @@
 				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 				const total = this.assessments.length
 				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
+				
 				let numServ = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
+				let objServ = [], objServ2 = [], objServ3 = [], objServ4 = []
+				let servVeryGood = 0, servGood = 0, servBad = 0, servVeryBad = 0
+				let serv2VeryGood = 0, serv2Good = 0, serv2Bad = 0, serv2VeryBad = 0
+				let serv3VeryGood = 0, serv3Good = 0, serv3Bad = 0, serv3VeryBad = 0
+				let serv4VeryGood = 0, serv4Good = 0, serv4Bad = 0, serv4VeryBad = 0
+				let servObjVeryGood = [], servObjGood = [], servObjBad = [], servObjVeryBad = []
+				let serv2ObjVeryGood = [], serv2ObjGood = [], serv2ObjBad = [], serv2ObjVeryBad = []
+				let serv3ObjVeryGood = [], serv3ObjGood = [], serv3ObjBad = [], serv3ObjVeryBad = []
+				let serv4ObjVeryGood = [], serv4ObjGood = [], serv4ObjBad = [], serv4ObjVeryBad = []
+				
 				let numReas = 0, numReas2 = 0, numReas3 = 0, numReas4 = 0
 				let objReas = [], objReas2 = [], objReas3 = [], objReas4 = []
 				let reasVeryGood = 0, reasGood = 0, reasBad = 0, reasVeryBad = 0
@@ -814,6 +824,7 @@
 				let reas2ObjVeryGood = [], reas2ObjGood = [], reas2ObjBad = [], reas2ObjVeryBad = []
 				let reas3ObjVeryGood = [], reas3ObjGood = [], reas3ObjBad = [], reas3ObjVeryBad = []
 				let reas4ObjVeryGood = [], reas4ObjGood = [], reas4ObjBad = [], reas4ObjVeryBad = []
+
 				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
 				let complains = new Array(2).fill(0)
 				let comments = new Array(2).fill(0)
@@ -872,15 +883,27 @@
 					switch(assessment.justification) {
 						case 'Pago de servicios':
 							numServ++
+							assessment.face == "veryGood" ? servVeryGood++ : assessment.face == "good" ? servGood++ : assessment.face == "bad" ? servBad++ : assessment.face == "veryBad" ? servVeryBad++ : null
+							assessment.face == "veryGood" ? servObjVeryGood.push(assessment) : assessment.face == "good" ? servObjGood.push(assessment) : assessment.face == "bad" ? servObjVeryBad.push(assessment) : assessment.face == "veryBad" ? servObjVeryBad.push(assessment) : null
+							objServ.push(assessment)
 						break
 						case 'Envío internacional':
 							numServ2++
+							assessment.face == "veryGood" ? serv2VeryGood++ : assessment.face == "good" ? serv2Good++ : assessment.face == "bad" ? serv2Bad++ : assessment.face == "veryBad" ? serv2VeryBad++ : null
+							assessment.face == "veryGood" ? serv2ObjVeryGood.push(assessment) : assessment.face == "good" ? serv2ObjGood.push(assessment) : assessment.face == "bad" ? serv2ObjBad.push(assessment) : assessment.face == "veryBad" ? serv2ObjVeryBad.push(assessment) : null
+							objServ2.push(assessment)
 						break
 						case 'Envío nacional':
 							numServ3++
+							assessment.face == "veryGood" ? serv3VeryGood++ : assessment.face == "good" ? serv3Good++ : assessment.face == "bad" ? serv3Bad++ : assessment.face == "veryBad" ? serv3VeryBad++ : null
+							assessment.face == "veryGood" ? serv3ObjVeryGood.push(assessment) : assessment.face == "good" ? serv3ObjGood.push(assessment) : assessment.face == "bad" ? serv3ObjBad.push(assessment) : assessment.face == "veryBad" ? serv3ObjVeryBad.push(assessment) : null
+							objServ3.push(assessment)
 						break
 						case 'Casa de cambio':
 							numServ4++
+							assessment.face == "veryGood" ? serv4VeryGood++ : assessment.face == "good" ? serv4Good++ : assessment.face == "bad" ? serv4Bad++ : assessment.face == "veryBad" ? serv4VeryBad++ : null
+							assessment.face == "veryGood" ? serv4ObjVeryGood.push(assessment) : assessment.face == "good" ? serv4ObjGood.push(assessment) : assessment.face == "bad" ? serv4ObjBad.push(assessment) : assessment.face == "veryBad" ? serv4ObjVeryBad.push(assessment) : null
+							objServ4.push(assessment)
 						break
 					}
 
@@ -894,19 +917,19 @@
 						case 'Tiempo de Espera':
 							numReas2++
 							assessment.face == "veryGood" ? reas2VeryGood++ : assessment.face == "good" ? reas2Good++ : assessment.face == "bad" ? reas2Bad++ : assessment.face == "veryBad" ? reas2VeryBad++ : null
-							assessment.face == "veryGood" ? reas2ObjVeryGood.push(assessment) : assessment.face == "good" ? reas2ObjGood.push(assessment) : assessment.face == "bad" ? reas2ObjVeryBad.push(assessment) : assessment.face == "veryBad" ? reas2ObjVeryBad.push(assessment) : null
+							assessment.face == "veryGood" ? reas2ObjVeryGood.push(assessment) : assessment.face == "good" ? reas2ObjGood.push(assessment) : assessment.face == "bad" ? reas2ObjBad.push(assessment) : assessment.face == "veryBad" ? reas2ObjVeryBad.push(assessment) : null
 							objReas2.push(assessment)
 						break
 						case 'Estado del Local':
 							numReas3++
 							assessment.face == "veryGood" ? reas3VeryGood++ : assessment.face == "good" ? reas3Good++ : assessment.face == "bad" ? reas3Bad++ : assessment.face == "veryBad" ? reas3VeryBad++ : null
-							assessment.face == "veryGood" ? reas3ObjVeryGood.push(assessment) : assessment.face == "good" ? reas3ObjGood.push(assessment) : assessment.face == "bad" ? reas3ObjVeryBad.push(assessment) : assessment.face == "veryBad" ? reas3ObjVeryBad.push(assessment) : null
+							assessment.face == "veryGood" ? reas3ObjVeryGood.push(assessment) : assessment.face == "good" ? reas3ObjGood.push(assessment) : assessment.face == "bad" ? reas3ObjBad.push(assessment) : assessment.face == "veryBad" ? reas3ObjVeryBad.push(assessment) : null
 							objReas3.push(assessment)
 						break
 						case 'Servicio Utilizado':
 							numReas4++
 							assessment.face == "veryGood" ? reas4VeryGood++ : assessment.face == "good" ? reas4Good++ : assessment.face == "bad" ? reas4Bad++ : assessment.face == "veryBad" ? reas4VeryBad++ : null
-							assessment.face == "veryGood" ? reas4ObjVeryGood.push(assessment) : assessment.face == "good" ? reas4ObjGood.push(assessment) : assessment.face == "bad" ? reas4ObjVeryBad.push(assessment) : assessment.face == "veryBad" ? reas4ObjVeryBad.push(assessment) : null
+							assessment.face == "veryGood" ? reas4ObjVeryGood.push(assessment) : assessment.face == "good" ? reas4ObjGood.push(assessment) : assessment.face == "bad" ? reas4ObjBad.push(assessment) : assessment.face == "veryBad" ? reas4ObjVeryBad.push(assessment) : null
 							objReas4.push(assessment)
 						break
 					}
@@ -918,10 +941,34 @@
 					bad: [numBad, this.getPercentage(numBad, total), complains[0]],
 					veryBad: [numVeryBad, this.getPercentage(numVeryBad, total), complains[1]],
 					services: {
-						0: [numServ, this.getPercentage(numServ, total)],
-						1: [numServ2, this.getPercentage(numServ2, total)],
-						2: [numServ3, this.getPercentage(numServ3, total)],
-						3: [numServ4, this.getPercentage(numServ4, total)]
+						0: [numServ, this.getPercentage(numServ, total), { 
+							veryGood: [servObjVeryGood.length, this.getPercentage(servObjVeryGood.length, numServ)],
+							good: [servObjGood.length, this.getPercentage(servObjGood.length, numServ)],
+							bad: [servObjBad.length, this.getPercentage(servObjBad.length, numServ)],
+							veryBad: [servObjVeryBad.length, this.getPercentage(servObjVeryBad.length, numServ)],
+							assessments: objServ
+						}],
+						1: [numServ2, this.getPercentage(numServ2, total), { 
+							veryGood: [serv2ObjVeryGood.length, this.getPercentage(serv2ObjVeryGood.length, numServ2)],
+							good: [serv2ObjGood.length, this.getPercentage(serv2ObjGood.length, numServ2)],
+							bad: [serv2ObjBad.length, this.getPercentage(serv2ObjBad.length, numServ2)],
+							veryBad: [serv2ObjVeryBad.length, this.getPercentage(serv2ObjVeryBad.length, numServ2)],
+							assessments: objServ2
+						}],
+						2: [numServ3, this.getPercentage(numServ3, total), { 
+							veryGood: [serv3ObjVeryGood.length, this.getPercentage(serv3ObjVeryGood.length, numServ3)],
+							good: [serv3ObjGood.length, this.getPercentage(serv3ObjGood.length, numServ3)],
+							bad: [serv3ObjBad.length, this.getPercentage(serv3ObjBad.length, numServ3)],
+							veryBad: [serv3ObjVeryBad.length, this.getPercentage(serv3ObjVeryBad.length, numServ3)],
+							assessments: objServ3
+						}],
+						3: [numServ4, this.getPercentage(numServ4, total), { 
+							veryGood: [serv4ObjVeryGood.length, this.getPercentage(serv4ObjVeryGood.length, numServ4)],
+							good: [serv4ObjGood.length, this.getPercentage(serv4ObjGood.length, numServ4)],
+							bad: [serv4ObjBad.length, this.getPercentage(serv4ObjBad.length, numServ4)],
+							veryBad: [serv4ObjVeryBad.length, this.getPercentage(serv4ObjVeryBad.length, numServ4)],
+							assessments: objServ4
+						}]
 					},
 					reasons: {
 						0: [numReas, this.getPercentage(numReas, total), { 
