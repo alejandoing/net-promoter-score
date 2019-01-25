@@ -826,6 +826,22 @@
 				let reas4ObjVeryGood = [], reas4ObjGood = [], reas4ObjBad = [], reas4ObjVeryBad = []
 
 				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
+				let objzoneWM = [], objzoneLB = [], objzoneDR = [], objzoneDL = [], objzoneCM = [], objzoneFC = []
+				
+				let zoneWMVeryGood = 0, zoneWMGood = 0, zoneWMBad = 0, zoneWMVeryBad = 0
+				let zoneLBVeryGood = 0, zoneLBGood = 0, zoneLBBad = 0, zoneLBVeryBad = 0
+				let zoneDRVeryGood = 0, zoneDRGood = 0, zoneDRBad = 0, zoneDRVeryBad = 0
+				let zoneDLVeryGood = 0, zoneDLGood = 0, zoneDLBad = 0, zoneDLVeryBad = 0
+				let zoneCMVeryGood = 0, zoneCMGood = 0, zoneCMBad = 0, zoneCMVeryBad = 0
+				let zoneFCVeryGood = 0, zoneFCGood = 0, zoneFCBad = 0, zoneFCVeryBad = 0
+
+				let zoneWMObjVeryGood = [], zoneWMObjGood = [], zoneWMObjBad = [], zoneWMObjVeryBad = []
+				let zoneLBObjVeryGood = [], zoneLBObjGood = [], zoneLBObjBad = [], zoneLBObjVeryBad = []
+				let zoneDRObjVeryGood = [], zoneDRObjGood = [], zoneDRObjBad = [], zoneDRObjVeryBad = []
+				let zoneDLObjVeryGood = [], zoneDLObjGood = [], zoneDLObjBad = [], zoneDLObjVeryBad = []
+				let zoneCMObjVeryGood = [], zoneCMObjGood = [], zoneCMObjBad = [], zoneCMObjVeryBad = []
+				let zoneFCObjVeryGood = [], zoneFCObjGood = [], zoneFCObjBad = [], zoneFCObjVeryBad = []			
+
 				let complains = new Array(2).fill(0)
 				let comments = new Array(2).fill(0)
 				let activeLocals = []
@@ -841,21 +857,39 @@
 							switch(local.zone) {
 								case 'MM3exjMdkKaQ0cUkAkM2':
 									zoneWM++
+									assessment.face == "veryGood" ? zoneWMVeryGood++ : assessment.face == "good" ? zoneWMGood++ : assessment.face == "bad" ? zoneWMBad++ : assessment.face == "veryBad" ? zoneWMVeryBad++ : null
+									assessment.face == "veryGood" ? zoneWMObjVeryGood.push(assessment) : assessment.face == "good" ? zoneLBObjGood.push(assessment) : assessment.face == "bad" ? zoneWMObjBad.push(assessment) : assessment.face == "veryBad" ? zoneWMObjVeryBad.push(assessment) : null
+									objzoneWM.push(assessment)
 								break
 								case 'MopGQtv8fBJU4Pbad7vD':
 									zoneLB++
+									assessment.face == "veryGood" ? zoneLBVeryGood++ : assessment.face == "good" ? zoneLBGood++ : assessment.face == "bad" ? zoneLBBad++ : assessment.face == "veryBad" ? zoneLBVeryBad++ : null
+									assessment.face == "veryGood" ? zoneLBObjVeryGood.push(assessment) : assessment.face == "good" ? zoneLBObjGood.push(assessment) : assessment.face == "bad" ? zoneLBObjBad.push(assessment) : assessment.face == "veryBad" ? zoneLBObjVeryBad.push(assessment) : null
+									objzoneLB.push(assessment)
 								break
 								case 'Ngw5aiu8JFFKlHMDeZVd':
 									zoneCM++
+									assessment.face == "veryGood" ? zoneCMVeryGood++ : assessment.face == "good" ? zoneCMGood++ : assessment.face == "bad" ? zoneCMBad++ : assessment.face == "veryBad" ? zoneCMVeryBad++ : null
+									assessment.face == "veryGood" ? zoneCMObjVeryGood.push(assessment) : assessment.face == "good" ? zoneCMObjGood.push(assessment) : assessment.face == "bad" ? zoneCMObjBad.push(assessment) : assessment.face == "veryBad" ? zoneCMObjVeryBad.push(assessment) : null
+									objzoneCM.push(assessment)
 								break
 								case 'cRc6N1NsFEXInsBtkB9w':
 									zoneDR++
+									assessment.face == "veryGood" ? zoneDRVeryGood++ : assessment.face == "good" ? zoneDRGood++ : assessment.face == "bad" ? zoneDRBad++ : assessment.face == "veryBad" ? zoneDRVeryBad++ : null
+									assessment.face == "veryGood" ? zoneDRObjVeryGood.push(assessment) : assessment.face == "good" ? zoneDRObjGood.push(assessment) : assessment.face == "bad" ? zoneDRObjBad.push(assessment) : assessment.face == "veryBad" ? zoneDRObjVeryBad.push(assessment) : null
+									objzoneDR.push(assessment)
 								break
 								case 'mTMi65jxCFXXglPMEARV':
 									zoneDL++
+									assessment.face == "veryGood" ? zoneDLVeryGood++ : assessment.face == "good" ? zoneDLGood++ : assessment.face == "bad" ? zoneDLBad++ : assessment.face == "veryBad" ? zoneDLVeryBad++ : null
+									assessment.face == "veryGood" ? zoneDLObjVeryGood.push(assessment) : assessment.face == "good" ? zoneDLObjGood.push(assessment) : assessment.face == "bad" ? zoneDLObjBad.push(assessment) : assessment.face == "veryBad" ? zoneDLObjVeryBad.push(assessment) : null
+									objzoneDL.push(assessment)
 								break
 								case 'wk77ITDgnPYUjZ28MxJK':
 									zoneFC++
+									assessment.face == "veryGood" ? zoneFCVeryGood++ : assessment.face == "good" ? zoneFCGood++ : assessment.face == "bad" ? zoneFCBad++ : assessment.face == "veryBad" ? zoneFCVeryBad++ : null
+									assessment.face == "veryGood" ? zoneFCObjVeryGood.push(assessment) : assessment.face == "good" ? zoneFCObjGood.push(assessment) : assessment.face == "bad" ? zoneFCObjBad.push(assessment) : assessment.face == "veryBad" ? zoneFCObjVeryBad.push(assessment) : null
+									objzoneFC.push(assessment)
 								break
 							}
 						}
@@ -884,7 +918,7 @@
 						case 'Pago de servicios':
 							numServ++
 							assessment.face == "veryGood" ? servVeryGood++ : assessment.face == "good" ? servGood++ : assessment.face == "bad" ? servBad++ : assessment.face == "veryBad" ? servVeryBad++ : null
-							assessment.face == "veryGood" ? servObjVeryGood.push(assessment) : assessment.face == "good" ? servObjGood.push(assessment) : assessment.face == "bad" ? servObjVeryBad.push(assessment) : assessment.face == "veryBad" ? servObjVeryBad.push(assessment) : null
+							assessment.face == "veryGood" ? servObjVeryGood.push(assessment) : assessment.face == "good" ? servObjGood.push(assessment) : assessment.face == "bad" ? servObjBad.push(assessment) : assessment.face == "veryBad" ? servObjVeryBad.push(assessment) : null
 							objServ.push(assessment)
 						break
 						case 'Envío internacional':
@@ -1001,12 +1035,48 @@
 						}]						
 					},
 					zones: {
-						0: [zoneWM, this.getPercentage(zoneWM, total)],
-						1: [zoneLB, this.getPercentage(zoneLB, total)],
-						2: [zoneCM, this.getPercentage(zoneCM, total)],
-						3: [zoneDR, this.getPercentage(zoneDR, total)],
-						4: [zoneDL, this.getPercentage(zoneDL, total)],
-						5: [zoneFC, this.getPercentage(zoneFC, total)],						
+						0: [zoneWM, this.getPercentage(zoneWM, total), { 
+							veryGood: [zoneWMObjVeryGood.length, this.getPercentage(zoneWMObjVeryGood.length, zoneWM)],
+							good: [zoneWMObjGood.length, this.getPercentage(zoneWMObjGood.length, zoneWM)],
+							bad: [zoneWMObjBad.length, this.getPercentage(zoneWMObjBad.length, zoneWM)],
+							veryBad: [zoneWMObjVeryBad.length, this.getPercentage(zoneWMObjVeryBad.length, zoneWM)],
+							assessments: objzoneWM
+							}],
+						1: [zoneLB, this.getPercentage(zoneLB, total), { 
+							veryGood: [zoneLBObjVeryGood.length, this.getPercentage(zoneLBObjVeryGood.length, zoneLB)],
+							good: [zoneLBObjGood.length, this.getPercentage(zoneLBObjGood.length, zoneLB)],
+							bad: [zoneLBObjBad.length, this.getPercentage(zoneLBObjBad.length, zoneLB)],
+							veryBad: [zoneLBObjVeryBad.length, this.getPercentage(zoneLBObjVeryBad.length, zoneLB)],
+							assessments: objzoneLB
+							}],
+						2: [zoneCM, this.getPercentage(zoneCM, total), { 
+							veryGood: [zoneCMObjVeryGood.length, this.getPercentage(zoneCMObjVeryGood.length, zoneCM)],
+							good: [zoneCMObjGood.length, this.getPercentage(zoneCMObjGood.length, zoneCM)],
+							bad: [zoneCMObjBad.length, this.getPercentage(zoneCMObjBad.length, zoneCM)],
+							veryBad: [zoneCMObjVeryBad.length, this.getPercentage(zoneCMObjVeryBad.length, zoneCM)],
+							assessments: objzoneCM
+							}],
+						3: [zoneDR, this.getPercentage(zoneDR, total), { 
+							veryGood: [zoneDRObjVeryGood.length, this.getPercentage(zoneDRObjVeryGood.length, zoneDR)],
+							good: [zoneDRObjGood.length, this.getPercentage(zoneDRObjGood.length, zoneDR)],
+							bad: [zoneDRObjBad.length, this.getPercentage(zoneDRObjBad.length, zoneDR)],
+							veryBad: [zoneDRObjVeryBad.length, this.getPercentage(zoneDRObjVeryBad.length, zoneDR)],
+							assessments: objzoneDR
+							}],
+						4: [zoneDL, this.getPercentage(zoneDL, total), { 
+							veryGood: [zoneDLObjVeryGood.length, this.getPercentage(zoneDLObjVeryGood.length, zoneDL)],
+							good: [zoneDLObjGood.length, this.getPercentage(zoneDLObjGood.length, zoneDL)],
+							bad: [zoneDLObjBad.length, this.getPercentage(zoneDLObjBad.length, zoneDL)],
+							veryBad: [zoneDLObjVeryBad.length, this.getPercentage(zoneDLObjVeryBad.length, zoneDL)],
+							assessments: objzoneDL
+							}],
+						5: [zoneFC, this.getPercentage(zoneFC, total), { 
+							veryGood: [zoneFCObjVeryGood.length, this.getPercentage(zoneFCObjVeryGood.length, zoneFC)],
+							good: [zoneFCObjGood.length, this.getPercentage(zoneFCObjGood.length, zoneFC)],
+							bad: [zoneFCObjBad.length, this.getPercentage(zoneFCObjBad.length, zoneFC)],
+							veryBad: [zoneFCObjVeryBad.length, this.getPercentage(zoneFCObjVeryBad.length, zoneFC)],
+							assessments: objzoneFC
+						}],						
 					},
 				}
 

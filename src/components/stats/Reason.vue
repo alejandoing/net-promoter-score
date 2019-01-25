@@ -329,7 +329,7 @@
         font-size: 20px
         grid-template: .5fr .5fr / 1fr
         span
-          font-size: 24px
+          font-size: 18px
           text-align: center
   .justification
     display: grid
