@@ -411,6 +411,7 @@
 				this.zone = null
 				this.read = null
 				this.unread = null
+				this.closed = null
 				this.dateSince = null
 				this.dateUntil = null
 				this.timeSince = null
