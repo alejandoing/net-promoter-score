@@ -408,8 +408,9 @@
 
 			clearFields() {
 				this.local = null
-				this.read = true
-				this.unread = true
+				this.zone = null
+				this.read = null
+				this.unread = null
 				this.dateSince = null
 				this.dateUntil = null
 				this.timeSince = null
