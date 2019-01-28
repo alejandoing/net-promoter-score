@@ -239,8 +239,8 @@
 				 	complain: this.complain,
 					comment: this.comment					
 				})
-				.then(() => {
-				 	if (this.flow.contact && this.email) this.createTicket()
+				.then(res => {
+				 	if (this.flow.contact && this.email) this.createTicket(res.data)
 				 	else {
 				 		this['loading'] = false
 				 		this.loader = null
@@ -272,7 +272,8 @@
 				// .catch((error) => { console.log(error) })
 			},
 
-			createTicket() {
+			createTicket(assessment) {
+				console.log(assessment)
 				const urlTicket = 'http://174.36.119.3:8080/firestore/ticket/add/'
 				axios.post(urlTicket, {
 				 	date: new Date(),
@@ -286,7 +287,8 @@
 					zone: this.local.zone,
 				 	business: this.local.business,
 				 	local: this.$route.params.localId,
-				 	poll: this.$route.params.id			
+					poll: this.$route.params.id,
+					assessment: assessment
 				})
 				// const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')
 				// TICKETS_COLLECTION.add({
@@ -331,7 +333,7 @@
 				this.comment = 0
 				this.flow = { contact: false, justification: false, justificationTwo: false }
 				this.i = 0
-				location.reload()
+				//location.reload()
 			}
 		},
 

@@ -155,22 +155,11 @@
 						template(v-for="ticket in tickets")
 							v-list-tile(avatar)
 								v-list-tile-avatar.pr-5(v-if="ticket.status == 2")
-									span Cerrado
-									v-checkbox(
-										checked
-										input-value="true"
-										readonly
-										color="green"
-										hide-details
-									)
+									v-btn(color="green darken-4" small dark) Cerrado
+								v-list-tile-avatar.pr-5(v-else-if="ticket.status == 0")
+									v-btn(color="red darken-4" small dark) Sin Leer
 								v-list-tile-avatar.pr-5(v-else)
-									span Leído
-									v-checkbox(
-										v-model="ticket.status"
-										@click="updateTicket(ticket)"
-										color="blue"
-										hide-details
-									)
+									v-btn(color="amber darken-4" small dark) Leído
 								v-spacer(style="flex-grow: .1 !important")
 								v-list-tile-content.ticket-content(ripple @click="viewTicket(ticket.id)")
 									v-list-tile-title.black-text 

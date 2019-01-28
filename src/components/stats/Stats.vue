@@ -42,16 +42,25 @@
 								v-flex(xs12 align-end flexbox)
 									span.indicatorsTwoTitle Resp. Servicio: {{ indicatorsGlobal.service[1] }}% - {{ indicatorsGlobal.service[0] }} total
 					v-card-title
-						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
+						v-progress-linear(:value="indicatorsGlobal.service[1]" height="20" color="info")
 			v-flex(xs6 md3)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.indicatorsTwoTitle Resp. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
+									span.indicatorsTwoTitle Quejas. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
 					v-card-title
-						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
+						v-progress-linear(:value="indicatorsGlobal.reason[1]" height="20" color="info")
+			v-flex(xs6 md3)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text.primary(height="75px")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.indicatorsTwoTitle Quejas sin Leer: {{ indicatorsGlobal.complainUnread[1] }}% - {{ indicatorsGlobal.complainUnread[0] }} total
+					v-card-title
+						v-progress-linear(:value="indicatorsGlobal.complainUnread[1]" height="20" color="info")
 			v-tabs(fixed centered)
 				v-tabs-bar.primary(dark)
 					v-tabs-slider(class="yellow")
@@ -369,7 +378,7 @@
 				locals: null,
 				currentLocal: { title: null },
 				assessments: [],
-				indicatorsGlobal: { satisfaction: null, complain: [], comment: [], service: [], reason: [] },
+				indicatorsGlobal: { satisfaction: null, complain: [], comment: [], service: [], reason: [], complainUnread: [] },
 				indicatorsLocal: [],
 				dialog: false,
 				dialogPreResults: false,
@@ -1175,20 +1184,39 @@
 				this.results.stats = { veryGood: numVeryGood, good: numGood, bad: numBad, veryBad: numVeryBad }				
 			},
 
-			getIndicatorsGlobal() {
+			async getIndicatorsGlobal() {
 				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
 				
 				const total = this.assessments.length
 				const stats = this.assessments.stats
 				
 				let complains = 0, comments = 0, services = 0, reasons = 0
+				let complainsUnread = 0
 
-				for (let assessment of this.assessments) {
-					assessment.complain ? complains++ : complains
-					assessment.comment ? comments++ : comments
-					assessment.flow.justification ? services++ : services
-					assessment.flow.justificationTwo ? reasons++ : reasons
+				const getNumbers = () => {
+					for (let assessment of this.assessments) {
+						if (assessment.complain) {
+							complains++
+							const tickets = this.$firebase.firestore().collection('tickets')
+							.where('assessment', '==', assessment.id).where('status', '==', 0)
+							.where('complain', '==', 1)
+							tickets.onSnapshot(querySnapshot => {
+								querySnapshot.forEach(doc => {
+									complainsUnread++
+									this.indicatorsGlobal.complainUnread = [complainsUnread, this.getPercentage(complainsUnread, complains)]
+								})
+							})
+						}
+						assessment.comment ? comments++ : comments
+						assessment.flow.justification ? services++ : services
+						assessment.flow.justificationTwo ? reasons++ : reasons
+					}
 				}
+
+				await getNumbers()
+
+				console.log(complainsUnread)
+				console.log(complains)
 
 				const partialGood = stats.good[0] * PRC_GOOD
 				const partialBad = stats.bad[0] * PRC_BAD
@@ -1202,6 +1230,7 @@
 				this.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
 				this.indicatorsGlobal.service = [services, this.getPercentage(services, total)]
 				this.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, total)]
+				console.log(this.indicatorsGlobal.complainUnread)
 			},
 
 			getIndicatorsLocal(local) {
@@ -1721,7 +1750,7 @@
 		display: flex
 
 	.indicatorsTwoTitle
-		font-size: 20px
+		font-size: 18px
 
 	@-moz-keyframes loader
 		from
