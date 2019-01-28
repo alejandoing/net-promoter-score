@@ -264,7 +264,8 @@
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
-				this.currentService.stats.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
+        if (!this.getPercentage(partials, total)) this.currentService.stats.indicatorsGlobal.satisfaction = 0
+        else this.currentZone.stats.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
 				
 				this.currentService.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
 				this.currentService.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
@@ -313,6 +314,8 @@
 </script>
 
 <style lang="sass" scoped>
+  .indicatorsTwoTitle
+    font-size: 20px
   .container
     display: grid
     position: relative

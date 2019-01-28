@@ -117,27 +117,34 @@
 								v-card-actions
 									v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
 			v-layout(row)
-				v-flex(xs12 sm8 offset-sm2)
+				v-flex(xs12 sm4 offset-sm2)
+					v-select(
+						label="Elegí un Jefe Zonal"
+						v-model="zone"
+						:items="zonesSelect"
+					)
+				v-flex.ml-3(xs12 sm4)
 					v-select(
 						label="Elegí un Local"
 						v-model="local"
 						:items="localsSelect"
 					)
-				v-flex(xs12 sm4)
+			v-layout(row)
+				v-flex(xs12 sm1 offset-sm2)
 					v-checkbox(
 						v-model="read"
 						label="Leído"
 						type="checkbox"
-						style="position: relative; top: 20px; left: 20px"
+						style="position: relative; top: 20px"
 					)
-				v-flex(xs12 sm4)
+				v-flex(xs12 sm1)
 					v-checkbox(
 						v-model="closed"
 						label="Cerrado"
 						type="checkbox"
-						style="position: relative; top: 20px; right: 130px"
+						style="position: relative; top: 20px"
 					)
-			v-layout(row).mb-5
+			v-layout(row).mb-5.mt-3
 				v-flex(xs12 sm4 offset-sm2)
 					v-btn(block color="primary" @click="searchTickets") Filtrar Tickets
 				v-flex(xs12 sm4).pl-2
@@ -188,6 +195,9 @@
 				localID: null,
 				locals: null,
 				localsSelect: [],
+				zone: null,
+				zoneID: null,
+				zonesSelect: [],
 				read: false,
 				closed: false,
 				menuDateSince: false,
@@ -205,18 +215,40 @@
 		},
 		watch: {
 			local() {
-				let locals = this.$firebase.firestore().collection("locals")
-				.where('business', '==', this.userStorage.business)
-				.where('title', '==', this.local)
-				locals.onSnapshot(querySnapshot => {
-					querySnapshot.forEach(doc => this.localID = doc.id)
-				})
+				if (!this.zone) this.localsSelect = []
+				else {
+					let locals = this.$firebase.firestore().collection("locals")
+					.where('business', '==', this.userStorage.business)
+					.where('title', '==', this.local)
+					locals.onSnapshot(querySnapshot => {
+						querySnapshot.forEach(doc => this.localID = doc.id)
+					})
+				}
 			},
 			read() {
 				if (!this.read) this.unread = true
 			},
 			closed() {
 				if (this.closed) this.read = true
+			},
+			zone() {
+				this.localsSelect = []
+				let zone = this.$firebase.firestore().collection("zones").where('responsable', '==', this.zone)
+				zone.onSnapshot(querySnapshot => {
+					querySnapshot.forEach(doc => {
+						this.zoneID = doc.id
+						let locals = this.$firebase.firestore().collection("locals").where('zone', '==', doc.id)
+						locals.onSnapshot(querySnapshot => {
+							this.locals = []
+							querySnapshot.forEach(doc => {
+								let local = doc.data()
+								local.id = doc.id
+								this.locals.unshift(local)
+								this.localsSelect.unshift(local.title)
+							})
+						})
+					})
+				})
 			}
 		},
 		created() {
@@ -233,14 +265,14 @@
 				if (!this.tickets.length) this.tickets = false
 			})
 
-			let locals = this.$firebase.firestore().collection("locals").where('business', '==', this.userStorage.business)
-			locals.onSnapshot(querySnapshot => {
-				this.locals = []
+			let zones = this.$firebase.firestore().collection("zones").where('business', '==', this.userStorage.business)
+			zones.onSnapshot(querySnapshot => {
+				this.zones = []
 				querySnapshot.forEach(doc => {
-					let local = doc.data()
-					local.id = doc.id
-					this.locals.unshift(local)
-					this.localsSelect.unshift(local.title)
+					let zone = doc.data()
+					zone.id = doc.id
+					this.zones.unshift(zone)
+					this.zonesSelect.unshift(zone.responsable)
 				})
 			})
 		},
@@ -295,7 +327,11 @@
 				let status = this.read ? 1 : 0
 				status = this.closed ? 2 : status
 				tickets = tickets.where('status', '==', status)
-				if (this.local) tickets = tickets.where('local.id', '==', this.localID)
+				if (this.local) tickets = tickets.where('local', '==', this.localID)
+				else {
+					if (this.zone) tickets = tickets.where('zone', '==', this.zoneID)
+				}
+				
 
 				let timeSince = '00:00'
 				let timeUntil = '23:59'

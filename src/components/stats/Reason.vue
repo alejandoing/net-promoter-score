@@ -263,7 +263,8 @@
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
-				this.currentReason.stats.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
+        if (!this.getPercentage(partials, total)) this.currentReason.stats.indicatorsGlobal.satisfaction = 0
+        else this.currentReason.stats.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
 				
 				this.currentReason.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
 				this.currentReason.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
