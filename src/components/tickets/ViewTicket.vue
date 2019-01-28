@@ -105,20 +105,19 @@
 			await ticket.get().then(async doc => {
 				this.ticket = doc.data()
 				if (this.ticket.answer) this.comment = true
-					// if (this.comment) {
-					// 	ticket.update({
-					// 		business: this.ticket.business,
-					// 		date: this.ticket.date,
-					// 		description: this.ticket.description,
-					// 		email: this.ticket.email,
-					// 		local: this.ticket.local,
-					// 		poll: this.ticket.poll,
-					// 		telephone: this.ticket.telephone,
-					// 		comment: this.comment,
-					// 		status: 1
-					// 	})
-					// 	.then(() => console.log(''))
-					// }
+					ticket.update({
+						assessment: this.ticket.assessment,
+						business: this.ticket.business,
+						date: this.ticket.date,
+						description: this.ticket.description,
+						email: this.ticket.email,
+						local: this.ticket.local,
+						poll: this.ticket.poll,
+						telephone: this.ticket.telephone,
+						comment: this.comment,
+						status: 1
+					})
+					.then(() => console.log(''))
 			})
 
 			let localTitle = this.$firebase.firestore().doc('locals/' + this.ticket.local)
@@ -157,6 +156,7 @@
 				await ticket.get().then(async doc => {
 					if (this.ticket.answer) {
 						ticket.update({
+							assessment: this.ticket.assessment,
 							business: this.ticket.business,
 							date: this.ticket.date,
 							description: this.ticket.description,
