@@ -4,7 +4,7 @@
       img.pr-3(:src="reason.url" width=158 height=138 @click="dynamicDialog(reason)")
       span.justification-span {{ reason.title }}
       div.text
-        span {{reason.percentage}}% | {{reason.value}} resp.
+        span {{reason.value}} resp. | {{ reason.stats.satisfaction }}% satis.
     v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
       v-card
         v-toolbar(dark color="primary")
@@ -79,10 +79,10 @@
         dynamicDialogAct: false,
         currentReason: { stats: { indicatorsGlobal: { comment: [], complain: [] }}},
 				reasons: {
-					0: { url: "./../../../static/reasons/atencion-cajero.png", title: 'Atención del Cajero', value: 0, percentage: 0 },
-					1: { url: "./../../../static/reasons/tiempo-espera.png", title: 'Tiempo de Espera', value: 0, percentage: 0 },
-					2: { url: "./../../../static/reasons/estado-local.png", title: 'Estado del Local', value: 0, percentage: 0 },
-					3: { url: "./../../../static/reasons/servicio-utilizado.png", title: 'Servicio Utilizado', value: 0, percentage: 0 },
+					0: { url: "./../../../static/reasons/atencion-cajero.png", title: 'Atención del Cajero', value: 0, percentage: 0, stats: {} },
+					1: { url: "./../../../static/reasons/tiempo-espera.png", title: 'Tiempo de Espera', value: 0, percentage: 0, stats: {} },
+					2: { url: "./../../../static/reasons/estado-local.png", title: 'Estado del Local', value: 0, percentage: 0, stats: {} },
+					3: { url: "./../../../static/reasons/servicio-utilizado.png", title: 'Servicio Utilizado', value: 0, percentage: 0, stats: {} },
 				},
       }
     },
@@ -92,7 +92,7 @@
           for (let reason in this.reasons) {
             this.reasons[reason].value = this.$props.data.reasons[reason][0]
             this.reasons[reason].percentage = this.$props.data.reasons[reason][1]
-            this.reasons[reason].stats = this.$props.data.reasons[reason][2]
+						this.reasons[reason].stats = this.$props.data.reasons[reason][2]
           }
         }
       }
@@ -260,11 +260,12 @@
 				const partialGood = data.stats.good[0] * PRC_GOOD_R
 				const partialBad = data.stats.bad[0] * PRC_BAD_R
 				const partialVeryBad = data.stats.veryBad[0] * PRC_VERY_BAD_R
+
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
         if (!this.getPercentage(partials, total)) this.currentReason.stats.indicatorsGlobal.satisfaction = 0
-        else this.currentReason.stats.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
+        else this.currentReason.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 				
 				this.currentReason.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
 				this.currentReason.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]

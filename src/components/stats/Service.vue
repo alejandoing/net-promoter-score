@@ -4,7 +4,7 @@
       img.pr-3(:src="service.url" width=158 height=138)
       span.justification-span {{ service.title }}
       div.text
-        span {{service.percentage}}% | {{service.value}} resp.
+        span {{service.value}} resp. | {{ service.stats.satisfaction }}% satis.
     v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
       v-card
         v-toolbar(dark color="primary")
@@ -77,12 +77,12 @@
         chartDayGlobal: [],
         chartMonthGlobal: [],
         dynamicDialogAct: false,
-        currentService: { stats: { indicatorsGlobal: { comment: [], complain: [] }}},
+        currentService: { stats: { indicatorsGlobal: { comment: [], complain: [] } } },
 				services: {
-					0: { url: "./../../../static/services/pago-servicios.png", title: 'Pago Servicios', value: 0, percentage: 0 },
-					1: { url: "./../../../static/services/envio-internacional.png", title: 'Envío Internacional', value: 0, percentage: 0 },
-					2: { url: "./../../../static/services/pago-servicios.png", title: 'Envío Nacional', value: 0, percentage: 0 },
-					3: { url: "./../../../static/services/casa-cambio.png", title: 'Casa de Cambio', value: 0, percentage: 0 },
+					0: { url: "./../../../static/services/pago-servicios.png", title: 'Pago Servicios', value: 0, percentage: 0, stats: {} },
+					1: { url: "./../../../static/services/envio-internacional.png", title: 'Envío Internacional', value: 0, percentage: 0,  stats: {} },
+					2: { url: "./../../../static/services/pago-servicios.png", title: 'Envío Nacional', value: 0, percentage: 0,  stats: {} },
+					3: { url: "./../../../static/services/casa-cambio.png", title: 'Casa de Cambio', value: 0, percentage: 0, stats: {} },
 				},
       }
     },
@@ -92,7 +92,7 @@
           for (let service in this.services) {
             this.services[service].value = this.$props.data.services[service][0]
             this.services[service].percentage = this.$props.data.services[service][1]
-            this.services[service].stats = this.$props.data.services[service][2]
+						this.services[service].stats = this.$props.data.services[service][2]
           }
         }
       }
@@ -106,7 +106,6 @@
         this.chartMonthGlobal = []
       },
 			dynamicDialog(data) {
-        console.log(data)
         data.stats.indicatorsGlobal = { satisfaction: null, complain: [null, null], comment: [null, null] }
         this.currentService = data
         this.dynamicDialogAct = !this.dynamicDialogAct
@@ -265,7 +264,7 @@
 				const partials = partialGood + partialBad + partialVeryBad
 
         if (!this.getPercentage(partials, total)) this.currentService.stats.indicatorsGlobal.satisfaction = 0
-        else this.currentZone.stats.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
+        else this.currentService.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 				
 				this.currentService.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
 				this.currentService.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]

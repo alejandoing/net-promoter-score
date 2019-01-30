@@ -4,7 +4,7 @@
       img(:src="zone.url" width=158 height=138)
       span.justification-span {{ zone.title }}
       .text-xs-center.text
-        span {{zone.percentage}}% | {{zone.value}} resp.
+        span {{zone.value}} resp. | {{ zone.stats.satisfaction }}% satis.
     v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
       v-card
         v-toolbar(dark color="primary")
@@ -79,12 +79,12 @@
         dynamicDialogAct: false,
         currentZone: { stats: { indicatorsGlobal: { comment: [], complain: [] }}},
 				zones: {
-					0: { url: "./../../../static/zones/walter-mancho.png", title: 'Walter Mancho', value: 0, percentage: 0 },
-					1: { url: "./../../../static/zones/luciana-bernadotti.png", title: 'Luciana Bernadotti', value: 0, percentage: 0 },
-					2: { url: "./../../../static/zones/cristina-marigomez.png", title: 'Cristina Marigomez', value: 0, percentage: 0 },
-          3: { url: "./../../../static/zones/dado-ricci.png", title: 'Dado Ricci', value: 0, percentage: 0 },
-          4: { url: "./../../../static/zones/diego-longo.png", title: 'Diego Longo', value: 0, percentage: 0 },
-          5: { url: "./../../../static/zones/florencia-casa.png", title: 'Florencia Casa', value: 0, percentage: 0 },
+					0: { url: "./../../../static/zones/walter-mancho.png", title: 'Walter Mancho', value: 0, percentage: 0, stats: {}  },
+					1: { url: "./../../../static/zones/luciana-bernadotti.png", title: 'Luciana Bernadotti', value: 0, percentage: 0, stats: {}  },
+					2: { url: "./../../../static/zones/cristina-marigomez.png", title: 'Cristina Marigomez', value: 0, percentage: 0, stats: {}  },
+          3: { url: "./../../../static/zones/dado-ricci.png", title: 'Dado Ricci', value: 0, percentage: 0, stats: {}  },
+          4: { url: "./../../../static/zones/diego-longo.png", title: 'Diego Longo', value: 0, percentage: 0, stats: {}  },
+          5: { url: "./../../../static/zones/florencia-casa.png", title: 'Florencia Casa', value: 0, percentage: 0, stats: {}  },
 				},
       }
     },
@@ -94,7 +94,7 @@
           for (let zone in this.zones) {
             this.zones[zone].value = this.$props.data.zones[zone][0]
             this.zones[zone].percentage = this.$props.data.zones[zone][1]
-            this.zones[zone].stats = this.$props.data.zones[zone][2]
+						this.zones[zone].stats = this.$props.data.zones[zone][2]
           }
         }
       }
@@ -267,7 +267,7 @@
 				const partials = partialGood + partialBad + partialVeryBad
 
         if (!this.getPercentage(partials, total)) this.currentZone.stats.indicatorsGlobal.satisfaction = 0
-        else this.currentZone.stats.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
+        else this.currentZone.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 				
 				this.currentZone.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
 				this.currentZone.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
@@ -330,7 +330,7 @@
         font-size: 14px
         grid-template: .5fr .5fr / 1fr
         span
-          font-size: 18px
+          font-size: 16px
           text-align: center
   .justification
     display: grid
@@ -342,6 +342,6 @@
       text-align: center
     .justification-span
       justify-self: center
-      font-size: 18px
+      font-size: 16px
       font-weight: bold
 </style>
