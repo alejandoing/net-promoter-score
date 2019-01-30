@@ -359,26 +359,28 @@
 							v-tabs-content(id="monthCustom")
 								v-flex.py-5(xs12)
 									Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthCustom")
-				//- v-tabs(fixed centered)
-				//-   v-tabs-bar.primary(dark)
-				//-     v-tabs-slider(class="yellow")
-				//-     v-tabs-item(href="#hourReason" ripple) Horario
-				//-     v-tabs-item(href="#weekReason" ripple) Día de la Semana
-				//-     v-tabs-item(href="#dayReason" ripple) Día del Mes
-				//-     v-tabs-item(href="#monthReason" ripple) Mensual
-				//-   v-tabs-items
-				//-     v-tabs-content(id="hourReason")
-				//-       v-flex.py-5(xs12)
-				//-         Chart(type="columnStacked" title="Distribución General Horaria" :data="chartHourGlobal")
-				//-     v-tabs-content(id="weekReason")
-				//-       v-flex.py-5(xs12)
-				//-         Chart(type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobal")
-				//-     v-tabs-content(id="dayReason")
-				//-       v-flex.py-5(xs12)
-				//-         Chart(type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobal")
-				//-     v-tabs-content(id="monthReason")
-				//-       v-flex.py-5(xs12)
-				//-         Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
+					v-flex(xs12)
+						div.pb-5
+							span.display-1 Servicios
+							v-divider
+					v-flex(xs9 offset-xs2)
+						Service.pb-5(:data="results.stats")
+					v-flex(xs12)
+						div.pb-5
+							span.display-1 Motivos
+							v-divider
+					v-flex(xs9 offset-xs2)
+						Reason.pb-5(:data="results.stats")
+					v-flex(xs12)
+						div.pb-5
+							span.display-1 Jefe Zonales
+							v-divider
+					v-flex(xs9 offset-xs2)
+						Zone.pb-5(:data="results.stats")
+					v-flex(xs12)
+						Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPointsCustom")
+					v-flex(xs12)
+						Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPointsCustom")
 </template>
 
 <script>
@@ -427,7 +429,9 @@
 				locals: null,
 				localsSelect: [],
 				weakPoints: null,
+				weakPointsCustom: null,
 				strongPoints: null,
+				strongPointsCustom: null,
 				menuDateSince: false,
 				menuDateUntil: false,
 				dateSince: null,
@@ -1621,8 +1625,8 @@
 					satisfaction: this.getIndicatorsReason(numReas4, this.getPercentage(reas4Good, numReas4), this.getPercentage(reas4Bad, numReas4), this.getPercentage(reas4VeryBad, numReas4))
 				}]
 
-				// this.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
-				// this.strongPoints = reasonChartStrong.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+				this.weakPointsCustom = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+				this.strongPointsCustom = reasonChartStrong.sort(sortByProperty('satisfaction')).map(x => x).reverse()
 
 				// this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
 
@@ -1636,32 +1640,6 @@
 				// }
 				
 				// this.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse()
-			},
-
-			getChartCustom() {
-				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
-				for (let assessment of this.results) {
-					switch(assessment.face) {
-						case 'veryGood':
-							numVeryGood++
-						break
-						case 'good':
-							numGood++
-						break
-						case 'bad':
-							numBad++
-						break
-						case 'veryBad':
-							numVeryBad++
-						break
-					}
-				}
-				this.optionsChartCustom.title.text = "Encuestas realizadas hasta la fecha:" + this.results.length
-				this.optionsChartCustom.series[0].data[0].y = numVeryGood
-				this.optionsChartCustom.series[0].data[1].y = numGood
-				this.optionsChartCustom.series[0].data[2].y = numBad
-				this.optionsChartCustom.series[0].data[3].y = numVeryBad
-				this.results.stats = { veryGood: numVeryGood, good: numGood, bad: numBad, veryBad: numVeryBad }				
 			},
 
 			async getIndicatorsGlobal() {
