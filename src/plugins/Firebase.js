@@ -24,4 +24,3 @@ export default function (Vue) {
 	FirebasePlugin.firestore().settings({ timestampsInSnapshots: true })
 	Vue.prototype.$firebase = FirebasePlugin
 }
-

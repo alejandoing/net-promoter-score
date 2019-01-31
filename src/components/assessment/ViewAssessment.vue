@@ -234,7 +234,7 @@
 				 	flow: this.flow,
 				 	justification: this.justification,
 				 	justificationTwo: this.justificationTwo,
-					poll: this.$route.params.id,
+					poll: 'D2KzOzdiM8dCmUw7idIW',
 					zone: this.local.zone,
 				 	business: this.poll.business,
 				 	local: this.$route.params.localId,
@@ -288,7 +288,7 @@
 					zone: this.local.zone,
 				 	business: this.local.business,
 				 	local: this.$route.params.localId,
-					poll: this.$route.params.id,
+					poll: 'D2KzOzdiM8dCmUw7idIW',
 					assessment: assessment
 				})
 				// const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')

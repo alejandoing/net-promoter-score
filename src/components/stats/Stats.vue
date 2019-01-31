@@ -1773,7 +1773,7 @@
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
-				this.indicatorsCustom.satisfaction = 100 - this.getPercentage(partials, total)
+				this.indicatorsCustom.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 				
 				this.indicatorsCustom.complain = [complains, this.getPercentage(complains, total)]
 				this.indicatorsCustom.comment = [comments, this.getPercentage(comments, total)]
