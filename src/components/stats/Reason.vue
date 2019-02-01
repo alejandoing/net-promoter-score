@@ -328,10 +328,10 @@
       .text
         display: grid
         justify-content: center
-        font-size: 20px
+        font-size: 14px
         grid-template: .5fr .5fr / 1fr
         span
-          font-size: 18px
+          font-size: 16px
           text-align: center
   .justification
     display: grid
@@ -342,6 +342,6 @@
       cursor: pointer
     .justification-span
       justify-self: center
-      font-size: 20px
+      font-size: 16px
       font-weight: bold
 </style>

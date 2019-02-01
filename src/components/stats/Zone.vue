@@ -4,7 +4,7 @@
       img(:src="zone.url" width=158 height=138)
       span.justification-span {{ zone.title }}
       .text-xs-center.text
-        span {{zone.value}} resp. | {{ zone.stats.satisfaction }}% satis.
+        span {{ zone.value }} {{ title }} | {{ zone.stats.satisfaction }}{{ titleTwo }}
     v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
       v-card
         v-toolbar(dark color="primary")
@@ -72,6 +72,8 @@
     props: ['data'],
     data () {
       return {
+				title: 'resp.',
+				titleTwo: '% satis',
         chartHourGlobal: [],
         chartDayWGlobal: [],
         chartDayGlobal: [],
@@ -92,9 +94,17 @@
       data() {
         if (this.$props.data) {
           for (let zone in this.zones) {
-            this.zones[zone].value = this.$props.data.zones[zone][0]
-            this.zones[zone].percentage = this.$props.data.zones[zone][1]
-						this.zones[zone].stats = this.$props.data.zones[zone][2]
+						console.log(this.$props.data.zones[zone][2])
+						if (typeof(this.$props.data.zones[zone][0]) === "object") {
+							this.title = "quej."
+							this.titleTwo = " com."
+							this.zones[zone].value = this.$props.data.zones[zone][1][0]
+							this.zones[zone].stats.satisfaction = this.$props.data.zones[zone][2][0]
+						} else {
+							this.zones[zone].value = this.$props.data.zones[zone][0]
+							this.zones[zone].percentage = this.$props.data.zones[zone][1]
+							this.zones[zone].stats = this.$props.data.zones[zone][2]
+						}
           }
         }
       }
@@ -108,7 +118,7 @@
         this.chartMonthGlobal = []
       },
 			dynamicDialog(data) {
-        console.log(data)
+				if (this.title == "quej.") return false
         data.stats.indicatorsGlobal = { satisfaction: null, complain: [null, null], comment: [null, null] }
         this.currentZone = data
         this.dynamicDialogAct = !this.dynamicDialogAct

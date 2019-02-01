@@ -1,6 +1,5 @@
 <template lang="pug">
 	v-container
-		v-layout(row)
 		v-flex(xs12)
 			div.pb-5
 				span.display-1 Tickets Registrados
@@ -144,11 +143,20 @@
 						type="checkbox"
 						style="position: relative; top: 20px"
 					)
+				v-flex.ml-3(xs12 sm1)
+					v-checkbox(
+						v-model="complain"
+						label="Queja"
+						type="checkbox"
+						style="position: relative; top: 20px"
+					)
 			v-layout(row).mb-5.mt-3
-				v-flex(xs12 sm4 offset-sm2)
+				v-flex(xs12 sm4)
 					v-btn(block color="primary" @click="searchTickets") Filtrar Tickets
 				v-flex(xs12 sm4).pl-2
 					v-btn(block color="primary" @click="clearFields") Limpiar
+				v-flex(xs12 sm4).pl-2
+					v-btn(block color="primary" @click="searchResults") Ver Detalles
 			v-flex.mb-5(xs12 sm12 v-if='tickets')
 				v-card
 					v-list
@@ -172,23 +180,56 @@
 							v-divider
 			v-flex(xs12 sm12 v-else) 
 				span.message Los tickets que se registren en el sistema aparecerán aquí
+		v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
+			v-card
+				v-toolbar(dark color="primary")
+					v-btn(icon dark @click="finalize")
+						v-icon close
+					v-toolbar-title Detalle - Comentarios
+					v-spacer
+					v-toolbar-items
+						v-btn(dark flat @click="finalize") Regresar
+				v-card-text
+					v-flex(xs9 offset-xs2)
+						v-layout(row)
+							v-flex(xs1 offset-xs1 v-if="tickets")
+							.images.ml-5(v-for="image in images")
+								img(height="200" width="220" :src="image.url")
+								span {{ image.value.length }} cant. | {{ image.percentage }}%
+					v-flex(xs12)
+						.py-5
+							span.display-1 Jefe Zonales
+							v-divider
+					v-flex(xs9 offset-xs2)
+						Zone.pb-5(:data="tickets.stats")
 </template>
 
 <script>
+	import Zone from '../stats/Zone.vue'
 	import router from '@/router/'
   export default {
     data () {
       return {
+				images: [
+					{ url: './../../../static/tickets/comment.png', value: false, percentage: false }, 
+					{ url: './../../../static/tickets/complain.png', value: false, percentage: false }
+				],
 				tickets: false,
+				complains: null,
+				comments: null,
+				dynamicDialogAct: false,
 				local: null,
 				localID: null,
 				locals: null,
+				localsQ: null,
 				localsSelect: [],
 				zone: null,
+				test: null,
 				zoneID: null,
 				zonesSelect: [],
 				read: false,
 				closed: false,
+				complain: false,
 				menuDateSince: false,
 				menuDateUntil: false,
 				dateSince: null,
@@ -241,6 +282,16 @@
 			}
 		},
 		created() {
+			let locals = this.$firebase.firestore().collection("locals").where('business', '==', this.userStorage.business)
+			locals.onSnapshot(querySnapshot => {
+				this.localsQ = []
+				querySnapshot.forEach(doc => {
+					let local = doc.data()
+					locals.id = doc.id
+					this.localsQ.unshift(local)
+				})
+			})
+
 			let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
 			tickets.onSnapshot(querySnapshot => {
 				this.tickets = []
@@ -251,6 +302,11 @@
 					ticket.id = doc.id
 					this.tickets.unshift(ticket)
 				})
+				this.images[0].value = this.tickets.filter(item => !item.complain)
+				this.images[0].percentage = this.getPercentage(this.images[0].value.length, this.tickets.length)
+				this.images[1].value = this.tickets.filter(item => item.complain)
+				this.images[1].percentage = this.getPercentage(this.images[1].value.length, this.tickets.length)
+				this.getStats()
 				if (!this.tickets.length) this.tickets = false
 			})
 
@@ -266,6 +322,91 @@
 			})
 		},
 		methods: {
+			getStats() {
+				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
+				
+				let zoneWMComplain = 0, zoneWMComment = 0
+				let zoneLBComplain = 0, zoneLBComment = 0
+				let zoneDRComplain = 0, zoneDRComment = 0
+				let zoneDLComplain = 0, zoneDLComment = 0
+				let zoneCMComplain = 0, zoneCMComment = 0
+				let zoneFCComplain = 0, zoneFCComment = 0
+
+				let complains = new Array(2).fill(0)
+				let comments = new Array(2).fill(0)
+				let activeLocals = []
+				let setUpLocals = []
+				
+				for (let ticket of this.tickets) {
+					switch(ticket.zone) {
+						case 'MM3exjMdkKaQ0cUkAkM2':
+							ticket.complain ? zoneWMComplain++ : zoneWMComment++
+							zoneWM++
+						break
+						case 'MopGQtv8fBJU4Pbad7vD':
+							ticket.complain ? zoneLBComplain++ : zoneLBComment++
+							zoneLB++
+						break
+						case 'Ngw5aiu8JFFKlHMDeZVd':
+							ticket.complain ? zoneCMComplain++ : zoneCMComment++
+							zoneCM++
+						break
+						case 'cRc6N1NsFEXInsBtkB9w':
+							ticket.complain ? zoneDRComplain++ : zoneDRComment++
+							zoneDR++
+						break
+						case 'mTMi65jxCFXXglPMEARV':
+							ticket.complain ? zoneDLComplain++ : zoneDLComment++
+							zoneDL++
+						break
+						case 'wk77ITDgnPYUjZ28MxJK':
+							ticket.complain ? zoneFCComplain++ : zoneFCComment++
+							zoneFC++
+						break
+					}
+				}
+
+				this.tickets.stats = {
+					zones: {
+						0: [
+								[zoneWM, this.getPercentage(zoneWM, this.tickets.length)],
+								[zoneWMComplain, this.getPercentage(zoneWMComplain, this.tickets.length)],
+								[zoneWMComment, this.getPercentage(zoneWMComment, this.tickets.length)]
+							],
+						1: [
+								[zoneLB, this.getPercentage(zoneLB, this.tickets.length)],
+								[zoneLBComplain, this.getPercentage(zoneLBComplain, this.tickets.length)],
+								[zoneLBComment, this.getPercentage(zoneLBComment, this.tickets.length)] 
+							],
+						2: [
+								[zoneCM, this.getPercentage(zoneCM, this.tickets.length)],
+								[zoneCMComplain, this.getPercentage(zoneCMComplain, this.tickets.length)],
+								[zoneCMComment, this.getPercentage(zoneCMComment, this.tickets.length)]
+							],
+						3: [
+								[zoneDR, this.getPercentage(zoneDR, this.tickets.length)],
+								[zoneDRComplain, this.getPercentage(zoneDRComplain, this.tickets.length)],
+								[zoneDRComment, this.getPercentage(zoneDRComment, this.tickets.length)]
+							],
+						4: [
+								[zoneDL, this.getPercentage(zoneDL, this.tickets.length)],
+								[zoneDLComplain, this.getPercentage(zoneDLComplain, this.tickets.length)],
+								[zoneDLComment, this.getPercentage(zoneDLComment, this.tickets.length)]
+							],
+						5: [
+								[zoneFC, this.getPercentage(zoneFC, this.tickets.length)],
+								[zoneFCComplain, this.getPercentage(zoneFCComplain, this.tickets.length)],
+								[zoneFCComment, this.getPercentage(zoneFCComment, this.tickets.length)]
+							],					
+					},
+				}
+			},
+			searchResults() {
+				this.dynamicDialogAct = true
+			},
+			finalize() {
+				this.dynamicDialogAct = false
+			},
       formatDate (date) {
         if (!date) return null
         const [year, month, day] = date.split('-')
@@ -294,6 +435,11 @@
 				this.menuTimeSince = false
 			},
 
+			getPercentage(part, universe) {
+				let result = parseFloat(((part * 100) / universe).toFixed(2))
+				return isNaN(result) ? 0 : result
+			},
+
 			desactiveTimeMenuUntil() {
 				this.timeUntil = null,
 				this.menuTimeUntil = false
@@ -320,6 +466,7 @@
 				else {
 					if (this.zone) tickets = tickets.where('zone', '==', this.zoneID)
 				}
+				if (this.complain) tickets = tickets.where('complain', '==', 1)
 				
 
 				let timeSince = '00:00'
@@ -405,6 +552,7 @@
 				this.dateUntil = null
 				this.timeSince = null
 				this.timeUntil = null
+				this.complain = null
 
 				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
 				tickets.onSnapshot(querySnapshot => {
@@ -435,6 +583,9 @@
 					console.log('Actualizado correctamente')
 				})
 			}
+		},
+		components: {
+			Zone
 		}
   }
 </script>
@@ -448,6 +599,16 @@
 			color: black
 	.message
 		font-size: 20px
-	#read
-		
+	.containerTwo
+		display: grid;
+		position: relative;
+		right: 30px;
+		grid-template: 1fr / repeat(4, .5fr);
+	.images
+		display: grid;
+		justify-content: start;
+		grid-template: 1fr .1fr / 1fr;
+		span
+			font-size: 20px
+			justify-self: center
 </style>

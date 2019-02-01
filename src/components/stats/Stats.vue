@@ -142,7 +142,7 @@
 				div(style="flex: 1 1 auto;")
 			v-flex(xs12)
 				div.pb-5
-					span.display-1 Resultados Generales Sin Filtro
+					span.display-1 Resultados Generales
 					v-divider
 			v-flex(xs9 offset-xs1)
 				Face.pb-5(:data="assessments.stats")
