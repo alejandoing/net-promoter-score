@@ -161,7 +161,7 @@
 				v-card
 					v-list
 						template(v-for="ticket in tickets")
-							v-list-tile(avatar)
+							v-list-tile(avatar).ticket-content
 								v-list-tile-avatar.pr-5(v-if="ticket.status == 2")
 									v-btn(color="green darken-4" small dark) Cerrado
 								v-list-tile-avatar.pr-5(v-else-if="ticket.status == 0")
@@ -169,7 +169,7 @@
 								v-list-tile-avatar.pr-5(v-else)
 									v-btn(color="amber darken-4" small dark) Leído
 								v-spacer(style="flex-grow: .1 !important")
-								v-list-tile-content.ticket-content(ripple @click="viewTicket(ticket.id)")
+								v-list-tile-content(ripple @click="viewTicket(ticket.id)")
 									v-list-tile-title.black-text 
 										| {{ ticket.email }} - ({{ ticket.dateFormat }})
 									v-list-tile-sub-title
@@ -202,6 +202,22 @@
 							v-divider
 					v-flex(xs9 offset-xs2)
 						Zone.pb-5(:data="tickets.stats")
+					v-flex(xs12)
+						.py-5
+							span.display-1 Locales
+							v-divider
+					v-container
+						v-flex(xs12 sm12)
+							v-card
+								v-list
+									template(v-for="local in localsQ")
+										v-list-tile(avatar).ticket-content
+											v-list-tile-content
+												v-list-tile-title.black-text {{ local.title }}
+											v-spacer(style="flex-grow: .1 !important")
+											v-btn(color="error" small) {{ local.complain }} Quejas
+											v-btn(color="success" small dark) {{ local.comment }} Comentarios
+										v-divider
 </template>
 
 <script>
@@ -282,12 +298,14 @@
 			}
 		},
 		created() {
-			let locals = this.$firebase.firestore().collection("locals").where('business', '==', this.userStorage.business)
+			let locals = this.$firebase.firestore().collection("locals").where('business', '==', this.userStorage.business).orderBy('title', 'desc')
 			locals.onSnapshot(querySnapshot => {
 				this.localsQ = []
 				querySnapshot.forEach(doc => {
 					let local = doc.data()
-					locals.id = doc.id
+					local.id = doc.id
+					local.complain = 0
+					local.comment = 0
 					this.localsQ.unshift(local)
 				})
 			})
@@ -364,6 +382,8 @@
 							zoneFC++
 						break
 					}
+
+					ticket.complain ? this.localsQ.find(item => item.id === ticket.local).complain++ : this.localsQ.find(item => item.id === ticket.local).comment++
 				}
 
 				this.tickets.stats = {
@@ -398,8 +418,13 @@
 								[zoneFCComplain, this.getPercentage(zoneFCComplain, this.tickets.length)],
 								[zoneFCComment, this.getPercentage(zoneFCComment, this.tickets.length)]
 							],					
-					},
+					}
 				}
+
+				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
+
+				this.localsQ = this.localsQ.sort(sortByProperty('complain'))
+				console.log(this.localsQ)
 			},
 			searchResults() {
 				this.dynamicDialogAct = true
