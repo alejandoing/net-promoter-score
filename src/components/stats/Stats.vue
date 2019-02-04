@@ -126,12 +126,26 @@
 					v-model="local"
 					:items="localsSelect"
 				)
+			v-flex(xs4 sm1 offset-sm2)
+				v-checkbox(
+					v-model="AMBA"
+					label="AMBA"
+					type="checkbox"
+					style="position: relative; top: 20px"
+				)
+			v-flex(xs4 sm1)
+				v-checkbox(
+					v-model="interior"
+					label="Interior"
+					type="checkbox"
+					style="position: relative; top: 20px"
+				)
 		v-layout(row child-flex justify-center align-center wrap)
 			v-flex.py-5(fill-height xs2 offset-xs2)
 				v-btn#submit(
 					large outline
 					:loading="loading"
-					:disabled="loading || (!timeSince && !dateSince && !zone)"
+					:disabled="loading || (!timeSince && !dateSince && !zone && !AMBA && !interior)"
 					@click.native="searchStats"
 					color="primary"
 					) Obtener Resultados
@@ -410,6 +424,8 @@
 		validations: {},
     data () {
       return {
+				AMBA: false,
+				interior: false,
 				dynamicDialogAct: false,
 				chartHourGlobal: null,
 				chartDayWGlobal: null,
@@ -707,6 +723,12 @@
 			}
 		},
 		watch: {
+			AMBA() {
+				if (this.interior && this.AMBA) this.interior = false
+			},
+			interior() {
+				if (this.interior && this.AMBA) this.AMBA = false
+			},
 			loader () {
 				const l = this.loader
 				this[l] = !this[l]
@@ -855,6 +877,10 @@
 					if (this.zoneID) query = query.where('zone','==', this.zoneID)
 				}
 
+				if (this.interior) query = query.where('region','==', 'MKITRJYc46G8XLR0Kjsv')
+
+				if (this.AMBA) query = query.where('region','==', '0l5DtjJ6UQ1J4DxX0fdY')
+
 				query.onSnapshot(querySnapshot => {
 					this.results = []
 					querySnapshot.forEach(doc => {
@@ -919,6 +945,8 @@
 			},
 
 			clearFields() {
+				this.AMBA = null
+				this.interior = null
 				this.zone = null
 				this.desactiveDateMenus()
 				this.desactiveTimeMenuSince()
@@ -941,7 +969,6 @@
 			},
 			
 			getChartGlobal() {
-				console.log(this.locals)
 				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 				const total = this.assessments.length
 				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
@@ -1289,8 +1316,8 @@
 					satisfaction: this.getIndicatorsReason(numReas4, reas4Good, reas4Bad, reas4VeryBad)
 				}]
 
-				this.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
-				this.strongPoints = reasonChartStrong.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+				this.weakPoints = reasonChart.sort(sortByProperty('satisfaction'))
+				this.strongPoints = reasonChartStrong.sort(sortByProperty('satisfaction'))
 
 				this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
 

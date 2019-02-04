@@ -94,7 +94,6 @@
       data() {
         if (this.$props.data) {
           for (let zone in this.zones) {
-						console.log(this.$props.data.zones[zone][2])
 						if (typeof(this.$props.data.zones[zone][0]) === "object") {
 							this.title = "quej."
 							this.titleTwo = " com."

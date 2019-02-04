@@ -30,7 +30,6 @@
     watch: {
       data() {
         if (this.$props.data) {
-          console.log(this.$props.data)
           for (let face in this.faces) {
             this.faces[face].value = this.$props.data[face][0]
             this.faces[face].percentage = this.$props.data[face][1]

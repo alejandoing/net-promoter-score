@@ -33,6 +33,23 @@
 				this.contexts.push(doc.data().contexts)
 				if (!this.contexts[0].length) this.dialog = true
 			})
+
+		// 	this.$firebase.firestore().collection("locals").get().then(querySnapshot => {
+		// 			querySnapshot.forEach(doc => {
+		// 				console.log(doc.id, " => ", doc.data());
+		// 					var currentRef = this.$firebase.firestore().collection("locals").doc(doc.id)
+
+		// 					return currentRef.update({
+		// 						region: '0l5DtjJ6UQ1J4DxX0fdY'
+		// 					})
+		// 					.then(function() {
+		// 							console.log("Document successfully updated!" + doc.id);
+		// 					})
+		// 					.catch(function(error) {
+		// 						console.error("Error updating document: ", error);
+		// 					});
+		// 			});
+		// 	});
 		}
 	}
 </script>
