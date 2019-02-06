@@ -19,6 +19,8 @@
     "firebase": "^5.7.1",
     "fs": "0.0.1-security",
     "highcharts": "^6.0.4",
+    "html2canvas": "^1.0.0-alpha.12",
+    "jspdf": "^1.5.3",
     "prod": "^1.0.1",
     "vue": "^2.5.3",
     "vue-google-charts": "^0.3.2",
