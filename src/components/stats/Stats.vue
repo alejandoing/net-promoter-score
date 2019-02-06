@@ -405,9 +405,9 @@
 						Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPointsCustom")
 					v-flex(xs12)
 						Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPointsCustom")
-		Chart#weekChart(type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobal")
-		Chart#dayChart(type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobal")
-		Chart#monthChart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
+		Chart#weekChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobal")
+		Chart#dayChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobal")
+		Chart#monthChart(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
 </template>
 
 <script>
@@ -842,11 +842,12 @@
 			})
 		},
 
-		mounted() {
-		},
 		methods: {
 			printGeneralReport() {
 				this.loader2 = 'loading2'
+				document.getElementById('weekChart').style.display = "block"
+				document.getElementById('dayChart').style.display = "block"
+				document.getElementById('monthChart').style.display = "block"
 				const FILENAME  = 'reporte_general.pdf'
 				let pdf = new jsPDF()
 
@@ -866,7 +867,7 @@
 				pdf.text('Número de Valoraciones e Indicadores', 90, 20)
 				
 				html2canvas(document.getElementById('generalesFaces'), {scale: 1}).then(canvas => {
-					pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 295, 50)
+					pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 280, 50)
 					html2canvas(document.getElementById('satisfactionInd'), {scale: 1}).then(canvas => {
 						pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 85, 275, 50)
 						html2canvas(document.getElementById('indicators'), {scale: 1}).then(canvas => {
@@ -885,6 +886,11 @@
 										html2canvas(document.getElementById('monthChart'), {scale: 1}).then(canvas => {
 											pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
 											pdf.save(FILENAME)
+											document.getElementById('weekChart').style.display = "none"
+											document.getElementById('dayChart').style.display = "none"
+											document.getElementById('monthChart').style.display = "none"
+											this.loading2 = false
+											this.loader2 = null
 										})
 									})
 								})
@@ -1397,7 +1403,7 @@
 				this.weakPoints = reasonChart.sort(sortByProperty('satisfaction'))
 				this.strongPoints = reasonChartStrong.sort(sortByProperty('satisfaction'))
 
-				this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
+				this.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x)
 
 				function reverseArrayInPlace(arr) {
 					for (var i = 0; i <= Math.floor((arr.length - 1) / 2); i++) {
@@ -1830,7 +1836,8 @@
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
-				local.indicatorsGlobal.satisfaction = 100 - this.getPercentage(partials, total)
+				local.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
+				if (this.getPercentage(partials, total) == 0) local.indicatorsGlobal.satisfaction = 100
 				
 				local.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
 				local.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
