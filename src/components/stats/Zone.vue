@@ -4,7 +4,7 @@
       img(:src="zone.url" width=158 height=138)
       span.justification-span {{ zone.title }}
       .text-xs-center.text
-        span {{ zone.value }} {{ title }} | {{ zone.stats.satisfaction }}{{ titleTwo }}
+        span {{ zone.value }} {{ title }} | {{ zone.stats.satisfaction || 0 }}{{ titleTwo }}
     v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
       v-card
         v-toolbar(dark color="primary")

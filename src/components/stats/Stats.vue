@@ -244,35 +244,39 @@
 					v-tabs-content(id="month")
 						v-flex.py-5(xs12 v-if="assessments")
 							Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
-			v-flex(xs12)
-				div.pb-5
-					span.display-1 Servicios
-					v-divider
-			v-flex(xs9 offset-xs1)
-				Service.pb-5(:data="assessments.stats")
-			v-flex(xs12)
-				div.pb-5
-					span.display-1 Motivos
-					v-divider
-			v-flex(xs9 offset-xs1)
-				Reason.pb-5(:data="assessments.stats")
-			v-flex(xs12)
-				div.pb-5
-					span.display-1 Jefe Zonales
-					v-divider
-			v-flex(xs9 offset-xs1)
-				Zone.pb-5(:data="assessments.stats")
-			v-flex(xs12)
+			v-layout#services(row wrap)
+				v-flex(xs12)
+					div.pb-5
+						span.display-1 Servicios
+						v-divider
+				v-flex(xs9 offset-xs2)
+					Service.pb-5(:data="assessments.stats")
+			#reasons
+				v-flex(xs12)
+					div.pb-5
+						span.display-1 Motivos
+						v-divider
+				v-flex(xs9 offset-xs2)
+					Reason.pb-5(:data="assessments.stats")
+			#zones
+				v-flex(xs12)
+					div.pb-5
+						span.display-1 Jefe Zonales
+						v-divider
+				v-flex(xs9 offset-xs2)
+					Zone.pb-5(:data="assessments.stats")
+			v-flex#strongPoints(xs12)
 				Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPoints")
-			v-flex(xs12)
+			v-flex#weakPoints(xs12)
 				Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPoints")
-			v-flex(xs12)
-				div.pb-5
-					span.display-1 Locales
-					v-divider
-			v-flex(xs12 v-if="assessments")
-				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
-			v-flex(xs12 v-if="assessments")
+			#topLocals
+				v-flex(xs12)
+					div.pb-5
+						span.display-1 Locales
+						v-divider
+				v-flex(xs12 v-if="assessments")
+					Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
+			v-flex#badLocals(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="badLocals")
 			//- v-flex(xs12)
 			//- 	div.pb-5
@@ -392,34 +396,37 @@
 							v-tabs-content(id="monthCustom")
 								v-flex.py-5(xs12)
 									Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthCustom")
-					v-flex(xs12)
-						div.pb-5
-							span.display-1 Servicios
-							v-divider
-					v-flex(xs9 offset-xs2)
-						Service.pb-5(:data="results.stats")
-					v-flex(xs12)
-						div.pb-5
-							span.display-1 Motivos
-							v-divider
-					v-flex(xs9 offset-xs2)
-						Reason.pb-5(:data="results.stats")
-					v-flex(xs12)
-						div.pb-5
-							span.display-1 Jefe Zonales
-							v-divider
-					v-flex(xs9 offset-xs2)
-						Zone.pb-5(:data="results.stats")
-					v-flex(xs12)
+					#servicesCustom
+						v-flex(xs12)
+							div.pb-5
+								span.display-1 Servicios
+								v-divider
+						v-flex(xs9 offset-xs2)
+							Service.pb-5(:data="results.stats")
+					#reasonsCustom
+						v-flex(xs12)
+							div.pb-5
+								span.display-1 Motivos
+								v-divider
+						v-flex(xs9 offset-xs2)
+							Reason.pb-5(:data="results.stats")
+					#zonesCustom
+						v-flex(xs12)
+							div.pb-5
+								span.display-1 Jefe Zonales
+								v-divider
+						v-flex(xs9 offset-xs2)
+							Zone.pb-5(:data="results.stats")
+					v-flex#strongPointsCustom(xs12)
 						Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPointsCustom")
-					v-flex(xs12)
+					v-flex#weakPointsCustom(xs12)
 						Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPointsCustom")
 		Chart#weekChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobal")
 		Chart#dayChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobal")
 		Chart#monthChart(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
-		Chart#weekChartCustom(type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWCustom")
-		Chart#dayChartCustom(type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayCustom")
-		Chart#monthChartCustom(type="columnStacked" title="Distribución General Mensual" :data="chartMonthCustom")
+		Chart#weekChartCustom(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWCustom")
+		Chart#dayChartCustom(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayCustom")
+		Chart#monthChartCustom(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthCustom")
 </template>
 
 <script>
@@ -755,10 +762,6 @@
       loader2 () {
 				const l = this.loader2
 				this[l] = !this[l]
-
-				setTimeout(() => (this[l] = false), 7000)
-
-				this.loader2 = null
 			},
 			AMBA() {
 				if (this.interior && this.AMBA) this.interior = false
@@ -855,11 +858,15 @@
 		},
 
 		methods: {
-			printGeneralReport() {
+			async printGeneralReport() {
 				this.loader2 = 'loading2'
-				document.getElementById('weekChart').style.display = "block"
-				document.getElementById('dayChart').style.display = "block"
-				document.getElementById('monthChart').style.display = "block"
+
+				const weekChart = document.getElementById('weekChart')
+				const dayChart = document.getElementById('dayChart')
+				const monthChart = document.getElementById('monthChart')
+				
+				weekChart.style.display = dayChart.style.display = monthChart.style.display = "block"
+
 				const FILENAME  = 'reporte_general.pdf'
 				let pdf = new jsPDF()
 
@@ -877,45 +884,76 @@
 				pdf.addPage('a4', 'landscape')
 				pdf.setFontSize(20)
 				pdf.text('Número de Valoraciones e Indicadores', 90, 20)
+
+				async function getCanvas(ID) {
+					return await html2canvas(document.getElementById(ID), {scale: 1})
+				}
+
+				const generalesFaces = await getCanvas('generalesFaces')
+				pdf.addImage(generalesFaces.toDataURL('image/png'), 'PNG', 10, 35, 280, 50)
+
+				const satisfactionInd = await getCanvas('satisfactionInd')
+				pdf.addImage(satisfactionInd.toDataURL('image/png'), 'PNG', 10, 85, 275, 50)
+
+				const indicators = await getCanvas('indicators')
+				pdf.addImage(indicators.toDataURL('image/png'), 'PNG', 10, 125, 275, 50)
+				pdf.addPage('a4', 'landscape')
+				pdf.text('Gráficos de Valoraciones por Tiempo', 90, 20)
 				
-				html2canvas(document.getElementById('generalesFaces'), {scale: 1}).then(canvas => {
-					pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 280, 50)
-					html2canvas(document.getElementById('satisfactionInd'), {scale: 1}).then(canvas => {
-						pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 85, 275, 50)
-						html2canvas(document.getElementById('indicators'), {scale: 1}).then(canvas => {
-							pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 125, 275, 50)
-							pdf.addPage('a4', 'landscape')
-							pdf.text('Gráficos de Valoraciones por Tiempo', 90, 20)
-							html2canvas(document.getElementById('hour'), {scale: 1}).then(canvas => {
-								pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-								pdf.addPage('a4', 'landscape')
-								html2canvas(document.getElementById('weekChart'), {scale: 1}).then(canvas => {
-									pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-									pdf.addPage('a4', 'landscape')
-									html2canvas(document.getElementById('dayChart'), {scale: 1}).then(canvas => {
-										pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-										pdf.addPage('a4', 'landscape')
-										html2canvas(document.getElementById('monthChart'), {scale: 1}).then(canvas => {
-											pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-											pdf.save(FILENAME)
-											document.getElementById('weekChart').style.display = "none"
-											document.getElementById('dayChart').style.display = "none"
-											document.getElementById('monthChart').style.display = "none"
-											this.loading2 = false
-											this.loader2 = null
-										})
-									})
-								})
-							})
-						})
-					})
-				})
+				const hour = await getCanvas('hour')
+				pdf.addImage(hour.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+				
+				const weekChartPDF = await getCanvas('weekChart')
+				pdf.addImage(weekChartPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const dayChartPDF = await getCanvas('dayChart')
+				pdf.addImage(dayChartPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const monthChartPDF = await getCanvas('monthChart')
+				pdf.addImage(monthChartPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const services = await getCanvas('services')
+				pdf.addImage(services.toDataURL('image/png'), 'PNG', 10, 15, 275, 100)
+				
+				const reasons = await getCanvas('reasons')
+				pdf.addImage(reasons.toDataURL('image/png'), 'PNG', 10, 105, 275, 100)
+				pdf.addPage('a4', 'landscape')
+				
+				const zones = await getCanvas('zones')
+				pdf.addImage(zones.toDataURL('image/png'), 'PNG', 10, 15, 275, 120)
+				pdf.addPage('a4', 'landscape')
+				
+				const strongPoints = await getCanvas('strongPoints')
+				pdf.addImage(strongPoints.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const weakPoints = await getCanvas('weakPoints')
+				pdf.addImage(weakPoints.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const topLocals = await getCanvas('topLocals')
+				pdf.addImage(topLocals.toDataURL('image/png'), 'PNG', 10, 15, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const badLocals = await getCanvas('badLocals')
+				pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.save(FILENAME)
+				weekChart.style.display = dayChart.style.display = monthChart.style.display = "none"
+				this.loading2 = false
+				this.loader2 = null
 			},
-			printCustomReport() {
+			async printCustomReport() {
 				this.loader2 = 'loading2'
-				document.getElementById('weekChartCustom').style.display = "block"
-				document.getElementById('dayChartCustom').style.display = "block"
-				document.getElementById('monthChartCustom').style.display = "block"
+				const weekChartCustom = document.getElementById('weekChartCustom')
+				const dayChartCustom = document.getElementById('dayChartCustom')
+				const monthChartCustom = document.getElementById('monthChartCustom')
+				
+				weekChartCustom.style.display = dayChartCustom.style.display = monthChartCustom.style.display = "block"
+
 				const FILENAME  = 'reporte_personalizado.pdf'
 				let pdf = new jsPDF()
 
@@ -933,39 +971,59 @@
 				pdf.addPage('a4', 'landscape')
 				pdf.setFontSize(20)
 				pdf.text('Número de Valoraciones e Indicadores', 90, 20)
+
+				async function getCanvas(ID) {
+					return await html2canvas(document.getElementById(ID), {scale: 1})
+				}
+
+				const customFaces = await getCanvas('customFaces')
+				pdf.addImage(customFaces.toDataURL('image/png'), 'PNG', 10, 35, 280, 50)
+
+				const satisfactionIndCustom = await getCanvas('satisfactionIndCustom')
+				pdf.addImage(satisfactionIndCustom.toDataURL('image/png'), 'PNG', 10, 85, 275, 50)
+
+				const indicatorsCustom = await getCanvas('indicatorsCustom')
+				pdf.addImage(indicatorsCustom.toDataURL('image/png'), 'PNG', 10, 125, 275, 50)
+				pdf.addPage('a4', 'landscape')
+				pdf.text('Gráficos de Valoraciones por Tiempo', 90, 20)
+
+				const hourCustomPDF = await getCanvas('hourCustom')
+				pdf.addImage(hourCustomPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const weekChartCustomPDF = await getCanvas('weekChartCustom')
+				pdf.addImage(weekChartCustomPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const dayChartCustomPDF = await getCanvas('dayChartCustom')
+				pdf.addImage(dayChartCustomPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const monthChartCustomPDF = await getCanvas('monthChartCustom')
+				pdf.addImage(monthChartCustomPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const servicesCustom = await getCanvas('servicesCustom')
+				pdf.addImage(servicesCustom.toDataURL('image/png'), 'PNG', 10, 15, 275, 100)
 				
-				html2canvas(document.getElementById('customFaces'), {scale: 1}).then(canvas => {
-					pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 280, 50)
-					html2canvas(document.getElementById('satisfactionIndCustom'), {scale: 1}).then(canvas => {
-						pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 85, 275, 50)
-						html2canvas(document.getElementById('indicatorsCustom'), {scale: 1}).then(canvas => {
-							pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 125, 275, 50)
-							pdf.addPage('a4', 'landscape')
-							pdf.text('Gráficos de Valoraciones por Tiempo', 90, 20)
-							html2canvas(document.getElementById('hourCustom'), {scale: 1}).then(canvas => {
-								pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-								pdf.addPage('a4', 'landscape')
-								html2canvas(document.getElementById('weekChartCustom'), {scale: 1}).then(canvas => {
-									pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-									pdf.addPage('a4', 'landscape')
-									html2canvas(document.getElementById('dayChartCustom'), {scale: 1}).then(canvas => {
-										pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-										pdf.addPage('a4', 'landscape')
-										html2canvas(document.getElementById('monthChartCustom'), {scale: 1}).then(canvas => {
-											pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-											pdf.save(FILENAME)
-											document.getElementById('weekChartCustom').style.display = "none"
-											document.getElementById('dayChartCustom').style.display = "none"
-											document.getElementById('monthChartCustom').style.display = "none"
-											this.loading2 = false
-											this.loader2 = null
-										})
-									})
-								})
-							})
-						})
-					})
-				})
+				const reasonsCustom = await getCanvas('reasonsCustom')
+				pdf.addImage(reasonsCustom.toDataURL('image/png'), 'PNG', 10, 105, 275, 100)
+				pdf.addPage('a4', 'landscape')
+				
+				const zonesCustom = await getCanvas('zonesCustom')
+				pdf.addImage(zonesCustom.toDataURL('image/png'), 'PNG', 10, 15, 275, 120)
+				pdf.addPage('a4', 'landscape')
+
+				const strongPointsCustom = await getCanvas('strongPointsCustom')
+				pdf.addImage(strongPointsCustom.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addPage('a4', 'landscape')
+
+				const weakPointsCustom = await getCanvas('weakPointsCustom')
+				pdf.addImage(weakPointsCustom.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.save(FILENAME)
+				weekChartCustom.style.display = dayChartCustom.style.display = monthChartCustom.style.display = "none"
+				this.loading2 = false
+				this.loader2 = null
 			},
 			dynamicDialog(data) {
 				this.dynamicDialogAct = !this.dynamicDialogAct
@@ -1468,7 +1526,7 @@
 					satisfaction: this.getIndicatorsReason(numReas4, reas4Good, reas4Bad, reas4VeryBad)
 				}]
 
-				this.weakPoints = reasonChart.sort(sortByProperty('satisfaction'))
+				this.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
 				this.strongPoints = reasonChartStrong.sort(sortByProperty('satisfaction'))
 
 				this.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x)
@@ -1476,8 +1534,8 @@
 				function reverseArrayInPlace(arr) {
 					for (var i = 0; i <= Math.floor((arr.length - 1) / 2); i++) {
 						let el = arr[i]
-							arr[i] = arr[arr.length - 1 - i]
-							arr[arr.length - 1 - i] = el
+						arr[i] = arr[arr.length - 1 - i]
+						arr[arr.length - 1 - i] = el
 					}
 					return arr
 				}
@@ -1727,43 +1785,49 @@
 							good: [zoneWMObjGood.length, this.getPercentage(zoneWMObjGood.length, zoneWM)],
 							bad: [zoneWMObjBad.length, this.getPercentage(zoneWMObjBad.length, zoneWM)],
 							veryBad: [zoneWMObjVeryBad.length, this.getPercentage(zoneWMObjVeryBad.length, zoneWM)],
-							assessments: objzoneWM
+							assessments: objzoneWM,
+							satisfaction: this.getIndicatorsReason(zoneWM, zoneWMGood, zoneWMBad, zoneWMVeryBad)
 							}],
 						1: [zoneLB, this.getPercentage(zoneLB, total), { 
 							veryGood: [zoneLBObjVeryGood.length, this.getPercentage(zoneLBObjVeryGood.length, zoneLB)],
 							good: [zoneLBObjGood.length, this.getPercentage(zoneLBObjGood.length, zoneLB)],
 							bad: [zoneLBObjBad.length, this.getPercentage(zoneLBObjBad.length, zoneLB)],
 							veryBad: [zoneLBObjVeryBad.length, this.getPercentage(zoneLBObjVeryBad.length, zoneLB)],
-							assessments: objzoneLB
+							assessments: objzoneLB,
+							satisfaction: this.getIndicatorsReason(zoneLB, zoneLBGood, zoneLBBad, zoneLBVeryBad)
 							}],
 						2: [zoneCM, this.getPercentage(zoneCM, total), { 
 							veryGood: [zoneCMObjVeryGood.length, this.getPercentage(zoneCMObjVeryGood.length, zoneCM)],
 							good: [zoneCMObjGood.length, this.getPercentage(zoneCMObjGood.length, zoneCM)],
 							bad: [zoneCMObjBad.length, this.getPercentage(zoneCMObjBad.length, zoneCM)],
 							veryBad: [zoneCMObjVeryBad.length, this.getPercentage(zoneCMObjVeryBad.length, zoneCM)],
-							assessments: objzoneCM
+							assessments: objzoneCM,
+							satisfaction: this.getIndicatorsReason(zoneCM, zoneCMGood, zoneCMBad, zoneCMVeryBad)
 							}],
 						3: [zoneDR, this.getPercentage(zoneDR, total), { 
 							veryGood: [zoneDRObjVeryGood.length, this.getPercentage(zoneDRObjVeryGood.length, zoneDR)],
 							good: [zoneDRObjGood.length, this.getPercentage(zoneDRObjGood.length, zoneDR)],
 							bad: [zoneDRObjBad.length, this.getPercentage(zoneDRObjBad.length, zoneDR)],
 							veryBad: [zoneDRObjVeryBad.length, this.getPercentage(zoneDRObjVeryBad.length, zoneDR)],
-							assessments: objzoneDR
+							assessments: objzoneDR,
+							satisfaction: this.getIndicatorsReason(zoneDR, zoneDRGood, zoneDRBad, zoneDRVeryBad)
 							}],
 						4: [zoneDL, this.getPercentage(zoneDL, total), { 
 							veryGood: [zoneDLObjVeryGood.length, this.getPercentage(zoneDLObjVeryGood.length, zoneDL)],
 							good: [zoneDLObjGood.length, this.getPercentage(zoneDLObjGood.length, zoneDL)],
 							bad: [zoneDLObjBad.length, this.getPercentage(zoneDLObjBad.length, zoneDL)],
 							veryBad: [zoneDLObjVeryBad.length, this.getPercentage(zoneDLObjVeryBad.length, zoneDL)],
-							assessments: objzoneDL
+							assessments: objzoneDL,
+							satisfaction: this.getIndicatorsReason(zoneDL, zoneDLGood, zoneDLBad, zoneDLVeryBad)
 							}],
 						5: [zoneFC, this.getPercentage(zoneFC, total), { 
 							veryGood: [zoneFCObjVeryGood.length, this.getPercentage(zoneFCObjVeryGood.length, zoneFC)],
 							good: [zoneFCObjGood.length, this.getPercentage(zoneFCObjGood.length, zoneFC)],
 							bad: [zoneFCObjBad.length, this.getPercentage(zoneFCObjBad.length, zoneFC)],
 							veryBad: [zoneFCObjVeryBad.length, this.getPercentage(zoneFCObjVeryBad.length, zoneFC)],
-							assessments: objzoneFC
-						}],						
+							assessments: objzoneFC,
+							satisfaction: this.getIndicatorsReason(zoneFC, zoneFCGood, zoneFCBad, zoneFCVeryBad)
+						}],
 					},
 				}
 
@@ -1772,25 +1836,25 @@
 					bad: this.getPercentage(reasBad, numReas),
 					veryBad: this.getPercentage(reasVeryBad, numReas),
 					total: numReas,
-					satisfaction: this.getIndicatorsReason(numReas, this.getPercentage(reasGood, numReas), this.getPercentage(reasBad, numReas), this.getPercentage(reasVeryBad, numReas))
+					satisfaction: this.getIndicatorsReason(numReas, reasGood, reasBad, reasVeryBad)
 				}, {
 					title: 'Tiempo de Espera',
 					bad: this.getPercentage(reas2Bad, numReas2),
 					veryBad: this.getPercentage(reas2VeryBad, numReas2),
 					total: numReas2,
-					satisfaction: this.getIndicatorsReason(numReas2, this.getPercentage(reas2Good, numReas2), this.getPercentage(reas2Bad, numReas2), this.getPercentage(reas2VeryBad, numReas2))				
+					satisfaction: this.getIndicatorsReason(numReas2, reas2Good, reas2Bad, reas2VeryBad)
 				}, {
 					title: 'Estado del Local',
 					bad: this.getPercentage(reas3Bad, numReas3),
 					veryBad: this.getPercentage(reas3VeryBad, numReas3),
 					total: numReas3,
-					satisfaction: this.getIndicatorsReason(numReas3, this.getPercentage(reas3Good, numReas3), this.getPercentage(reas3Bad, numReas3), this.getPercentage(reas3VeryBad, numReas3))					
+					satisfaction: this.getIndicatorsReason(numReas3, reas3Good, reas3Bad, reas3VeryBad)
 				}, {
 					title: 'Servicio Utilizado',
 					bad: this.getPercentage(reas4Bad, numReas4),
 					veryBad: this.getPercentage(reas4VeryBad, numReas4),
 					total: numReas4,
-					satisfaction: this.getIndicatorsReason(numReas4, this.getPercentage(reas4Good, numReas4), this.getPercentage(reas4Bad, numReas4), this.getPercentage(reas4VeryBad, numReas4))
+					satisfaction: this.getIndicatorsReason(numReas4, reas4Good, reas4Bad, reas4VeryBad)
 				}]
 
 				let reasonChartStrong = [{
@@ -1798,29 +1862,29 @@
 					good: this.getPercentage(reasGood, numReas),
 					veryGood: this.getPercentage(reasVeryGood, numReas),
 					total: numReas,
-					satisfaction: this.getIndicatorsReason(numReas, this.getPercentage(reasGood, numReas), this.getPercentage(reasBad, numReas), this.getPercentage(reasVeryBad, numReas))
+					satisfaction: this.getIndicatorsReason(numReas, reasGood, reasBad, reasVeryBad)
 				}, {
 					title: 'Tiempo de Espera',
 					good: this.getPercentage(reas2Good, numReas2),
 					veryGood: this.getPercentage(reas2VeryGood, numReas2),
 					total: numReas2,
-					satisfaction: this.getIndicatorsReason(numReas2, this.getPercentage(reas2Good, numReas2), this.getPercentage(reas2Bad, numReas2), this.getPercentage(reas2VeryBad, numReas2))				
+					satisfaction: this.getIndicatorsReason(numReas2, reas2Good, reas2Bad, reas2VeryBad)
 				}, {
 					title: 'Estado del Local',
 					good: this.getPercentage(reas3Good, numReas3),
 					veryGood: this.getPercentage(reas3VeryGood, numReas3),
 					total: numReas3,
-					satisfaction: this.getIndicatorsReason(numReas3, this.getPercentage(reas3Good, numReas3), this.getPercentage(reas3Bad, numReas3), this.getPercentage(reas3VeryBad, numReas3))					
+					satisfaction: this.getIndicatorsReason(numReas3, reas3Good, reas3Bad, reas3VeryBad)
 				}, {
 					title: 'Servicio Utilizado',
 					good: this.getPercentage(reas4Good, numReas4),
 					veryGood: this.getPercentage(reas4VeryGood, numReas4),
 					total: numReas4,
-					satisfaction: this.getIndicatorsReason(numReas4, this.getPercentage(reas4Good, numReas4), this.getPercentage(reas4Bad, numReas4), this.getPercentage(reas4VeryBad, numReas4))
+					satisfaction: this.getIndicatorsReason(numReas4, reas4Good, reas4Bad, reas4VeryBad)
 				}]
 
 				this.weakPointsCustom = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
-				this.strongPointsCustom = reasonChartStrong.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+				this.strongPointsCustom = reasonChartStrong.sort(sortByProperty('satisfaction'))
 
 				// this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
 
