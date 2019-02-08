@@ -160,7 +160,7 @@
 					v-divider
 			v-flex(xs9 offset-xs1)
 				Face#generalesFaces.pb-5(:data="assessments.stats")
-			v-flex.mr-5(xs1 offset-xs12)
+			v-flex(xs3 offset-xs10)
 				v-btn(
 					fab
 					color="primary"
@@ -168,7 +168,15 @@
 					:loading="loading2"
 					:disabled="loading2"
 				)
-					v-icon(dark) print
+					v-icon(dark) picture_as_pdf
+				v-btn(
+					fab
+					color="primary"
+					@click="downloadXLSX"
+					:loading="loading3"
+					:disabled="loading3"
+				)
+					v-icon(dark) storage
 			v-flex#satisfactionInd.pt-3.pb-5(xs12)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
@@ -330,15 +338,23 @@
 				v-card-text
 					v-flex(xs9 offset-xs2)
 						Face#customFaces.pb-5(:data="results.stats")
-					v-flex(xs1 offset-xs11)
+					v-flex(xs3 offset-xs10)
 						v-btn(
 							fab
 							color="primary"
-							@click="printCustomReport"
+							@click="printGeneralReportCustom"
 							:loading="loading2"
 							:disabled="loading2"
 						)
-							v-icon(dark) print
+							v-icon(dark) picture_as_pdf
+						v-btn(
+							fab
+							color="primary"
+							@click="downloadXLSXCustom"
+							:loading="loading3"
+							:disabled="loading3"
+						)
+							v-icon(dark) storage
 					v-flex#satisfactionIndCustom.pt-3.pb-5(xs12)
 						v-card.my-1.mr-1(flat tile)
 							v-card-media.white--text.primary(height="75px")
@@ -429,10 +445,13 @@
 		Chart#monthChartCustom(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthCustom")
 </template>
 
+<script lang="javascript" src="xlsx.full.min.js"></script>
 <script>
 	import jsPDF from 'jspdf'
 	import html2canvas from 'html2canvas'
 	import Vue from 'vue'
+	import XLSX from 'xlsx'
+	import { saveAs } from 'file-saver';
 	import { validationMixin } from 'vuelidate'
 	import { required, maxLength, email } from 'vuelidate/lib/validators'
 	import Highcharts from 'highcharts'
@@ -458,6 +477,7 @@
 		validations: {},
     data () {
       return {
+				loading3: false,
         loader2: null,
         loading2: false,
 				AMBA: false,
@@ -803,9 +823,7 @@
 			}
 		},
 		
-		created() {
-		// Variant
-		// This one lets you improve the PDF sharpness by scaling up the HTML node tree to render as an image before getting pasted on the PDF
+		async created() {
 			let assessment = null
 			let i = 0
 
@@ -858,6 +876,136 @@
 		},
 
 		methods: {
+			async downloadXLSX() {
+				this.loader2 = 'loading3'
+				const wb = XLSX.utils.book_new();
+				let y = 0
+
+				wb.Props = {
+					Title: "SheetJS Tutorial",
+					Subject: "Test",
+					Author: "Red Stapler",
+					CreatedDate: new Date(2017,12,19)
+				};
+				
+				wb.SheetNames.push("NPS Crudo de Datos");
+
+				const ws_data = [
+					['ID' , 'Local', 'Jefe Zonal', 'Fecha', 'Hora', 'Valoración', 'Servicio', 'Motivo', 'Comentario', 'Email', 'Teléfono'],
+				]
+
+				for (let assessment of this.assessments) {
+					ws_data.push(new Array(10).fill(null))
+					ws_data[ws_data.length - 1][0] = assessment.id
+					ws_data[ws_data.length - 1][1] = this.locals.find(item => item.id == assessment.local).title
+					ws_data[ws_data.length - 1][2] = this.zones.find(item => item.id == assessment.zone).responsable
+					ws_data[ws_data.length - 1][3] = `
+						${new Date(assessment.date).getDate() > 9 ? new Date(assessment.date).getDate() : "0" + new Date(assessment.date).getDate()}/
+						${new Date(assessment.date).getMonth() + 1 > 9 ? new Date(assessment.date).getMonth() + 1 : "0" + (new Date(assessment.date).getMonth() + 1)}/
+						${new Date(assessment.date).getFullYear()}
+					`
+					ws_data[ws_data.length - 1][4] = `
+						${new Date(assessment.date).getHours()}:
+						${new Date(assessment.date).getMinutes() > 9 ? new Date(assessment.date).getMinutes() : "0" + new Date(assessment.date).getMinutes()}:
+						${new Date(assessment.date).getSeconds() > 9 ? new Date(assessment.date).getSeconds() : "0" + new Date(assessment.date).getSeconds()}
+					`
+					ws_data[ws_data.length - 1][5] = assessment.face
+					ws_data[ws_data.length - 1][6] = assessment.justification
+					ws_data[ws_data.length - 1][7] = assessment.justificationTwo
+					this.$firebase.firestore().collection('tickets').where('assessment', '==', assessment.id).get().then(querySnapshot => {
+						querySnapshot.forEach(doc => {
+							const a = ws_data.findIndex(item => item[0] == assessment.id)
+							ws_data[a][8] = doc.data().description
+							ws_data[a][9] = doc.data().email
+							ws_data[a][10] = doc.data().telephone
+						})
+						y++
+						if (y == this.assessments.length) {
+							const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+							wb.Sheets["NPS Crudo de Datos"] = ws;
+
+							const wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+							
+							function s2ab(s) { 
+								const buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+								const view = new Uint8Array(buf);  //create uint8array as viewer
+								for (let i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+								return buf;
+							}
+
+							saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'NPS_Datos_Crudos_WU.xlsx');
+							this.loading3 = false
+							this.loader2 = null
+						}
+					})
+				}
+			},
+			async downloadXLSXCustom() {
+				this.loader2 = 'loading3'
+				const wb = XLSX.utils.book_new();
+				let y = 0
+
+				wb.Props = {
+					Title: "SheetJS Tutorial",
+					Subject: "Test",
+					Author: "Red Stapler",
+					CreatedDate: new Date(2017,12,19)
+				}
+				
+				wb.SheetNames.push("NPS Crudo de Datos")
+
+				const ws_data = [
+					['ID' , 'Local', 'Jefe Zonal', 'Fecha', 'Hora', 'Valoración', 'Servicio', 'Motivo', 'Comentario', 'Email', 'Teléfono'],
+				]
+
+				for (let assessment of this.results) {
+					ws_data.push(new Array(10).fill(null))
+					ws_data[ws_data.length - 1][0] = assessment.id
+					ws_data[ws_data.length - 1][1] = this.locals.find(item => item.id == assessment.local).title
+					ws_data[ws_data.length - 1][2] = this.zones.find(item => item.id == assessment.zone).responsable
+					ws_data[ws_data.length - 1][3] = `
+						${new Date(assessment.date).getDate() > 9 ? new Date(assessment.date).getDate() : "0" + new Date(assessment.date).getDate()}/
+						${new Date(assessment.date).getMonth() + 1 > 9 ? new Date(assessment.date).getMonth() + 1 : "0" + (new Date(assessment.date).getMonth() + 1)}/
+						${new Date(assessment.date).getFullYear()}
+					`
+					ws_data[ws_data.length - 1][4] = `
+						${new Date(assessment.date).getHours()}:
+						${new Date(assessment.date).getMinutes() > 9 ? new Date(assessment.date).getMinutes() : "0" + new Date(assessment.date).getMinutes()}:
+						${new Date(assessment.date).getSeconds() > 9 ? new Date(assessment.date).getSeconds() : "0" + new Date(assessment.date).getSeconds()}
+					`
+					ws_data[ws_data.length - 1][5] = assessment.face
+					ws_data[ws_data.length - 1][6] = assessment.justification
+					ws_data[ws_data.length - 1][7] = assessment.justificationTwo
+					this.$firebase.firestore().collection('tickets').where('assessment', '==', assessment.id).get().then(querySnapshot => {
+						querySnapshot.forEach(doc => {
+							const a = ws_data.findIndex(item => item[0] == assessment.id)
+							ws_data[a][8] = doc.data().description
+							ws_data[a][9] = doc.data().email
+							ws_data[a][10] = doc.data().telephone
+						})
+						y++
+						if (y == this.results.length) {
+							const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+							wb.Sheets["NPS Crudo de Datos"] = ws;
+
+							const wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+							
+							function s2ab(s) { 
+								const buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+								const view = new Uint8Array(buf);  //create uint8array as viewer
+								for (let i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+								return buf;
+							}
+
+							saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'NPS_Datos_Crudos_WU.xlsx');
+							this.loading3 = false
+							this.loader2 = null
+						}
+					})
+				}
+			},
 			async printGeneralReport() {
 				this.loader2 = 'loading2'
 
@@ -946,7 +1094,7 @@
 				this.loading2 = false
 				this.loader2 = null
 			},
-			async printCustomReport() {
+			async printGeneralReportCustom() {
 				this.loader2 = 'loading2'
 				const weekChartCustom = document.getElementById('weekChartCustom')
 				const dayChartCustom = document.getElementById('dayChartCustom')

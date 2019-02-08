@@ -2,7 +2,7 @@
 	v-app#app(v-if="backgroundImage" :style="{ 'background-image': 'url(' + backgroundImage + ')' }")
 		v-stepper#stepper.stepper(v-model="step")
 			v-stepper-header
-				v-stepper-step(step="1" :complete="step > 1") Encuesta de Satisficación
+				v-stepper-step(step="1" :complete="step > 1") Encuesta de Satisfacción
 				v-divider
 				v-stepper-step(step="2" :complete="step > 2") Servicio Utilizado
 				v-divider
