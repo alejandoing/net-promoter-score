@@ -25,15 +25,29 @@
               text: null,
               style: { fontSize: '24px' }
             },
-            xAxis: {
-              categories: null
+            xAxis: { 
+              categories: null,
+              labels: {
+                style: {
+                  fontSize:'14px',
+                  fontWeight: 'bold'
+                }
+              }
             },
             yAxis: {
               min: 0,
               max: 100,
               title: {
-                text: 'Índice'
-              }
+                text: 'Índice',
+                style: {
+                  fontSize:'15px'
+                }
+              },
+                labels: {
+                  style: {
+                    fontSize:'14px',
+                  }
+                }
             },
             legend: {
               reversed: false
@@ -78,13 +92,26 @@
               height: '600'
             },
             xAxis: {
-                categories: null
+                categories: null,
+                labels: {
+                  style: {
+                    fontSize:'15px'
+                  }
+                }
             },
             yAxis: {
                 min: 0,
                 max: 100,
                 title: {
-                    text: 'Promedio de Valoraciones'
+                    text: 'Promedio de Valoraciones',
+                    style: {
+                      fontSize:'15px'
+                    }
+                },
+                labels: {
+                  style: {
+                    fontSize:'15px'
+                  }
                 }
             },
             legend: {
@@ -139,4 +166,6 @@
 </script>
 
 <style lang="sass" scoped>
+  .testing
+    font-size: 72px
 </style>

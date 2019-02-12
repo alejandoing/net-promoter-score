@@ -161,77 +161,89 @@
 			v-flex(xs9 offset-xs1)
 				Face#generalesFaces.pb-5(:data="assessments.stats")
 			v-flex(xs3 offset-xs10)
-				v-btn(
-					fab
-					color="primary"
-					@click="printGeneralReport"
-					:loading="loading2"
-					:disabled="loading2"
-				)
-					v-icon(dark) picture_as_pdf
-				v-btn(
-					fab
-					color="primary"
-					@click="downloadXLSX"
-					:loading="loading3"
-					:disabled="loading3"
-				)
-					v-icon(dark) storage
+				v-tooltip(top)
+					v-btn(
+						fab
+						color="primary"
+						slot="activator"
+						@click="printGeneralReport"
+						:loading="loading2"
+						:disabled="loading2"
+					)
+						v-icon(dark) picture_as_pdf
+					span Generar Reporte (PDF)
+				v-tooltip(top)
+					v-btn(
+						fab
+						color="primary"
+						slot="activator"
+						@click="downloadXLSX"
+						:loading="loading3"
+						:disabled="loading3"
+					)
+						v-icon(dark) storage
+					span Descargar Crudo de Datos (XLSX)
 			v-flex#satisfactionInd.pt-3.pb-5(xs12)
 				v-card.my-1.mr-1(flat tile)
 					v-card-media.white--text.primary(height="75px")
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.display-1.headline Satisfacción de Cliente: {{ indicatorsGlobal.satisfaction }}%
+									span.display-4.headline Satisfacción de Cliente: {{ indicatorsGlobal.satisfaction }}%
 					v-card-title
-						v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
-			v-layout(row wrap)#indicators
+						span.display-1.headline % que representa el grado general de satisfacción del cliente.
+						// v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
+			v-layout.pb-5(row wrap)#indicators
 				v-flex(xs6 md4)
 					v-card.my-1.mr-1(flat tile)
-						v-card-media.white--text.primary(height="75px")
+						v-card-media.white--text(height="75px" style="background: #26A69A")
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
 										span.indicatorsTwoTitle Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
 						v-card-title
-							v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
+							span.display-1.headline % del total de encuestados que dejaron una queja.
+							// v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
 				v-flex(xs6 md4)
 					v-card.my-1.mr-1(flat tile)
-						v-card-media.white--text.primary(height="75px")
+						v-card-media.white--text(height="75px" style="background: #00897B")
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
 										span.indicatorsTwoTitle Com. Positivos: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
 						v-card-title
-							v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
+							span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
+							// v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
 				v-flex(xs6 md4)
 					v-card.my-1.mr-1(flat tile)
-						v-card-media.white--text.primary(height="75px")
+						v-card-media.white--text(height="75px" style="background: #00796B")
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
 										span.indicatorsTwoTitle Resp. Servicio: {{ indicatorsGlobal.service[1] }}% - {{ indicatorsGlobal.service[0] }} total
 						v-card-title
-							v-progress-linear(:value="indicatorsGlobal.service[1]" height="20" color="info")
+							span.display-1.headline % del total de  encuestados que indicó cuál servicio utilizó.
+							// v-progress-linear(:value="indicatorsGlobal.service[1]" height="20" color="info")
 				v-flex(xs6 md4)
 					v-card.my-1.mr-1(flat tile)
-						v-card-media.white--text.primary(height="75px")
+						v-card-media.white--text(height="75px" style="background: #00695C")
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
 										span.indicatorsTwoTitle Resp. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
 						v-card-title
-							v-progress-linear(:value="indicatorsGlobal.reason[1]" height="20" color="info")
+							span.display-1.headline % del total de encuestados que indico motivo de satisfacción o insatisfacción.
+							// v-progress-linear(:value="indicatorsGlobal.reason[1]" height="20" color="info")
 				v-flex(xs6 md4)
 					v-card.my-1.mr-1(flat tile)
-						v-card-media.white--text.primary(height="75px")
+						v-card-media.white--text(height="75px" style="background: #004D40")
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
 										span.indicatorsTwoTitle Quejas sin Leer: {{ indicatorsGlobal.complainUnread[1] }}% - {{ indicatorsGlobal.complainUnread[0] }} total
 						v-card-title
-							v-progress-linear(:value="indicatorsGlobal.complainUnread[1]" height="20" color="info")
+							span.display-1.headline % del total de quejas que no han sido leídas.
+							// v-progress-linear(:value="indicatorsGlobal.complainUnread[1]" height="20" color="info")
 			v-tabs(fixed centered)
 				v-tabs-bar.primary(dark)
 					v-tabs-slider(class="yellow")
@@ -252,38 +264,35 @@
 					v-tabs-content(id="month")
 						v-flex.py-5(xs12 v-if="assessments")
 							Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
-			v-layout#services(row wrap)
-				v-flex(xs12)
+			v-layout(row wrap)
+				v-flex(xs12)#services
 					div.pb-5
 						span.display-1 Servicios
 						v-divider
-				v-flex(xs9 offset-xs2)
-					Service.pb-5(:data="assessments.stats")
-			#reasons
-				v-flex(xs12)
+					v-flex(xs9 offset-xs2)
+						Service.pb-5(:data="assessments.stats")
+				v-flex(xs12)#reasons
 					div.pb-5
 						span.display-1 Motivos
 						v-divider
-				v-flex(xs9 offset-xs2)
-					Reason.pb-5(:data="assessments.stats")
-			#zones
-				v-flex(xs12)
+					v-flex(xs9 offset-xs2)
+						Reason.pb-5(:data="assessments.stats")
+				v-flex(xs12)#zones
 					div.pb-5
 						span.display-1 Jefe Zonales
 						v-divider
-				v-flex(xs9 offset-xs2)
-					Zone.pb-5(:data="assessments.stats")
+					v-flex(xs9 offset-xs2)
+						Zone.pb-5(:data="assessments.stats")
 			v-flex#strongPoints(xs12)
 				Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPoints")
 			v-flex#weakPoints(xs12)
 				Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPoints")
-			#topLocals
-				v-flex(xs12)
-					div.pb-5
-						span.display-1 Locales
-						v-divider
-				v-flex(xs12 v-if="assessments")
-					Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
+			v-flex(xs12)
+				div.pb-5
+					span.display-1 Locales
+					v-divider
+			v-flex#topLocals(xs12 v-if="assessments")
+				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
 			v-flex#badLocals(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="badLocals")
 			//- v-flex(xs12)
@@ -339,59 +348,71 @@
 					v-flex(xs9 offset-xs2)
 						Face#customFaces.pb-5(:data="results.stats")
 					v-flex(xs3 offset-xs10)
-						v-btn(
-							fab
-							color="primary"
-							@click="printGeneralReportCustom"
-							:loading="loading2"
-							:disabled="loading2"
-						)
-							v-icon(dark) picture_as_pdf
-						v-btn(
-							fab
-							color="primary"
-							@click="downloadXLSXCustom"
-							:loading="loading3"
-							:disabled="loading3"
-						)
-							v-icon(dark) storage
+						v-tooltip(top)
+							v-btn(
+								fab
+								color="primary"
+								slot="activator"
+								@click="printGeneralReportCustom"
+								:loading="loading2"
+								:disabled="loading2"
+							)
+								v-icon(dark) picture_as_pdf
+							span Generar Reporte (PDF)
+						v-tooltip(top)
+							v-btn(
+								fab
+								color="primary"
+								slot="activator"
+								@click="downloadXLSXCustom"
+								:loading="loading3"
+								:disabled="loading3"
+							)
+								v-icon(dark) storage
+							span Descargar Crudo de Datos (XLSX)
 					v-flex#satisfactionIndCustom.pt-3.pb-5(xs12)
 						v-card.my-1.mr-1(flat tile)
 							v-card-media.white--text.primary(height="75px")
 								span.headline.ml-4.pt-3 Satisfacción de Cliente: {{ indicatorsCustom.satisfaction }}%
 							v-card-title
-								v-progress-linear(:value="indicatorsCustom.satisfaction" height="20" color="info")
+								span.display-1.headline % que representa el grado general de satisfacción del cliente.
+								// v-progress-linear(:value="indicatorsCustom.satisfaction" height="20" color="info")
 					v-layout#indicatorsCustom(row wrap)
-						v-flex(xs3)
+						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
 									span.indicatorsTwoTitle.ml-4.pt-3 Quejas: {{ indicatorsCustom.complain[1] }}% - {{ indicatorsCustom.complain[0] }} total
 								v-card-title
-									v-progress-linear(:value="indicatorsCustom.complain[1]" height="20" color="info")
-						v-flex(xs3)
+									span.display-1.headline % del total de encuestados que dejaron una queja.
+									// v-progress-linear(:value="indicatorsCustom.complain[1]" height="20" color="info")
+						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
 									span.indicatorsTwoTitle.ml-4.pt-3 Com. Positivos: {{ indicatorsCustom.comment[1] }}% - {{ indicatorsCustom.comment[0] }} total
 								v-card-title
-									v-progress-linear(:value="indicatorsCustom.comment[1]" height="20" color="info")
-						v-flex(xs3)
+									span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
+									// v-progress-linear(:value="indicatorsCustom.comment[1]" height="20" color="info")
+						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
 									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Servicio: {{ indicatorsCustom.service[1] }}% - {{ indicatorsCustom.service[0] }} total
 								v-card-title
-									v-progress-linear(:value="indicatorsCustom.service[1]" height="20" color="info")
-						v-flex(xs3)
+									span.display-1.headline % del total de  encuestados que indicó cuál servicio utilizó.
+									// v-progress-linear(:value="indicatorsCustom.service[1]" height="20" color="info")
+						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
 									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Motivo: {{ indicatorsCustom.reason[1] }}% - {{ indicatorsCustom.reason[0] }} total
 								v-card-title
-									v-progress-linear(:value="indicatorsCustom.reason[1]" height="20" color="info")
-						v-flex(xs3)
+									span.display-1.headline % del total de encuestados que indico motivo de satisfacción o insatisfacción.
+									// v-progress-linear(:value="indicatorsCustom.reason[1]" height="20" color="info")
+						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
 									span.indicatorsTwoTitle.ml-4.pt-3 Quejas sin Leer: {{ indicatorsCustom.complainUnread[1] }}% - {{ indicatorsCustom.complainUnread[0] }} total
 								v-card-title
-									v-progress-linear(:value="indicatorsCustom.complainUnread[1]" height="20" color="info")
+									span.display-1.headline % del total de quejas que no han sido leídas.
+									// v-progress-linear(:value="indicatorsCustom.complainUnread[1]" height="20" color="info")
 					v-tabs(fixed centered)
 						v-tabs-bar.primary(dark)
 							v-tabs-slider(class="yellow")
@@ -871,6 +892,8 @@
 							this.getChartGlobalDatesDay()
 							this.getChartGlobalDatesMonth()
 							this.getIndicatorsGlobal()
+
+							//this.printGeneralReport()
 						})
 			})
 		},
@@ -1029,66 +1052,64 @@
 				pdf.setFontSize(12)
 				pdf.text('Powered by DiwaIT', 80, 280)
 				pdf.addImage(DWT_LOGO, 'JPEG', 118, 275, 6, 6)
-				pdf.addPage('a4', 'landscape')
+				pdf.addPage('a4', 'portrait')
 				pdf.setFontSize(20)
-				pdf.text('Número de Valoraciones e Indicadores', 90, 20)
+				pdf.text('Número de Valoraciones e Indicadores', 45, 20)
 
 				async function getCanvas(ID) {
 					return await html2canvas(document.getElementById(ID), {scale: 1})
 				}
 
 				const generalesFaces = await getCanvas('generalesFaces')
-				pdf.addImage(generalesFaces.toDataURL('image/png'), 'PNG', 10, 35, 280, 50)
+				pdf.addImage(generalesFaces.toDataURL('image/png'), 'PNG', 10, 35, 195, 30)
 
 				const satisfactionInd = await getCanvas('satisfactionInd')
-				pdf.addImage(satisfactionInd.toDataURL('image/png'), 'PNG', 10, 85, 275, 50)
+				pdf.addImage(satisfactionInd.toDataURL('image/png'), 'PNG', 10, 70, 190, 30)
 
 				const indicators = await getCanvas('indicators')
-				pdf.addImage(indicators.toDataURL('image/png'), 'PNG', 10, 125, 275, 50)
-				pdf.addPage('a4', 'landscape')
-				pdf.text('Gráficos de Valoraciones por Tiempo', 90, 20)
+				pdf.addImage(indicators.toDataURL('image/png'), 'PNG', 10, 95, 190, 50)
+				pdf.text('Gráficos de Valoraciones por Tiempo', 49, 160)
 				
 				const hour = await getCanvas('hour')
-				pdf.addImage(hour.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(hour.toDataURL('image/png'), 'PNG', 10, 165, 190, 120)
+				pdf.addPage('a4', 'portrait')
 				
 				const weekChartPDF = await getCanvas('weekChart')
-				pdf.addImage(weekChartPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(weekChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
 
 				const dayChartPDF = await getCanvas('dayChart')
-				pdf.addImage(dayChartPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(dayChartPDF.toDataURL('image/png'), 'PNG', 10, 150, 190, 120)
+				pdf.addPage('a4', 'portrait')
 
 				const monthChartPDF = await getCanvas('monthChart')
-				pdf.addImage(monthChartPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(monthChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+				pdf.text('Resultados por Categoría', 65, 155)
 
 				const services = await getCanvas('services')
-				pdf.addImage(services.toDataURL('image/png'), 'PNG', 10, 15, 275, 100)
+				pdf.addImage(services.toDataURL('image/png'), 'PNG', 10, 165, 220, 50)
 				
 				const reasons = await getCanvas('reasons')
-				pdf.addImage(reasons.toDataURL('image/png'), 'PNG', 10, 105, 275, 100)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(reasons.toDataURL('image/png'), 'PNG', 10, 210, 220, 50)
+				pdf.addPage('a4', 'portrait')
 				
 				const zones = await getCanvas('zones')
-				pdf.addImage(zones.toDataURL('image/png'), 'PNG', 10, 15, 275, 120)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(zones.toDataURL('image/png'), 'PNG', 10, 20, 200, 80)
+				pdf.text('Puntos Débiles y Fuertes', 65, 115)
 				
 				const strongPoints = await getCanvas('strongPoints')
-				pdf.addImage(strongPoints.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(strongPoints.toDataURL('image/png'), 'PNG', 10, 125, 190, 120)
 
 				const weakPoints = await getCanvas('weakPoints')
-				pdf.addImage(weakPoints.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addPage('a4', 'portrait')
+				pdf.addImage(weakPoints.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+				pdf.text('Gráficos de Valoraciones por Locales', 50, 150)
 
 				const topLocals = await getCanvas('topLocals')
-				pdf.addImage(topLocals.toDataURL('image/png'), 'PNG', 10, 15, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(topLocals.toDataURL('image/png'), 'PNG', 10, 160, 190, 120)
+				pdf.addPage('a4', 'portrait')
 
 				const badLocals = await getCanvas('badLocals')
-				pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
 				pdf.save(FILENAME)
 				weekChart.style.display = dayChart.style.display = monthChart.style.display = "none"
 				this.loading2 = false
@@ -1116,58 +1137,56 @@
 				pdf.setFontSize(12)
 				pdf.text('Powered by DiwaIT', 80, 280)
 				pdf.addImage(DWT_LOGO, 'JPEG', 118, 275, 6, 6)
-				pdf.addPage('a4', 'landscape')
+				pdf.addPage('a4', 'portrait')
 				pdf.setFontSize(20)
-				pdf.text('Número de Valoraciones e Indicadores', 90, 20)
+				pdf.text('Número de Valoraciones e Indicadores', 45, 20)
 
 				async function getCanvas(ID) {
 					return await html2canvas(document.getElementById(ID), {scale: 1})
 				}
 
 				const customFaces = await getCanvas('customFaces')
-				pdf.addImage(customFaces.toDataURL('image/png'), 'PNG', 10, 35, 280, 50)
+				pdf.addImage(customFaces.toDataURL('image/png'), 'PNG', 10, 35, 195, 30)
 
 				const satisfactionIndCustom = await getCanvas('satisfactionIndCustom')
-				pdf.addImage(satisfactionIndCustom.toDataURL('image/png'), 'PNG', 10, 85, 275, 50)
+				pdf.addImage(satisfactionIndCustom.toDataURL('image/png'), 'PNG', 10, 70, 190, 30)
 
 				const indicatorsCustom = await getCanvas('indicatorsCustom')
-				pdf.addImage(indicatorsCustom.toDataURL('image/png'), 'PNG', 10, 125, 275, 50)
-				pdf.addPage('a4', 'landscape')
-				pdf.text('Gráficos de Valoraciones por Tiempo', 90, 20)
+				pdf.addImage(indicatorsCustom.toDataURL('image/png'), 'PNG', 10, 95, 190, 50)
+				pdf.text('Gráficos de Valoraciones por Tiempo', 49, 160)
 
 				const hourCustomPDF = await getCanvas('hourCustom')
-				pdf.addImage(hourCustomPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(hourCustomPDF.toDataURL('image/png'), 'PNG', 10, 165, 190, 120)
+				pdf.addPage('a4', 'portrait')
 
 				const weekChartCustomPDF = await getCanvas('weekChartCustom')
-				pdf.addImage(weekChartCustomPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(weekChartCustomPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
 
 				const dayChartCustomPDF = await getCanvas('dayChartCustom')
-				pdf.addImage(dayChartCustomPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(dayChartCustomPDF.toDataURL('image/png'), 'PNG', 10, 150, 190, 120)
+				pdf.addPage('a4', 'portrait')
 
 				const monthChartCustomPDF = await getCanvas('monthChartCustom')
-				pdf.addImage(monthChartCustomPDF.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(monthChartCustomPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+				pdf.text('Resultados por Categoría', 65, 155)
 
 				const servicesCustom = await getCanvas('servicesCustom')
-				pdf.addImage(servicesCustom.toDataURL('image/png'), 'PNG', 10, 15, 275, 100)
+				pdf.addImage(servicesCustom.toDataURL('image/png'), 'PNG', 10, 165, 220, 50)
 				
 				const reasonsCustom = await getCanvas('reasonsCustom')
-				pdf.addImage(reasonsCustom.toDataURL('image/png'), 'PNG', 10, 105, 275, 100)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(reasonsCustom.toDataURL('image/png'), 'PNG', 10, 210, 220, 50)
+				pdf.addPage('a4', 'portrait')
 				
 				const zonesCustom = await getCanvas('zonesCustom')
-				pdf.addImage(zonesCustom.toDataURL('image/png'), 'PNG', 10, 15, 275, 120)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(zonesCustom.toDataURL('image/png'), 'PNG', 10, 20, 200, 80)
+				pdf.text('Puntos Débiles y Fuertes', 65, 115)
 
 				const strongPointsCustom = await getCanvas('strongPointsCustom')
-				pdf.addImage(strongPointsCustom.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
-				pdf.addPage('a4', 'landscape')
+				pdf.addImage(strongPointsCustom.toDataURL('image/png'), 'PNG', 10, 125, 190, 120)
+				pdf.addPage('a4', 'portrait')
 
 				const weakPointsCustom = await getCanvas('weakPointsCustom')
-				pdf.addImage(weakPointsCustom.toDataURL('image/png'), 'PNG', 10, 35, 275, 150)
+				pdf.addImage(weakPointsCustom.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
 				pdf.save(FILENAME)
 				weekChartCustom.style.display = dayChartCustom.style.display = monthChartCustom.style.display = "none"
 				this.loading2 = false

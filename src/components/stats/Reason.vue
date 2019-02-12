@@ -4,7 +4,7 @@
       img.pr-3(:src="reason.url" width=158 height=138 @click="dynamicDialog(reason)")
       span.justification-span {{ reason.title }}
       div.text
-        span {{reason.value}} resp. | {{ reason.stats.satisfaction }}% satis.
+        span {{reason.value}} resp. | {{ reason.stats.satisfaction || 0 }}% satis.
     v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
       v-card
         v-toolbar(dark color="primary")
