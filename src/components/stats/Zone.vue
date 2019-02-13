@@ -4,7 +4,7 @@
       img(:src="zone.url" width=158 height=138)
       span.justification-span {{ zone.title }}
       .text-xs-center.text
-        span {{ zone.value }} {{ title }} | {{ zone.stats.satisfaction || 0 }} {{ titleTwo }}
+        span {{ zone.value }} {{ title }} | {{ zone.stats.satisfaction || 0 }}{{ titleTwo }}
     v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
       v-card
         v-toolbar(dark color="primary")
@@ -369,7 +369,7 @@
 						break
 						case 'veryBad':
 							timesVeryBad[currentTime]++
-						break						
+						break
 					}
 				}
 
@@ -487,9 +487,11 @@
 				const partialVeryBad = data.stats.veryBad[0] * PRC_VERY_BAD_R
 				
 				const partials = partialGood + partialBad + partialVeryBad
-
-        if (!this.getPercentage(partials, total)) this.currentZone.stats.indicatorsGlobal.satisfaction = 0
-        else this.currentZone.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
+				if (!partials) this.currentZone.stats.indicatorsGlobal.satisfaction = 100
+				else {
+					if (!this.getPercentage(partials, total)) this.currentZone.stats.indicatorsGlobal.satisfaction = 0
+					else this.currentZone.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
+				}
 				
 				this.currentZone.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
 				this.currentZone.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]

@@ -2192,17 +2192,22 @@
 				this.indicatorsCustom.reason = [reasons, this.getPercentage(reasons, total)]
 			},
 
-			getIndicatorsReason(total, good, bad, veryBad, test = false) {
+			getIndicatorsReason(total, good, bad, veryBad) {
 				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
+				let satisfaction = null
 
 				const partialGood = good * PRC_GOOD
 				const partialBad = bad * PRC_BAD
 				const partialVeryBad = veryBad * PRC_VERY_BAD
 
 				const partials = partialGood + partialBad + partialVeryBad
+				if (!partials && total) satisfaction = 100
+				else {
+					satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
+					if (!this.getPercentage(partials, total)) satisfaction = 0
+				}
 
-				let satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
-				if (!this.getPercentage(partials, total)) satisfaction = 0
+
 
 				return satisfaction
 			},
