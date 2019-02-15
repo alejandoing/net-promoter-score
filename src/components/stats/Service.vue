@@ -132,7 +132,11 @@
 						this.services[service].stats = this.$props.data.services[service][2]
 					}
 				}
-			}
+			},
+      loader2 () {
+				const l = this.loader2
+				this[l] = !this[l]
+			},
 		},
 		mounted() {
 			let assessment = null

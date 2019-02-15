@@ -169,12 +169,11 @@
 								v-list-tile-avatar.pr-5(v-else)
 									v-btn(color="amber darken-4" small dark) Leído
 								v-spacer(style="flex-grow: .1 !important")
-								v-list-tile-content(ripple @click="viewTicket(ticket.id)")
-									v-list-tile-title.black-text 
-										| {{ ticket.email }} - ({{ ticket.dateFormat }})
+								v-list-tile-content.pl-5(ripple @click="viewTicket(ticket.id)")
+									v-list-tile-title.black-text {{ ticket.email }} - ({{ ticket.dateFormat }})
 									v-list-tile-sub-title
-										span.grey--text.text--darken-2 {{ ticket.description }}
-								v-spacer(style="flex-grow: .1 !important")
+										span.grey--text.text--darken-2 {{ chunkString(ticket.description, 40)[0] }}...
+								v-spacer
 								v-btn(v-if="ticket.complain" color="error" small) Queja
 								v-btn(v-else color="success" small) Com. Positivo
 							v-divider
@@ -480,6 +479,10 @@
 				let date = [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
 				let time = [pad(d.getHours()), pad(d.getMinutes())].join(':')
 				return `${date} - ${time} hs`
+			},
+
+			chunkString(str, length) {
+				return str.match(new RegExp('.{1,' + length + '}', 'g'));
 			},
 
 			searchTickets() {

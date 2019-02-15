@@ -129,7 +129,11 @@
           this.reasons[reason].stats = this.$props.data.reasons[reason][2]
         }
       }
-    }
+    },
+    loader2 () {
+      const l = this.loader2
+      this[l] = !this[l]
+    },
   },
   async created() {
     let assessment = null
@@ -191,6 +195,75 @@
         return await html2canvas(document.getElementById(ID), {scale: 1})
       }
 
+      const reasonFacesData2 = document.getElementById('reasonFaces')
+
+      reasonFacesData2.style.display = "grid"
+
+      reasonFacesData2.childNodes[0].children[1].children[0].innerHTML = `${this.currentReason.stats.veryGood[1]}%`
+      reasonFacesData2.childNodes[0].children[1].children[1].innerHTML = `${this.currentReason.stats.veryGood[0]} resp.`
+
+      reasonFacesData2.childNodes[1].children[1].children[0].innerHTML = `${this.currentReason.stats.good[1]}%`
+      reasonFacesData2.childNodes[1].children[1].children[1].innerHTML = `${this.currentReason.stats.good[0]} resp.`
+      
+      reasonFacesData2.childNodes[2].children[1].children[0].innerHTML = `${this.currentReason.stats.bad[1]}%`
+      reasonFacesData2.childNodes[2].children[1].children[1].innerHTML = `${this.currentReason.stats.bad[0]} resp.`
+
+      reasonFacesData2.childNodes[3].children[1].children[0].innerHTML = `${this.currentReason.stats.veryBad[1]}%`
+      reasonFacesData2.childNodes[3].children[1].children[1].innerHTML = `${this.currentReason.stats.veryBad[0]} resp.`
+
+      const reasonFaces = await getCanvas('reasonFaces')
+      pdf.addImage(reasonFaces.toDataURL('image/png'), 'PNG', 11, 35, 195, 30)
+
+      const reasonsIndSatisfaction = document.getElementById('satisfactionIndReasons')
+
+      reasonsIndSatisfaction.style.display = "block"
+      reasonsIndSatisfaction.childNodes[0].children[0].children[0].children[0].children[0].children[0].children[0].innerHTML = `Satisfacción del Cliente ${this.currentReason.stats.satisfaction}%`
+
+      const satisfactionInd = await getCanvas('satisfactionIndReasons')
+      pdf.addImage(satisfactionInd.toDataURL('image/png'), 'PNG', 10, 70, 190, 30)
+
+      const reasonsIndicators = document.getElementById('indicatorsService')
+
+      reasonsIndicators.style.display = "flex"
+
+      reasonsIndicators.childNodes[0].children[0].children[0].children[0]
+      .children[0].children[0].children[0].children[0].innerHTML = `Quejas ${this.currentReason.stats.indicatorsGlobal.complain[1]}% - Total ${this.currentReason.stats.indicatorsGlobal.complain[0]}`
+
+      reasonsIndicators.childNodes[1].children[0].children[0].children[0]
+      .children[0].children[0].children[0].children[0].innerHTML = `Com. Positivos ${this.currentReason.stats.indicatorsGlobal.comment[1]}% - Total ${this.currentReason.stats.indicatorsGlobal.comment[0]}`
+
+      document.getElementById('indicatorsReasons').style.display = "flex"
+      
+      const indicators = await getCanvas('indicatorsReasons')
+      pdf.addImage(indicators.toDataURL('image/png'), 'PNG', 10, 95, 190, 30)
+      pdf.text('Gráficos de Valoraciones por Tiempo', 49, 130)
+
+      const chartHourReason = document.getElementById('chartHourReasons')
+      chartHourReason.style.display = "block"
+      
+      const hour = await getCanvas('chartHourReasons')
+      pdf.addImage(hour.toDataURL('image/png'), 'PNG', 10, 145, 190, 120)
+      pdf.addPage('a4', 'portrait')
+
+      const weekChartReason = document.getElementById('weekChartReasons')
+      weekChartReason.style.display = "block"
+      
+      const weekChartPDF = await getCanvas('weekChartReasons')
+      pdf.addImage(weekChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+
+      const dayChartReason = document.getElementById('dayChartReasons')
+      dayChartReason.style.display = "block"
+
+      const dayChartPDF = await getCanvas('dayChartReasons')
+      pdf.addImage(dayChartPDF.toDataURL('image/png'), 'PNG', 10, 150, 190, 120)
+      pdf.addPage('a4', 'portrait')
+
+      const monthChartReason = document.getElementById('monthChartReasons')
+      monthChartReason.style.display = "block"
+
+      const monthChartPDF = await getCanvas('monthChartReasons')
+      pdf.addImage(monthChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+
       // const serviceFaces = await getCanvas('serviceFaces')
       // console.log(document.getElementById('serviceFaces'))
       // pdf.addImage(serviceFaces.toDataURL('image/png'), 'PNG', 10, 35, 195, 30)
@@ -243,7 +316,12 @@
       // const badLocals = await getCanvas('badLocals')
       // pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
       pdf.save(FILENAME)
-      weekChart.style.display = dayChart.style.display = monthChart.style.display = "none"
+      reasonFacesData2.style.display = "none"
+      reasonsIndSatisfaction.style.display = "none"
+      chartHourReason.style.display = "none"
+      weekChartReason.style.display = "none"
+      dayChartReason.style.display = "none"
+      monthChartReason.style.display = "none"
       this.loading2 = false
       this.loader2 = null
     },
@@ -448,42 +526,46 @@
         return isNaN(result) ? 0 : result
       },
       dynamicDialog(data) {
-    data.stats.indicatorsGlobal = { satisfaction: null, complain: [null, null], comment: [null, null] }
-    this.currentReason = data
-    this.dynamicDialogAct = !this.dynamicDialogAct
-    this.getIndicatorsGlobal(data)
-    this.getChartGlobalDatesHour(data)
-    this.getChartGlobalDatesDayW(data)
-    this.getChartGlobalDatesDay(data)
-    this.getChartGlobalDatesMonth(data)
-    },
+        data.stats.indicatorsGlobal = { satisfaction: null, complain: [null, null], comment: [null, null] }
+        this.currentReason = data
+        this.dynamicDialogAct = !this.dynamicDialogAct
+        this.getIndicatorsGlobal(data)
+        this.getChartGlobalDatesHour(data)
+        this.getChartGlobalDatesDayW(data)
+        this.getChartGlobalDatesDay(data)
+        this.getChartGlobalDatesMonth(data)
+				this.$bus.$emit('updateDataReason', [
+					this.chartHourGlobal,
+					this.chartDayWGlobal, 
+					this.chartDayGlobal,
+					this.chartMonthGlobal
+				])
+      },
       getIndicatorsGlobal(data) {
         const PRC_GOOD_R = 0.25, PRC_BAD_R = 0.50, PRC_VERY_BAD_R = 1
-        
-    const total = data.value
-        
-    let complains = 0, comments = 0, services = 0, reasons = 0
+        const total = data.value
+            
+        let complains = 0, comments = 0, services = 0, reasons = 0
 
-        for (let assessment of data.stats.assessments) {
-          assessment.complain ? complains++ : complains
-          assessment.comment ? comments++ : comments
-          assessment.flow.justification ? services++ : services
-          assessment.flow.justificationTwo ? reasons++ : reasons
-        }
+            for (let assessment of data.stats.assessments) {
+              assessment.complain ? complains++ : complains
+              assessment.comment ? comments++ : comments
+              assessment.flow.justification ? services++ : services
+              assessment.flow.justificationTwo ? reasons++ : reasons
+            }
 
-        const partialGood = data.stats.good[0] * PRC_GOOD_R
-        const partialBad = data.stats.bad[0] * PRC_BAD_R
-        const partialVeryBad = data.stats.veryBad[0] * PRC_VERY_BAD_R
+            const partialGood = data.stats.good[0] * PRC_GOOD_R
+            const partialBad = data.stats.bad[0] * PRC_BAD_R
+            const partialVeryBad = data.stats.veryBad[0] * PRC_VERY_BAD_R
+            
+            const partials = partialGood + partialBad + partialVeryBad
 
-        
-        const partials = partialGood + partialBad + partialVeryBad
-
-    if (!this.getPercentage(partials, total)) this.currentReason.stats.indicatorsGlobal.satisfaction = 0
-    else this.currentReason.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
-        
-        this.currentReason.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
-        this.currentReason.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
-    },
+        if (!this.getPercentage(partials, total)) this.currentReason.stats.indicatorsGlobal.satisfaction = 0
+        else this.currentReason.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
+            
+            this.currentReason.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
+            this.currentReason.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
+      },
       getChartGlobalDatesDay(data) {
         let daysVeryGood = new Array(31).fill(0)
         let daysGood = new Array(31).fill(0)

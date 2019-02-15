@@ -504,6 +504,84 @@
 		Chart#weekChartService(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobalService")
 		Chart#dayChartService(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobalService")
 		Chart#monthChartService(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobalService")
+
+		Face#reasonFaces.pb-5(style="display: none" :data="assessments.stats")
+		v-flex#satisfactionIndReasons.pt-3.pb-5(xs12 style="display: none")
+			v-card.my-1.mr-1(flat tile)
+				v-card-media.white--text.primary(height="75px")
+					v-container(fill-height fluid)
+						v-layout(fill-height)
+							v-flex(xs12 align-end flexbox)
+								span.display-4.headline Satisfacción de Cliente: {{ indicatorsGlobal.satisfaction }}%
+				v-card-title
+					span.display-1.headline % que representa el grado general de satisfacción del cliente.
+					// v-progress-linear(:value="indicatorsCustom.satisfaction" height="20" color="info")
+
+		v-layout.pb-5(row wrap style="display: none")#indicatorsReasons
+			v-flex(xs6)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text(height="75px" style="background: #26A69A")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.indicatorsTwoTitle Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
+					v-card-title
+						span.display-1.headline % del total de encuestados que dejaron una queja.
+						// v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
+			v-flex(xs6)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text(height="75px" style="background: #00897B")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.indicatorsTwoTitle Com. Positivos: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
+					v-card-title
+						span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
+						// v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
+
+		Chart#chartHourReasons(style="display: none" type="columnStacked" title="Distribución General Horaria" :data="chartHourGlobalReason")
+		Chart#weekChartReasons(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobalReason")
+		Chart#dayChartReasons(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobalReason")
+		Chart#monthChartReasons(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobalReason")
+
+		Face#zoneFaces.pb-5(style="display: none" :data="assessments.stats")
+		v-flex#satisfactionIndZones.pt-3.pb-5(xs12 style="display: none")
+			v-card.my-1.mr-1(flat tile)
+				v-card-media.white--text.primary(height="75px")
+					v-container(fill-height fluid)
+						v-layout(fill-height)
+							v-flex(xs12 align-end flexbox)
+								span.display-4.headline Satisfacción de Cliente: {{ indicatorsGlobal.satisfaction }}%
+				v-card-title
+					span.display-1.headline % que representa el grado general de satisfacción del cliente.
+					// v-progress-linear(:value="indicatorsCustom.satisfaction" height="20" color="info")
+
+		v-layout.pb-5(row wrap style="display: none")#indicatorsZones
+			v-flex(xs6)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text(height="75px" style="background: #26A69A")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.indicatorsTwoTitle Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
+					v-card-title
+						span.display-1.headline % del total de encuestados que dejaron una queja.
+						// v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
+			v-flex(xs6)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text(height="75px" style="background: #00897B")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.indicatorsTwoTitle Com. Positivos: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
+					v-card-title
+						span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
+						// v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
+
+		Chart#chartHourZones(style="display: none" type="columnStacked" title="Distribución General Horaria" :data="chartHourGlobalZone")
+		Chart#weekChartZones(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobalZone")
+		Chart#dayChartZones(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobalZone")
+		Chart#monthChartZones(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobalZone")
 </template>
 
 <script lang="javascript" src="xlsx.full.min.js"></script>
@@ -556,6 +634,14 @@
 				chartDayWGlobalService: null,
 				chartDayGlobalService: null,
 				chartMonthGlobalService: null,
+				chartHourGlobalReason: null,
+				chartDayWGlobalReason: null,
+				chartDayGlobalReason: null,
+				chartMonthGlobalReason: null,
+				chartHourGlobalZone: null,
+				chartDayWGlobalZone: null,
+				chartDayGlobalZone: null,
+				chartMonthGlobalZone: null,
 				topLocals: JSON.parse(localStorage.getItem('topLocals')),
 				badLocals: [],
 				zone: null,
@@ -890,11 +976,24 @@
 		
 		async created() {
 			this.$bus.$on('updateDataService', (data) => {
-				console.log(data)
 				this.chartHourGlobalService = data[0]
 				this.chartDayWGlobalService = data[1]
 				this.chartDayGlobalService = data[2]
 				this.chartMonthGlobalService = data[3]
+			})
+
+			this.$bus.$on('updateDataReason', (data) => {
+				this.chartHourGlobalReason = data[0]
+				this.chartDayWGlobalReason = data[1]
+				this.chartDayGlobalReason = data[2]
+				this.chartMonthGlobalReason = data[3]
+			})
+
+			this.$bus.$on('updateDataZone', (data) => {
+				this.chartHourGlobalZone = data[0]
+				this.chartDayWGlobalZone = data[1]
+				this.chartDayGlobalZone = data[2]
+				this.chartMonthGlobalZone = data[3]
 			})
 
 			let assessment = null
@@ -951,9 +1050,6 @@
 		},
 
 		methods: {
-			updateChartHour(id) {
-				console.log('EVENT')
-			},
 			async downloadXLSX() {
 				this.loader2 = 'loading3'
 				const wb = XLSX.utils.book_new();
@@ -1949,28 +2045,32 @@
 							good: [servObjGood.length, this.getPercentage(servObjGood.length, numServ)],
 							bad: [servObjBad.length, this.getPercentage(servObjBad.length, numServ)],
 							veryBad: [servObjVeryBad.length, this.getPercentage(servObjVeryBad.length, numServ)],
-							assessments: objServ
+							assessments: objServ,
+							satisfaction: this.getIndicatorsReason(numServ, servGood, servBad, servVeryBad)
 						}],
 						1: [numServ2, this.getPercentage(numServ2, total), { 
 							veryGood: [serv2ObjVeryGood.length, this.getPercentage(serv2ObjVeryGood.length, numServ2)],
 							good: [serv2ObjGood.length, this.getPercentage(serv2ObjGood.length, numServ2)],
 							bad: [serv2ObjBad.length, this.getPercentage(serv2ObjBad.length, numServ2)],
 							veryBad: [serv2ObjVeryBad.length, this.getPercentage(serv2ObjVeryBad.length, numServ2)],
-							assessments: objServ2
+							assessments: objServ2,
+							satisfaction: this.getIndicatorsReason(numServ2, serv2Good, serv2Bad, serv2VeryBad)
 						}],
 						2: [numServ3, this.getPercentage(numServ3, total), { 
 							veryGood: [serv3ObjVeryGood.length, this.getPercentage(serv3ObjVeryGood.length, numServ3)],
 							good: [serv3ObjGood.length, this.getPercentage(serv3ObjGood.length, numServ3)],
 							bad: [serv3ObjBad.length, this.getPercentage(serv3ObjBad.length, numServ3)],
 							veryBad: [serv3ObjVeryBad.length, this.getPercentage(serv3ObjVeryBad.length, numServ3)],
-							assessments: objServ3
+							assessments: objServ3,
+							satisfaction: this.getIndicatorsReason(numServ3, serv3Good, serv3Bad, serv3VeryBad)
 						}],
 						3: [numServ4, this.getPercentage(numServ4, total), { 
 							veryGood: [serv4ObjVeryGood.length, this.getPercentage(serv4ObjVeryGood.length, numServ4)],
 							good: [serv4ObjGood.length, this.getPercentage(serv4ObjGood.length, numServ4)],
 							bad: [serv4ObjBad.length, this.getPercentage(serv4ObjBad.length, numServ4)],
 							veryBad: [serv4ObjVeryBad.length, this.getPercentage(serv4ObjVeryBad.length, numServ4)],
-							assessments: objServ4
+							assessments: objServ4,
+							satisfaction: this.getIndicatorsReason(numServ4, serv4Good, serv4Bad, serv4VeryBad)
 						}]
 					},
 					reasons: {
@@ -1979,28 +2079,32 @@
 							good: [reasObjGood.length, this.getPercentage(reasObjGood.length, numReas)],
 							bad: [reasObjBad.length, this.getPercentage(reasObjBad.length, numReas)],
 							veryBad: [reasObjVeryBad.length, this.getPercentage(reasObjVeryBad.length, numReas)],
-							assessments: objReas
+							assessments: objReas,
+							satisfaction: this.getIndicatorsReason(numReas, reasGood, reasBad, reasVeryBad)
 						}],
 						1: [numReas2, this.getPercentage(numReas2, total), { 
 							veryGood: [reas2ObjVeryGood.length, this.getPercentage(reas2ObjVeryGood.length, numReas2)],
 							good: [reas2ObjGood.length, this.getPercentage(reas2ObjGood.length, numReas2)],
 							bad: [reas2ObjBad.length, this.getPercentage(reas2ObjBad.length, numReas2)],
 							veryBad: [reas2ObjVeryBad.length, this.getPercentage(reas2ObjVeryBad.length, numReas2)],
-							assessments: objReas2
+							assessments: objReas2,
+							satisfaction: this.getIndicatorsReason(numReas2, reas2Good, reas2Bad, reas2VeryBad)
 						}],
 						2: [numReas3, this.getPercentage(numReas3, total), { 
 							veryGood: [reas3ObjVeryGood.length, this.getPercentage(reas3ObjVeryGood.length, numReas3), 0],
 							good: [reas3ObjGood.length, this.getPercentage(reas3ObjGood.length, numReas3), 0],
 							bad: [reas3ObjBad.length, this.getPercentage(reas3ObjBad.length, numReas3), 0],
 							veryBad: [reas3ObjVeryBad.length, this.getPercentage(reas3ObjVeryBad.length, numReas3), 0],
-							assessments: objReas3
+							assessments: objReas3,
+							satisfaction: this.getIndicatorsReason(numReas3, reas3Good, reas3Bad, reas3VeryBad)
 						}],
 						3: [numReas4, this.getPercentage(numReas4, total), { 
 							veryGood: [reas4ObjVeryGood.length, this.getPercentage(reas4ObjVeryGood.length, numReas4)],
 							good: [reas4ObjGood.length, this.getPercentage(reas4ObjGood.length, numReas4)],
 							bad: [reas4ObjBad.length, this.getPercentage(reas4ObjBad.length, numReas4)],
 							veryBad: [reas4ObjVeryBad.length, this.getPercentage(reas4ObjVeryBad.length, numReas4)],
-							assessments: objReas4
+							assessments: objReas4,
+							satisfaction: this.getIndicatorsReason(numReas4, reas4Good, reas4Bad, reas4VeryBad)
 						}]						
 					},
 					zones: {
