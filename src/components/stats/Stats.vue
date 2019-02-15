@@ -458,12 +458,52 @@
 						Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPointsCustom")
 					v-flex#weakPointsCustom(xs12)
 						Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPointsCustom")
+		
 		Chart#weekChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobal")
 		Chart#dayChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobal")
 		Chart#monthChart(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
 		Chart#weekChartCustom(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWCustom")
 		Chart#dayChartCustom(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayCustom")
 		Chart#monthChartCustom(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthCustom")
+		
+		Face#serviceFaces2.pb-5(style="display: none" :data="assessments.stats")
+		v-flex#satisfactionIndService.pt-3.pb-5(xs12 style="display: none")
+			v-card.my-1.mr-1(flat tile)
+				v-card-media.white--text.primary(height="75px")
+					v-container(fill-height fluid)
+						v-layout(fill-height)
+							v-flex(xs12 align-end flexbox)
+								span.display-4.headline Satisfacción de Cliente: {{ indicatorsGlobal.satisfaction }}%
+				v-card-title
+					span.display-1.headline % que representa el grado general de satisfacción del cliente.
+					// v-progress-linear(:value="indicatorsCustom.satisfaction" height="20" color="info")
+
+		v-layout.pb-5(row wrap style="display: none")#indicatorsService
+			v-flex(xs6)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text(height="75px" style="background: #26A69A")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.indicatorsTwoTitle Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
+					v-card-title
+						span.display-1.headline % del total de encuestados que dejaron una queja.
+						// v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
+			v-flex(xs6)
+				v-card.my-1.mr-1(flat tile)
+					v-card-media.white--text(height="75px" style="background: #00897B")
+						v-container(fill-height fluid)
+							v-layout(fill-height)
+								v-flex(xs12 align-end flexbox)
+									span.indicatorsTwoTitle Com. Positivos: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
+					v-card-title
+						span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
+						// v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
+
+		Chart#chartHourService(style="display: none" type="columnStacked" title="Distribución General Horaria" :data="chartHourGlobalService")
+		Chart#weekChartService(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobalService")
+		Chart#dayChartService(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobalService")
+		Chart#monthChartService(style="display: none" type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobalService")
 </template>
 
 <script lang="javascript" src="xlsx.full.min.js"></script>
@@ -512,6 +552,10 @@
 				chartDayWCustom: null,
 				chartDayCustom: null,
 				chartMonthCustom: null,
+				chartHourGlobalService: null,
+				chartDayWGlobalService: null,
+				chartDayGlobalService: null,
+				chartMonthGlobalService: null,
 				topLocals: JSON.parse(localStorage.getItem('topLocals')),
 				badLocals: [],
 				zone: null,
@@ -845,6 +889,14 @@
 		},
 		
 		async created() {
+			this.$bus.$on('updateDataService', (data) => {
+				console.log(data)
+				this.chartHourGlobalService = data[0]
+				this.chartDayWGlobalService = data[1]
+				this.chartDayGlobalService = data[2]
+				this.chartMonthGlobalService = data[3]
+			})
+
 			let assessment = null
 			let i = 0
 
@@ -899,6 +951,9 @@
 		},
 
 		methods: {
+			updateChartHour(id) {
+				console.log('EVENT')
+			},
 			async downloadXLSX() {
 				this.loader2 = 'loading3'
 				const wb = XLSX.utils.book_new();
@@ -1033,6 +1088,8 @@
 				this.loader2 = 'loading2'
 
 				const weekChart = document.getElementById('weekChart')
+
+				console.log(weekChart)
 				const dayChart = document.getElementById('dayChart')
 				const monthChart = document.getElementById('monthChart')
 				
@@ -2249,6 +2306,8 @@
 						veryBad: this.getPercentage(timesVeryBad[i], total)
 					})
 				}
+
+				this.chartHourGlobalService = this.chartHourGlobal
 			},
 
 			getChartCustomDatesHour() {
