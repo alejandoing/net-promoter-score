@@ -27,6 +27,7 @@ export default new Router({
       component: Layout, 
       beforeEnter: (to, from, next) => {
         if (localStorage.getItem('user')) next()
+        //if (JSON.parse(localStorage.getItem('user')).privileges === "Local") location.href="/stats"
         else location.href="/auth"
       },
       children: [

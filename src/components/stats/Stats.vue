@@ -114,26 +114,26 @@
 						template(slot-scope="{ save, cancel }")
 							v-card-actions
 								v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
-			v-flex(xs12 sm4 offset-sm2)
+			v-flex(v-if="userStorage.privileges !== 'Local'" xs12 sm4 offset-sm2)
 				v-select(
 					label="Elegí un Jefe Zonal"
 					v-model="zone"
 					:items="zonesSelect"
 				)
-			v-flex.ml-3(xs12 sm4)
+			v-flex.ml-3(v-if="userStorage.privileges !== 'Local'" xs12 sm4)
 				v-select(
 					label="Elegí un Local"
 					v-model="local"
 					:items="localsSelect"
 				)
-			v-flex(xs4 sm1 offset-sm2)
+			v-flex(v-if="userStorage.privileges !== 'Local'" xs4 sm1 offset-sm2)
 				v-checkbox(
 					v-model="AMBA"
 					label="AMBA"
 					type="checkbox"
 					style="position: relative; top: 20px"
 				)
-			v-flex(xs4 sm1)
+			v-flex(v-if="userStorage.privileges !== 'Local'" xs4 sm1)
 				v-checkbox(
 					v-model="interior"
 					label="Interior"
@@ -287,13 +287,13 @@
 				Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPoints")
 			v-flex#weakPoints(xs12)
 				Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPoints")
-			v-flex(xs12)
+			v-flex(xs12 v-if="userStorage.privileges !== 'Local'")
 				div.pb-5
 					span.display-1 Locales
 					v-divider
-			v-flex#topLocals(xs12 v-if="assessments")
+			v-flex#topLocals(xs12 v-if="assessments && userStorage.privileges !== 'Local'")
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
-			v-flex#badLocals(xs12 v-if="assessments")
+			v-flex#badLocals(xs12 v-if="assessments && userStorage.privileges !== 'Local'")
 				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="badLocals")
 			//- v-flex(xs12)
 			//- 	div.pb-5
@@ -1010,8 +1010,9 @@
 				})
 			})
 
-			this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
-				.onSnapshot(querySnapshot => {
+			let queryAssessments = this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
+			if (this.userStorage.privileges === 'Local') queryAssessments = queryAssessments.where('local', '==', this.userStorage.local)
+				queryAssessments.onSnapshot(querySnapshot => {
 					this.assessments = []
 					querySnapshot.forEach(doc => {
 						assessment = doc.data()
@@ -1410,6 +1411,8 @@
 				if (this.interior) query = query.where('region','==', 'MKITRJYc46G8XLR0Kjsv')
 
 				if (this.AMBA) query = query.where('region','==', '0l5DtjJ6UQ1J4DxX0fdY')
+
+				if (this.userStorage.privileges === 'Local') query = query.where('local','==', this.userStorage.local)
 
 				query.onSnapshot(querySnapshot => {
 					this.results = []
@@ -2240,10 +2243,23 @@
 
 				const getNumbers = () => {
 					for (let assessment of this.assessments) {
+						const tickets = this.$firebase.firestore().collection('tickets')
+						.where('assessment', '==', assessment.id)
+						tickets.onSnapshot(querySnapshot => {
+							querySnapshot.forEach(doc => {
+								if (doc.data().comment === 1) 
+									if (doc.data().complain == 0) comments++
+								if (doc.data().complain == 1) complains++
+								this.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
+								this.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
+							})
+						})
+
 						if (assessment.complain) {
-							const tickets = this.$firebase.firestore().collection('tickets')
+							let tickets = this.$firebase.firestore().collection('tickets')
 							.where('assessment', '==', assessment.id).where('status', '==', 0)
 							.where('complain', '==', 1)
+							if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
 							tickets.onSnapshot(querySnapshot => {
 								querySnapshot.forEach(doc => {
 									complainsUnread++
@@ -2251,18 +2267,6 @@
 								})
 							})
 						}
-
-						const tickets = this.$firebase.firestore().collection('tickets')
-						.where('assessment', '==', assessment.id)
-						tickets.onSnapshot(querySnapshot => {
-							querySnapshot.forEach(doc => {
-								if (doc.data().comment === 1 || doc.data().comment === false) 
-									if (!doc.data().complain) comments++
-								if (doc.data().complain == 1) complains++
-								this.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
-								this.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
-							})
-						})
 
 						assessment.flow.justification ? services++ : services
 						assessment.flow.justificationTwo ? reasons++ : reasons
@@ -2328,23 +2332,12 @@
 
 				const getNumbers = () => {
 					for (let assessment of this.results) {
-						if (assessment.complain) {
-							const tickets = this.$firebase.firestore().collection('tickets')
-							.where('assessment', '==', assessment.id).where('status', '==', 0)
-							.where('complain', '==', 1)
-							tickets.onSnapshot(querySnapshot => {
-								querySnapshot.forEach(doc => {
-									complainsUnread++
-									this.indicatorsCustom.complainUnread = [complainsUnread, this.getPercentage(complainsUnread, complains)]
-								})
-							})
-						}
-
-						const tickets = this.$firebase.firestore().collection('tickets')
+						let tickets = this.$firebase.firestore().collection('tickets')
 						.where('assessment', '==', assessment.id)
+						if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
 						tickets.onSnapshot(querySnapshot => {
 							querySnapshot.forEach(doc => {
-								if (doc.data().comment === 1 || doc.data().comment === false) 
+								if (doc.data().comment === 1) 
 									if (!doc.data().complain) comments++
 								if (doc.data().complain == 1) complains++
 				
@@ -2354,6 +2347,19 @@
 							if (!complains) this.indicatorsCustom.complain = [0, 0]
 							if (!comments) this.indicatorsCustom.comment = [0, 0]
 						})
+
+						if (assessment.complain) {
+							let tickets = this.$firebase.firestore().collection('tickets')
+							.where('assessment', '==', assessment.id).where('status', '==', 0)
+							.where('complain', '==', 1)
+							if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
+							tickets.onSnapshot(querySnapshot => {
+								querySnapshot.forEach(doc => {
+									complainsUnread++
+									this.indicatorsCustom.complainUnread = [complainsUnread, this.getPercentage(complainsUnread, complains)]
+								})
+							})
+						}
 
 						assessment.flow.justification ? services++ : services
 						assessment.flow.justificationTwo ? reasons++ : reasons

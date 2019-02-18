@@ -111,10 +111,8 @@
 			},
 
 			getUser(user) {
-				console.log(user)
 				this.$firebase.firestore().doc('users/' + user.uid).get()
 				.then(doc => {
-					console.log(doc)
 					const USER = doc.data()
 					USER.id = doc.id
 					this.user = USER
@@ -130,7 +128,8 @@
 			},
 
 			verifyUser() {
-				this.user.status == 'Pendiente' ? this.dialog = true : router.push('/dashboard')
+				if (this.user.status == 'Pendiente') this.dialog = true
+				this.user.privileges === 'Local' ? router.push('/stats') : router.push('/dashboard')
 			},
 
 			continueSignIn() {
@@ -144,7 +143,9 @@
 						status: 'Activo'
 					})
 					
-					.then(() => router.push('/dashboard'))
+					.then(() => {
+						this.user.privileges === 'Local' ? router.push('/stats') : router.push('/dashboard')
+					}) 
 				})
 			},
 

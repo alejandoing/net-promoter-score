@@ -116,13 +116,13 @@
 								v-card-actions
 									v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
 			v-layout(row)
-				v-flex(xs12 sm4 offset-sm2)
+				v-flex(v-if="userStorage.privileges !== 'Local'" xs12 sm4 offset-sm2)
 					v-select(
 						label="Elegí un Jefe Zonal"
 						v-model="zone"
 						:items="zonesSelect"
 					)
-				v-flex.ml-3(xs12 sm4)
+				v-flex.ml-3(v-if="userStorage.privileges !== 'Local'" xs12 sm4)
 					v-select(
 						label="Elegí un Local"
 						v-model="local"
@@ -164,13 +164,18 @@
 						type="checkbox"
 						style="position: relative; top: 20px"
 					)
-			v-layout(row).mb-5.mt-3
+			v-layout(row v-if="userStorage.privileges !== 'Local'").mb-5.mt-3
 				v-flex(xs12 sm4)
 					v-btn(block color="primary" @click="searchTickets") Filtrar Tickets
 				v-flex(xs12 sm4).pl-2
 					v-btn(block color="primary" @click="clearFields") Limpiar
 				v-flex(xs12 sm4).pl-2
 					v-btn(block color="primary" @click="searchResults") Ver Detalles
+			v-layout(row v-else).mb-5.mt-3
+				v-flex(xs12 sm6)
+					v-btn(block color="primary" @click="searchTickets") Filtrar Tickets
+				v-flex(xs12 sm6).pl-2
+					v-btn(block color="primary" @click="clearFields") Limpiar
 			v-flex.mb-5(xs12 sm12 v-if='tickets')
 				v-card
 					v-list
@@ -186,7 +191,7 @@
 								v-list-tile-content.pl-5(ripple @click="viewTicket(ticket.id)")
 									v-list-tile-title.black-text {{ ticket.email }} - ({{ ticket.dateFormat }})
 									v-list-tile-sub-title
-										span.grey--text.text--darken-2 {{ chunkString(ticket.description, 40)[0] }}...
+										span.grey--text.text--darken-2 {{ chunkString(ticket.description, 40) ? chunkString(ticket.description, 40)[0] : null }}...
 								v-spacer
 								v-btn(v-if="ticket.complain" color="error" small) Queja
 								v-btn(v-else color="success" small) Com. Positivo
@@ -243,7 +248,7 @@
 					{ url: './../../../static/tickets/comment.png', value: false, percentage: false }, 
 					{ url: './../../../static/tickets/complain.png', value: false, percentage: false }
 				],
-				tickets: false,
+				tickets: [],
 				complains: null,
 				comments: null,
 				dynamicDialogAct: false,
@@ -331,9 +336,11 @@
 				})
 			})
 
-			let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
+			let tickets = this.$firebase.firestore().collection("tickets")
+			if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
+			tickets = tickets.where('business', '==', this.userStorage.business).orderBy("date")
 			tickets.onSnapshot(querySnapshot => {
-				this.tickets = []
+				console.log("HERE")
 				querySnapshot.forEach(doc => {
 					let ticket = doc.data()
 					ticket.dateFormat = this.convertDate(doc.data().date)
@@ -445,7 +452,6 @@
 				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 
 				this.localsQ = this.localsQ.sort(sortByProperty('complain'))
-				console.log(this.localsQ)
 			},
 			searchResults() {
 				this.dynamicDialogAct = true
@@ -508,7 +514,9 @@
 			},
 
 			searchTickets() {
-				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
+				let tickets = this.$firebase.firestore().collection("tickets")
+				if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
+				tickets = tickets.where('business', '==', this.userStorage.business).orderBy("date")
 				if (this.read || this.unread || this.closed) {
 					if (this.read && !this.unread) tickets = tickets.where('status', '==', 1)
 					if (this.unread && !this.read) tickets = tickets.where('status', '==', 0)
@@ -532,7 +540,7 @@
 				let dateUntil = '2099-12-31'
 
 				function pad(s) { return (s < 10) ? '0' + s : s }
-				function timeSearch(date) { return `${pad(date.getHours())}:${pad(date.getMinutes())}` }
+				function timeSearch(date) { return `${pad(new Date(date).getHours())}:${pad(new Date(date).getMinutes())}` }
 				function compareTimes(timeRecord, timeSince, timeUntil) {
 					let arrayTimeRecord = timeRecord.split(":")
 					let arraytimeSince = timeSince.split(":")
@@ -571,8 +579,8 @@
 				
 				if (this.dateSince || this.timeSince) {
 					tickets = tickets
-					.where('date','>=',new Date(`${dateSince} ${timeSince}`))
-					.where('date','<=',new Date(`${dateUntil} ${timeUntil}`))
+					.where('date','>=',new Date(`${dateSince} ${timeSince}`).toISOString())
+					.where('date','<=',new Date(`${dateUntil} ${timeUntil}`).toISOString())
 				}
 				
 				tickets.onSnapshot(querySnapshot => {
@@ -607,20 +615,25 @@
 				this.unread = null
 				this.closed = null
 				this.dateSince = null
+				this.dateSinceFormatted = null
+				this.dateUntilFormatted = null
 				this.dateUntil = null
 				this.timeSince = null
 				this.timeUntil = null
 				this.complain = null
 
-				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
+				let tickets = this.$firebase.firestore().collection("tickets")
+				tickets = tickets.where('business', '==', this.userStorage.business).orderBy("date")
+				if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
 				tickets.onSnapshot(querySnapshot => {
-					this.tickets = []
+					let ticketsArray = []
 					querySnapshot.forEach(doc => {
 						let ticket = doc.data()
 						ticket.dateFormat = this.convertDate(doc.data().date)
 						ticket.id = doc.id
-						this.tickets.unshift(ticket)
+						ticketsArray.unshift(ticket)
 					})
+					this.tickets = ticketsArray
 					if (!this.tickets.length) this.tickets = false
 				})
 			},

@@ -38,8 +38,9 @@
 			}
 		},
 		created() {
-			this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
-			.onSnapshot(querySnapshot => {
+			let query = this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
+			if (this.userStorage.privileges === 'Local') query = query.where('local', '==', this.userStorage.local)
+			query.onSnapshot(querySnapshot => {
 				this.assessments = []
 				this.veryGood = 0
 				this.good = 0
@@ -63,4 +64,7 @@
 	@media (max-width: 600px)
 		footer
 			display: none
+
+	span
+		font-size: 9px
 </style>
