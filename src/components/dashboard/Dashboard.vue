@@ -34,21 +34,21 @@
 				if (!this.contexts[0].length) this.dialog = true
 			})
 
-		// 	this.$firebase.firestore().collection("locals").get().then(querySnapshot => {
-		// 			querySnapshot.forEach(doc => {
-		// 				console.log(doc.id, " => ", doc.data());
-		// 					var currentRef = this.$firebase.firestore().collection("locals").doc(doc.id)
+		// 	this.$firebase.firestore().collection("assessments").where('local', '==', 'PSSLifj164EnEEGMGlSp').get().then(querySnapshot => {
+		// 		querySnapshot.forEach(doc => {
+		// 			console.log(doc.id, " => ", doc.data());
+		// 				var currentRef = this.$firebase.firestore().collection("assessments").doc(doc.id)
 
-		// 					return currentRef.update({
-		// 						region: '0l5DtjJ6UQ1J4DxX0fdY'
-		// 					})
-		// 					.then(function() {
-		// 							console.log("Document successfully updated!" + doc.id);
-		// 					})
-		// 					.catch(function(error) {
-		// 						console.error("Error updating document: ", error);
-		// 					});
-		// 			});
+		// 				return currentRef.update({
+		// 					zone: '9O2CXPk2PFzaNV2JBpRL'
+		// 				})
+		// 				.then(function() {
+		// 						console.log("Document successfully updated!" + doc.id);
+		// 				})
+		// 				.catch(function(error) {
+		// 					console.error("Error updating document: ", error);
+		// 				});
+		// 		});
 		// 	});
 		}
 	}

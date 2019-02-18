@@ -2318,11 +2318,15 @@
 					assessment.flow.justificationTwo ? reasons++ : reasons
 				}
 
-				const partialGood = parseInt(stats.good * total / 100) * PRC_GOOD
-				const partialBad = parseInt(stats.bad * total / 100) * PRC_BAD
-				const partialVeryBad = parseInt(stats.veryBad * total / 100) * PRC_VERY_BAD
+				const partialGood = (stats.good * total) / 100 * PRC_GOOD
+				const partialBad = (stats.bad * total) / 100 * PRC_BAD
+				const partialVeryBad = (stats.veryBad * total) / 100 * PRC_VERY_BAD
 				
 				const partials = partialGood + partialBad + partialVeryBad
+
+				console.log(local.title)
+				console.log(partials)
+				console.log(stats)
 
 				local.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 				if (this.getPercentage(partials, total) == 0) local.indicatorsGlobal.satisfaction = 100
@@ -2409,8 +2413,6 @@
 					satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 					if (!this.getPercentage(partials, total)) satisfaction = 0
 				}
-
-
 
 				return satisfaction
 			},
