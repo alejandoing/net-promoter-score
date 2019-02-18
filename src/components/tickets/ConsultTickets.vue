@@ -138,6 +138,13 @@
 					)
 				v-flex(xs12 sm1)
 					v-checkbox(
+						v-model="unread"
+						label="No Leído"
+						type="checkbox"
+						style="position: relative; top: 20px"
+					)
+				v-flex.ml-4(xs12 sm1)
+					v-checkbox(
 						v-model="closed"
 						label="Cerrado"
 						type="checkbox"
@@ -147,6 +154,13 @@
 					v-checkbox(
 						v-model="complain"
 						label="Queja"
+						type="checkbox"
+						style="position: relative; top: 20px"
+					)
+				v-flex.ml-1(xs12 sm2)
+					v-checkbox(
+						v-model="comment"
+						label="Com. Positivo"
 						type="checkbox"
 						style="position: relative; top: 20px"
 					)
@@ -243,8 +257,10 @@
 				zoneID: null,
 				zonesSelect: [],
 				read: false,
+				unread: false,
 				closed: false,
 				complain: false,
+				comment: false,
 				menuDateSince: false,
 				menuDateUntil: false,
 				dateSince: null,
@@ -271,10 +287,16 @@
 				}
 			},
 			read() {
-				if (!this.read) this.unread = true
+				//if (!this.read) this.unread = true
 			},
 			closed() {
-				if (this.closed) this.read = true
+				if (this.closed) {
+					this.read = true
+					this.unread = false
+				}
+			},
+			unread() {
+				this.closed = false
 			},
 			zone() {
 				this.localsSelect = []
@@ -487,15 +509,22 @@
 
 			searchTickets() {
 				let tickets = this.$firebase.firestore().collection("tickets").where('business', '==', this.userStorage.business).orderBy("date")
-				let status = this.read ? 1 : 0
-				status = this.closed ? 2 : status
-				tickets = tickets.where('status', '==', status)
+				if (this.read || this.unread || this.closed) {
+					if (this.read && !this.unread) tickets = tickets.where('status', '==', 1)
+					if (this.unread && !this.read) tickets = tickets.where('status', '==', 0)
+					if (this.closed) tickets = tickets.where('status', '==', 2)
+				}
 				if (this.local) tickets = tickets.where('local', '==', this.localID)
 				else {
 					if (this.zone) tickets = tickets.where('zone', '==', this.zoneID)
 				}
-				if (this.complain) tickets = tickets.where('complain', '==', 1)
-				
+				if (this.complain && !this.comment) {
+					tickets = tickets.where('complain', '==', 1)
+				}
+
+				if (this.comment && !this.complain) {
+					tickets = tickets.where('comment', '==', 1)
+				}
 
 				let timeSince = '00:00'
 				let timeUntil = '23:59'
@@ -547,6 +576,7 @@
 				}
 				
 				tickets.onSnapshot(querySnapshot => {
+					console.log(querySnapshot)
 					this.tickets = []
 					if (!this.timeSince) {
 						querySnapshot.forEach(doc => {

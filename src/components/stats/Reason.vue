@@ -212,7 +212,7 @@
       reasonFacesData2.childNodes[3].children[1].children[1].innerHTML = `${this.currentReason.stats.veryBad[0]} resp.`
 
       const reasonFaces = await getCanvas('reasonFaces')
-      pdf.addImage(reasonFaces.toDataURL('image/png'), 'PNG', 11, 35, 195, 30)
+      pdf.addImage(reasonFaces.toDataURL('image/png'), 'PNG', 11, 35, 210, 30)
 
       const reasonsIndSatisfaction = document.getElementById('satisfactionIndReasons')
 

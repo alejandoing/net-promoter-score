@@ -225,8 +225,6 @@
 				// const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
 				this.loader = 'loading'
 
-				console.log(new Date())
-
 				const urlAssessment = 'http://174.36.119.3:8080/firestore/assessment/add/'
 				axios.post(urlAssessment, {
 				 	face: this.assessment,

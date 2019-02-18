@@ -2241,7 +2241,6 @@
 				const getNumbers = () => {
 					for (let assessment of this.assessments) {
 						if (assessment.complain) {
-							complains++
 							const tickets = this.$firebase.firestore().collection('tickets')
 							.where('assessment', '==', assessment.id).where('status', '==', 0)
 							.where('complain', '==', 1)
@@ -2252,7 +2251,19 @@
 								})
 							})
 						}
-						assessment.comment ? comments++ : comments
+
+						const tickets = this.$firebase.firestore().collection('tickets')
+						.where('assessment', '==', assessment.id)
+						tickets.onSnapshot(querySnapshot => {
+							querySnapshot.forEach(doc => {
+								if (doc.data().comment === 1 || doc.data().comment === false) 
+									if (!doc.data().complain) comments++
+								if (doc.data().complain == 1) complains++
+								this.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
+								this.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
+							})
+						})
+
 						assessment.flow.justification ? services++ : services
 						assessment.flow.justificationTwo ? reasons++ : reasons
 					}
@@ -2268,8 +2279,6 @@
 
 				this.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 				
-				this.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
-				this.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
 				this.indicatorsGlobal.service = [services, this.getPercentage(services, total)]
 				this.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, total)]
 			},
@@ -2320,7 +2329,6 @@
 				const getNumbers = () => {
 					for (let assessment of this.results) {
 						if (assessment.complain) {
-							complains++
 							const tickets = this.$firebase.firestore().collection('tickets')
 							.where('assessment', '==', assessment.id).where('status', '==', 0)
 							.where('complain', '==', 1)
@@ -2331,7 +2339,22 @@
 								})
 							})
 						}
-						assessment.comment ? comments++ : comments
+
+						const tickets = this.$firebase.firestore().collection('tickets')
+						.where('assessment', '==', assessment.id)
+						tickets.onSnapshot(querySnapshot => {
+							querySnapshot.forEach(doc => {
+								if (doc.data().comment === 1 || doc.data().comment === false) 
+									if (!doc.data().complain) comments++
+								if (doc.data().complain == 1) complains++
+				
+								this.indicatorsCustom.complain = [complains, this.getPercentage(complains, total)]
+								this.indicatorsCustom.comment = [comments, this.getPercentage(comments, total)]
+							})
+							if (!complains) this.indicatorsCustom.complain = [0, 0]
+							if (!comments) this.indicatorsCustom.comment = [0, 0]
+						})
+
 						assessment.flow.justification ? services++ : services
 						assessment.flow.justificationTwo ? reasons++ : reasons
 					}
@@ -2347,8 +2370,6 @@
 
 				this.indicatorsCustom.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 				
-				this.indicatorsCustom.complain = [complains, this.getPercentage(complains, total)]
-				this.indicatorsCustom.comment = [comments, this.getPercentage(comments, total)]
 				this.indicatorsCustom.service = [services, this.getPercentage(services, total)]
 				this.indicatorsCustom.reason = [reasons, this.getPercentage(reasons, total)]
 			},
