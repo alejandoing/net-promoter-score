@@ -114,26 +114,32 @@
 						template(slot-scope="{ save, cancel }")
 							v-card-actions
 								v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
-			v-flex(v-if="userStorage.privileges !== 'Local'" xs12 sm4 offset-sm2)
+			v-flex(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs12 sm4 offset-sm2)
 				v-select(
 					label="Elegí un Jefe Zonal"
 					v-model="zone"
 					:items="zonesSelect"
 				)
-			v-flex.ml-3(v-if="userStorage.privileges !== 'Local'" xs12 sm4)
+			v-flex.ml-3(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs12 sm4)
 				v-select(
 					label="Elegí un Local"
 					v-model="local"
 					:items="localsSelect"
 				)
-			v-flex(v-if="userStorage.privileges !== 'Local'" xs4 sm1 offset-sm2)
+			v-flex(v-else offset-sm2 xs12 sm4)
+				v-select(
+					label="Elegí un Local"
+					v-model="local"
+					:items="localsSelect"
+				)
+			v-flex(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs4 sm1 offset-sm2)
 				v-checkbox(
 					v-model="AMBA"
 					label="AMBA"
 					type="checkbox"
 					style="position: relative; top: 20px"
 				)
-			v-flex(v-if="userStorage.privileges !== 'Local'" xs4 sm1)
+			v-flex(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs4 sm1)
 				v-checkbox(
 					v-model="interior"
 					label="Interior"
@@ -277,7 +283,7 @@
 						v-divider
 					v-flex(xs9 offset-xs2)
 						Reason.pb-5(:data="assessments.stats")
-				v-flex(xs12)#zones
+				v-flex(v-if="userStorage.privileges !== 'Zone'" xs12)#zones
 					div.pb-5
 						span.display-1 Jefe Zonales
 						v-divider
@@ -447,7 +453,7 @@
 								v-divider
 						v-flex(xs9 offset-xs2)
 							Reason.pb-5(:data="results.stats")
-					#zonesCustom
+					#zonesCustom(v-if="userStorage.privileges !== 'Zone'")
 						v-flex(xs12)
 							div.pb-5
 								span.display-1 Jefe Zonales
@@ -971,7 +977,7 @@
 						})
 					})
 				})
-			}
+			},
 		},
 		
 		async created() {
@@ -1005,6 +1011,12 @@
 				querySnapshot.forEach(doc => {
 					let zone = doc.data()
 					zone.id = doc.id
+
+					if (this.userStorage.privileges === 'Zone') {
+						if (this.userStorage.zone == zone.id) {
+							this.zone = zone.responsable
+						}
+					}
 					this.zones.unshift(zone)
 					this.zonesSelect.unshift(zone.responsable)
 				})
@@ -1012,6 +1024,7 @@
 
 			let queryAssessments = this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
 			if (this.userStorage.privileges === 'Local') queryAssessments = queryAssessments.where('local', '==', this.userStorage.local)
+			if (this.userStorage.privileges === 'Zone') queryAssessments = queryAssessments.where('zone', '==', this.userStorage.zone)
 				queryAssessments.onSnapshot(querySnapshot => {
 					this.assessments = []
 					querySnapshot.forEach(doc => {
@@ -1413,6 +1426,7 @@
 				if (this.AMBA) query = query.where('region','==', '0l5DtjJ6UQ1J4DxX0fdY')
 
 				if (this.userStorage.privileges === 'Local') query = query.where('local','==', this.userStorage.local)
+				if (this.userStorage.privileges === 'Zone') query = query.where('zone','==', this.userStorage.zone)
 
 				query.onSnapshot(querySnapshot => {
 					this.results = []
@@ -1480,7 +1494,8 @@
 			clearFields() {
 				this.AMBA = null
 				this.interior = null
-				this.zone = null
+				if (this.userStorage.privileges === 'Zone') this.local = null
+				if (!this.userStorage.privileges === 'Zone') this.zone = null
 				this.desactiveDateMenus()
 				this.desactiveTimeMenuSince()
 				this.desactiveTimeMenuUntil()

@@ -3,7 +3,7 @@
 		v-toolbar-title.header-title Net Promoter Score - {{ title }}
 		v-spacer
 		v-toolbar-items.header-computer
-			v-btn(v-if="userStorage.privileges !== 'Local'" flat to="/dashboard") Menú Encuesta
+			v-btn(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" flat to="/dashboard") Menú Encuesta
 				v-icon.pl-2 dashboard
 			v-btn(flat to="/stats") Gráficos
 				v-icon.pl-2 pie_chart

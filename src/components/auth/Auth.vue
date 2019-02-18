@@ -129,7 +129,7 @@
 
 			verifyUser() {
 				if (this.user.status == 'Pendiente') this.dialog = true
-				this.user.privileges === 'Local' ? router.push('/stats') : router.push('/dashboard')
+				this.user.privileges === 'Local' || this.user.privileges === 'Zone' ? router.push('/stats') : router.push('/dashboard')
 			},
 
 			continueSignIn() {

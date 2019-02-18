@@ -40,6 +40,7 @@
 		created() {
 			let query = this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
 			if (this.userStorage.privileges === 'Local') query = query.where('local', '==', this.userStorage.local)
+			if (this.userStorage.privileges === 'Zone') query = query.where('zone', '==', this.userStorage.zone)
 			query.onSnapshot(querySnapshot => {
 				this.assessments = []
 				this.veryGood = 0
