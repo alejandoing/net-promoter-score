@@ -658,14 +658,7 @@
 			updateTicket(ticket) {
 				let ticketDoc = this.$firebase.firestore().doc("tickets/" + ticket.id)
 				ticketDoc.update({
-					business: ticket.business,
-					date: ticket.date,
-					description: ticket.description,
-					email: ticket.email,
-					status: ticket.status == 0 ? 1 : 0,
-					local: ticket.local,
-					poll: ticket.poll,
-					telephone: ticket.telephone
+					status: ticket.status == 0 ? 1 : 0
 				})
 				.then(() => {
 					console.log('Actualizado correctamente')

@@ -648,7 +648,8 @@
 				chartDayWGlobalZone: null,
 				chartDayGlobalZone: null,
 				chartMonthGlobalZone: null,
-				topLocals: JSON.parse(localStorage.getItem('topLocals')),
+				//topLocals: JSON.parse(localStorage.getItem('topLocals')),
+				topLocals: [],
 				badLocals: [],
 				zone: null,
 				zoneID: null,
@@ -1495,7 +1496,7 @@
 				this.AMBA = null
 				this.interior = null
 				if (this.userStorage.privileges === 'Zone') this.local = null
-				if (!this.userStorage.privileges === 'Zone') this.zone = null
+				if (this.userStorage.privileges !== 'Zone') this.zone = null
 				this.desactiveDateMenus()
 				this.desactiveTimeMenuSince()
 				this.desactiveTimeMenuUntil()
@@ -1867,7 +1868,7 @@
 				this.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
 				this.strongPoints = reasonChartStrong.sort(sortByProperty('satisfaction'))
 
-				this.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x)
+				this.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).slice(0,20)
 
 				function reverseArrayInPlace(arr) {
 					for (var i = 0; i <= Math.floor((arr.length - 1) / 2); i++) {
@@ -1878,7 +1879,7 @@
 					return arr
 				}
 				
-				this.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+				this.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,20)
 			},
 
 			getChartCustomM() {
@@ -2324,10 +2325,6 @@
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
-				console.log(local.title)
-				console.log(partials)
-				console.log(stats)
-
 				local.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 				if (this.getPercentage(partials, total) == 0) local.indicatorsGlobal.satisfaction = 100
 				
@@ -2356,6 +2353,7 @@
 						if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
 						tickets.onSnapshot(querySnapshot => {
 							querySnapshot.forEach(doc => {
+								console.log(doc.data())
 								if (doc.data().comment === 1) 
 									if (!doc.data().complain) comments++
 								if (doc.data().complain == 1) complains++

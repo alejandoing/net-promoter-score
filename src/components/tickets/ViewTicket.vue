@@ -106,15 +106,6 @@
 				this.ticket = doc.data()
 				if (this.ticket.answer) this.comment = true
 					ticket.update({
-						assessment: this.ticket.assessment,
-						business: this.ticket.business,
-						date: this.ticket.date,
-						description: this.ticket.description,
-						email: this.ticket.email,
-						local: this.ticket.local,
-						poll: this.ticket.poll,
-						telephone: this.ticket.telephone,
-						comment: this.comment,
 						status: 1
 					})
 					.then(() => console.log(''))
