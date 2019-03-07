@@ -4,7 +4,7 @@
 		v-content.py-4
 			router-view
 		v-footer(fixed class="pa-2")
-			span.text-footer Se ha registrado un total de {{ assessments.length }} valoraciones
+			span.text-footer Se ha registrado un total de {{ totalAssessments }} valoraciones el día de hoy
 			v-spacer
 			v-badge(overlay left color="primary" overlap)
 				span(slot="badge") {{ veryGood }}
@@ -18,6 +18,17 @@
 			v-badge(overlay left color="primary" overlap)
 				span(slot="badge") {{ veryBad }}
 				v-icon(large color="red") sentiment_very_dissatisfied
+	//- .text-xs-center(v-else)
+	//- 	v-dialog(
+	//- 		v-model="dialog"
+	//- 		hide-overlay
+	//- 		persistent
+	//- 		width="300"
+	//- 	)
+	//- 		v-card(color="primary" dark)
+	//- 			v-card-text
+	//- 				| Cargando el sistema, espera un momento
+	//- 				v-progress-linear.mb-0(indeterminate color="white")
 </template>
 
 <script>
@@ -29,6 +40,8 @@
 		},
 		data() {
 			return {
+				totalAssessments: null,
+				dialog: true,
 				veryGood: 0,
 				good: 0,
 				bad: 0,
@@ -37,22 +50,8 @@
 				userStorage: JSON.parse(localStorage.getItem('user'))
 			}
 		},
-		created() {
-			let query = this.$firebase.firestore().collection('assessments').where('business', '==', this.userStorage.business)
-			if (this.userStorage.privileges === 'Local') query = query.where('local', '==', this.userStorage.local)
-			if (this.userStorage.privileges === 'Zone') query = query.where('zone', '==', this.userStorage.zone)
-			query.onSnapshot(querySnapshot => {
-				this.assessments = []
-				this.veryGood = 0
-				this.good = 0
-				this.bad = 0
-				this.veryBad = 0
-				querySnapshot.forEach(doc => {
-					let assessment = doc.data()
-					this.assessments.unshift(assessment)
-					this[assessment.face]++
-				})
-			})
+		async created() {
+			this.totalAssessments = (await this.$axios.get('assessments/stats/total')).data[0].total
 		}
   }
 </script>

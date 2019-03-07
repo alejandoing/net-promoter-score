@@ -45,7 +45,8 @@ import '../node_modules/vuetify/src/stylus/app.styl'
 import App from './App'
 import router from './router'
 import store from './store/store'
-import Firebase from './plugins/Firebase.js'
+import Firebase from './plugins/Firebase'
+import './plugins/axios'
 Vue.use(Firebase)
 Vue.use(eventBus)
 

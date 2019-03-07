@@ -140,7 +140,7 @@
     let i = 0
 
     let zones = this.$firebase.firestore().collection("zones").where('business', '==', this.userStorage.business)
-    zones.onSnapshot(querySnapshot => {
+    zones.get().then(querySnapshot => {
       this.zones = []
       querySnapshot.forEach(doc => {
         let zone = doc.data()
@@ -150,7 +150,7 @@
     })
 
     this.$firebase.firestore().collection('locals').where('business', '==', this.userStorage.business)
-      .onSnapshot(async querySnapshot => {
+      .get().then(async querySnapshot => {
         this.locals = []
         await querySnapshot.forEach(doc => {
           let local = doc.data()

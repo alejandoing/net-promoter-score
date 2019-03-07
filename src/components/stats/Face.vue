@@ -27,19 +27,17 @@
 				},
       }
     },
-    watch: {
-      data() {
-        if (this.$props.data) {
-          for (let face in this.faces) {
-            this.faces[face].value = this.$props.data[face][0]
-            this.faces[face].percentage = this.$props.data[face][1]
-          }
-          //console.log("this.faces")
-        }
-      }
-    },
     created() {
-      //console.log(this.faces)
+      try {
+        if (this.$props.data) {
+          for (let data of this.$props.data) {
+            this.faces[data.face].value = data.value
+            this.faces[data.face].percentage = data.percentage
+          }
+        }
+      } catch(e) {
+        e = null
+      }
     }
 	}
 </script>
