@@ -17,6 +17,16 @@
 
   export default {
     props: ['data'],
+    watch: {
+      data() {
+        if (this.$props.data) {
+          for (let data of this.$props.data) {
+            this.faces[data.face].value = data.value
+            this.faces[data.face].percentage = data.percentage
+          }
+        }
+      }
+    },
     data () {
       return {
 				faces: {
@@ -28,15 +38,11 @@
       }
     },
     created() {
-      try {
-        if (this.$props.data) {
-          for (let data of this.$props.data) {
-            this.faces[data.face].value = data.value
-            this.faces[data.face].percentage = data.percentage
-          }
+      if (this.$props.data) {
+        for (let data of this.$props.data) {
+          this.faces[data.face].value = data.value
+          this.faces[data.face].percentage = data.percentage
         }
-      } catch(e) {
-        e = null
       }
     }
 	}

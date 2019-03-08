@@ -4,7 +4,7 @@
 		v-content.py-4
 			router-view
 		v-footer(fixed class="pa-2")
-			span.text-footer Se ha registrado un total de {{ totalAssessments }} valoraciones el día de hoy
+			span.text-footer Se ha registrado un total de {{ totalAssessments }} valoraciones
 			v-spacer
 			v-badge(overlay left color="primary" overlap)
 				span(slot="badge") {{ veryGood }}
@@ -52,6 +52,11 @@
 		},
 		async created() {
 			this.totalAssessments = (await this.$axios.get('assessments/stats/total')).data[0].total
+			const statsFaces = (await this.$axios.get('assessments/stats/faces/value-prc')).data
+			this.veryGood = statsFaces[3].value
+			this.good = statsFaces[1].value
+			this.veryBad = statsFaces[2].value
+			this.bad = statsFaces[0].value			
 		}
   }
 </script>

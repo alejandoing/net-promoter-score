@@ -4,7 +4,7 @@
       img(:src="zone.url" width=158 height=138)
       span.justification-span {{ zone.title }}
       .text-xs-center.text
-        span {{ zone.value }} {{ title }} | {{ zone.stats.satisfaction || 0 }}{{ titleTwo }}
+        span {{ zone.value }} {{ title }} | {{ zone.stats.satisfaction || 0 }} {{ titleTwo }}
     v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
       v-card
         v-toolbar(dark color="primary")
@@ -16,7 +16,7 @@
             v-btn(dark flat @click="finalize") Regresar
         v-card-text
           v-flex(xs9 offset-xs2)
-            Face.pb-5(:data="currentZone.stats")
+            Face.pb-5(:data="statsFacesZone")
           v-flex(xs3 offset-xs10)
             v-tooltip(top)
               v-btn(
@@ -45,20 +45,23 @@
               v-card-media.white--text.primary(height="75px")
                 span.headline.ml-4.pt-3 Satisfacción de Cliente: {{ currentZone.stats.indicatorsGlobal.satisfaction }}%
               v-card-title
-                v-progress-linear(:value="currentZone.stats.indicatorsGlobal.satisfaction" height="20" color="info")
+                // v-progress-linear(:value="currentZone.stats.indicatorsGlobal.satisfaction" height="20" color="info")
+                span.display-1.headline % que representa el grado general de satisfacción del cliente.
           v-layout
             v-flex(xs6)
               v-card.my-1.mr-1(flat tile)
                 v-card-media.white--text.primary(height="75px")
                   span.indicatorsTwoTitle.ml-4.pt-3 Quejas: {{ currentZone.stats.indicatorsGlobal.complain[1] }}% - {{ currentZone.stats.indicatorsGlobal.complain[0] }} total
                 v-card-title
-                  v-progress-linear(:value="currentZone.stats.indicatorsGlobal.complain[1]" height="20" color="info")
+                  //v-progress-linear(:value="currentZone.stats.indicatorsGlobal.complain[1]" height="20" color="info")
+                  span.display-1.headline % del total de encuestados que dejaron una queja.
             v-flex(xs6)
               v-card.my-1.mr-1(flat tile)
                 v-card-media.white--text.primary(height="75px")
                   span.indicatorsTwoTitle.ml-4.pt-3 Com. Positivos: {{ currentZone.stats.indicatorsGlobal.comment[1] }}% - {{ currentZone.stats.indicatorsGlobal.comment[0] }} total
                 v-card-title
-                  v-progress-linear(:value="currentZone.stats.indicatorsGlobal.comment[1]" height="20" color="info")
+                  //v-progress-linear(:value="currentZone.stats.indicatorsGlobal.comment[1]" height="20" color="info")
+                  span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
           v-tabs(fixed centered)
             v-tabs-bar.primary(dark)
               v-tabs-slider(class="yellow")
@@ -99,6 +102,7 @@
     props: ['data'],
     data () {
       return {
+				statsFacesZone: null,
 				loader2: null,
 				loading3: false,
 				loading2: false,
@@ -114,63 +118,46 @@
         dynamicDialogAct: false,
         currentZone: { stats: { indicatorsGlobal: { comment: [], complain: [], satisfaction: "" }}},
 				zones: {
-					0: { url: "./../../../static/zones/walter-mancho.png", title: 'Walter Mancho', value: 0, percentage: 0, stats: { satisfaction: null }  },
-					1: { url: "./../../../static/zones/luciana-bernadotti.png", title: 'Luciana Bernadotti', value: 0, percentage: 0, stats: { satisfaction: null }  },
-					2: { url: "./../../../static/zones/cristina-marigomez.png", title: 'Cristina Marigomez', value: 0, percentage: 0, stats: { satisfaction: null }  },
-          3: { url: "./../../../static/zones/dado-ricci.png", title: 'Dado Ricci', value: 0, percentage: 0, stats: { satisfaction: null }  },
-          4: { url: "./../../../static/zones/diego-longo.png", title: 'Diego Longo', value: 0, percentage: 0, stats: { satisfaction: null }  },
-          5: { url: "./../../../static/zones/florencia-casa.png", title: 'Florencia Casa', value: 0, percentage: 0, stats: { satisfaction: null }  },
+					0: { index: 0, ftitle: 'MM3exjMdkKaQ0cUkAkM2', url: "./../../../static/zones/walter-mancho.png", title: 'Walter Mancho', value: 0, percentage: 0, stats: { satisfaction: null }  },
+					1: { index: 1, ftitle: 'MopGQtv8fBJU4Pbad7vD', url: "./../../../static/zones/luciana-bernadotti.png", title: 'Luciana Bernadotti', value: 0, percentage: 0, stats: { satisfaction: null }  },
+					2: { index: 2, ftitle: 'Ngw5aiu8JFFKlHMDeZVd', url: "./../../../static/zones/cristina-marigomez.png", title: 'Cristina Marigomez', value: 0, percentage: 0, stats: { satisfaction: null }  },
+          3: { index: 3, ftitle: 'cRc6N1NsFEXInsBtkB9w', url: "./../../../static/zones/dardo-ricci.png", title: 'Dardo Ricci', value: 0, percentage: 0, stats: { satisfaction: null }  },
+          4: { index: 4, ftitle: 'mTMi65jxCFXXglPMEARV', url: "./../../../static/zones/diego-longo.png", title: 'Diego Longo', value: 0, percentage: 0, stats: { satisfaction: null }  },
+					5: { index: 5, ftitle: 'wk77ITDgnPYUjZ28MxJK', url: "./../../../static/zones/florencia-casa.png", title: 'Florencia Casa', value: 0, percentage: 0, stats: { satisfaction: null }  },
+					6: { index: 6, ftitle: '9O2CXPk2PFzaNV2JBpRL', url: "./../../../static/zones/eduardo-cesio.png", title: 'Eduardo Cesio', value: 0, percentage: 0, stats: { satisfaction: null }  },
 				},
       }
-    },
+		},
     watch: {
       data() {
         if (this.$props.data) {
+					let index
           for (let zone in this.zones) {
-						if (typeof(this.$props.data.zones[zone][0]) === "object") {
-							this.title = "quej."
-							this.titleTwo = " com."
-							this.zones[zone].value = this.$props.data.zones[zone][1][0]
-							this.zones[zone].stats.satisfaction = this.$props.data.zones[zone][2][0]
-						} else {
-							this.zones[zone].value = this.$props.data.zones[zone][0]
-							this.zones[zone].percentage = this.$props.data.zones[zone][1]
-							this.zones[zone].stats = this.$props.data.zones[zone][2]
+						try {
+							if (typeof(this.$props.data.zones[zone][0]) === "object") {
+								this.title = "quej."
+								this.titleTwo = " com."
+								this.zones[zone].value = this.$props.data.zones[zone][1][0]
+								this.zones[zone].stats.satisfaction = this.$props.data.zones[zone][2][0]
+							} else {
+								index = this.zones[zone].index
+								this.zones[zone].value = this.$props.data[index][0]
+								this.zones[zone].percentage = this.$props.data[index][1]
+								this.zones[zone].stats = this.$props.data[index][2]
+							}
+						} catch(e) {
+							index = this.zones[zone].index
+							this.zones[zone].value = this.$props.data[index][0]
+							this.zones[zone].percentage = this.$props.data[index][1]
+							this.zones[zone].stats = this.$props.data[index][2]							
 						}
-          }
+					}
         }
 			},
       loader2 () {
 				const l = this.loader2
 				this[l] = !this[l]
 			},
-		},
-  async created() {
-    let assessment = null
-    let i = 0
-
-    let zones = this.$firebase.firestore().collection("zones").where('business', '==', this.userStorage.business)
-    zones.get().then(querySnapshot => {
-      this.zones2 = []
-      querySnapshot.forEach(doc => {
-        let zone = doc.data()
-        zone.id = doc.id
-        this.zones2.unshift(zone)
-      })
-    })
-
-    this.$firebase.firestore().collection('locals').where('business', '==', this.userStorage.business)
-      .get().then(async querySnapshot => {
-        this.locals = []
-        await querySnapshot.forEach(doc => {
-          let local = doc.data()
-          local.id = doc.id
-          local.assessments = []
-          this.locals.unshift(local)
-        })
-
-        if (!this.locals.length) this.locals = false
-      })
 		},
     methods: {
 			async printGeneralReport(data) {
@@ -198,135 +185,135 @@
 					return await html2canvas(document.getElementById(ID), {scale: 1})
 				}
 
-      const zoneFacesData2 = document.getElementById('zoneFaces')
+				const zoneFacesData2 = document.getElementById('zoneFaces')
 
-      zoneFacesData2.style.display = "grid"
+				zoneFacesData2.style.display = "grid"
 
-      zoneFacesData2.childNodes[0].children[1].children[0].innerHTML = `${this.currentZone.stats.veryGood[1]}%`
-      zoneFacesData2.childNodes[0].children[1].children[1].innerHTML = `${this.currentZone.stats.veryGood[0]} resp.`
+				zoneFacesData2.childNodes[0].children[1].children[0].innerHTML = `${this.currentZone.stats.veryGood[1]}%`
+				zoneFacesData2.childNodes[0].children[1].children[1].innerHTML = `${this.currentZone.stats.veryGood[0]} resp.`
 
-      zoneFacesData2.childNodes[1].children[1].children[0].innerHTML = `${this.currentZone.stats.good[1]}%`
-      zoneFacesData2.childNodes[1].children[1].children[1].innerHTML = `${this.currentZone.stats.good[0]} resp.`
-      
-      zoneFacesData2.childNodes[2].children[1].children[0].innerHTML = `${this.currentZone.stats.bad[1]}%`
-      zoneFacesData2.childNodes[2].children[1].children[1].innerHTML = `${this.currentZone.stats.bad[0]} resp.`
-
-      zoneFacesData2.childNodes[3].children[1].children[0].innerHTML = `${this.currentZone.stats.veryBad[1]}%`
-      zoneFacesData2.childNodes[3].children[1].children[1].innerHTML = `${this.currentZone.stats.veryBad[0]} resp.`
-
-      const zoneFaces = await getCanvas('zoneFaces')
-      pdf.addImage(zoneFaces.toDataURL('image/png'), 'PNG', 11, 35, 195, 30)
-
-      const zonesIndSatisfaction = document.getElementById('satisfactionIndZones')
-
-    	zonesIndSatisfaction.style.display = "block"
-     	zonesIndSatisfaction.childNodes[0].children[0].children[0].children[0].children[0].children[0].children[0].innerHTML = `Satisfacción del Cliente ${this.currentZone.stats.satisfaction}%`
-
-      const satisfactionInd = await getCanvas('satisfactionIndZones')
-      pdf.addImage(satisfactionInd.toDataURL('image/png'), 'PNG', 10, 70, 190, 30)
-
-      const zonesIndicators = document.getElementById('indicatorsZones')
-
-      zonesIndicators.style.display = "flex"
-
-      zonesIndicators.childNodes[0].children[0].children[0].children[0]
-      .children[0].children[0].children[0].children[0].innerHTML = `Quejas ${this.currentZone.stats.indicatorsGlobal.complain[1]}% - Total ${this.currentZone.stats.indicatorsGlobal.complain[0]}`
-
-      zonesIndicators.childNodes[1].children[0].children[0].children[0]
-      .children[0].children[0].children[0].children[0].innerHTML = `Com. Positivos ${this.currentZone.stats.indicatorsGlobal.comment[1]}% - Total ${this.currentZone.stats.indicatorsGlobal.comment[0]}`
-
-      document.getElementById('indicatorsZones').style.display = "flex"
-      
-      const indicators = await getCanvas('indicatorsZones')
-      pdf.addImage(indicators.toDataURL('image/png'), 'PNG', 10, 95, 190, 30)
-      pdf.text('Gráficos de Valoraciones por Tiempo', 49, 130)
-
-      const chartHourZone = document.getElementById('chartHourZones')
-      chartHourZone.style.display = "block"
-      
-      const hour = await getCanvas('chartHourZones')
-      pdf.addImage(hour.toDataURL('image/png'), 'PNG', 10, 145, 190, 120)
-      pdf.addPage('a4', 'portrait')
-
-      const weekChartZone = document.getElementById('weekChartZones')
-      weekChartZone.style.display = "block"
-      
-      const weekChartPDF = await getCanvas('weekChartZones')
-      pdf.addImage(weekChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
-
-      const dayChartZone = document.getElementById('dayChartZones')
-      dayChartZone.style.display = "block"
-
-      const dayChartPDF = await getCanvas('dayChartZones')
-      pdf.addImage(dayChartPDF.toDataURL('image/png'), 'PNG', 10, 150, 190, 120)
-      pdf.addPage('a4', 'portrait')
-
-      const monthChartZone = document.getElementById('monthChartZones')
-      monthChartZone.style.display = "block"
-
-      const monthChartPDF = await getCanvas('monthChartZones')
-      pdf.addImage(monthChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
-
-				// const serviceFaces = await getCanvas('serviceFaces')
-				// console.log(document.getElementById('serviceFaces'))
-				// pdf.addImage(serviceFaces.toDataURL('image/png'), 'PNG', 10, 35, 195, 30)
-
-				// const satisfactionInd = await getCanvas('satisfactionInd')
-				// pdf.addImage(satisfactionInd.toDataURL('image/png'), 'PNG', 10, 70, 190, 30)
-
-				// const indicators = await getCanvas('indicators')
-				// pdf.addImage(indicators.toDataURL('image/png'), 'PNG', 10, 95, 190, 50)
-				// pdf.text('Gráficos de Valoraciones por Tiempo', 49, 160)
+				zoneFacesData2.childNodes[1].children[1].children[0].innerHTML = `${this.currentZone.stats.good[1]}%`
+				zoneFacesData2.childNodes[1].children[1].children[1].innerHTML = `${this.currentZone.stats.good[0]} resp.`
 				
-				// const hour = await getCanvas('hour')
-				// pdf.addImage(hour.toDataURL('image/png'), 'PNG', 10, 165, 190, 120)
-				// pdf.addPage('a4', 'portrait')
+				zoneFacesData2.childNodes[2].children[1].children[0].innerHTML = `${this.currentZone.stats.bad[1]}%`
+				zoneFacesData2.childNodes[2].children[1].children[1].innerHTML = `${this.currentZone.stats.bad[0]} resp.`
+
+				zoneFacesData2.childNodes[3].children[1].children[0].innerHTML = `${this.currentZone.stats.veryBad[1]}%`
+				zoneFacesData2.childNodes[3].children[1].children[1].innerHTML = `${this.currentZone.stats.veryBad[0]} resp.`
+
+				const zoneFaces = await getCanvas('zoneFaces')
+				pdf.addImage(zoneFaces.toDataURL('image/png'), 'PNG', 11, 35, 195, 30)
+
+				const zonesIndSatisfaction = document.getElementById('satisfactionIndZones')
+
+				zonesIndSatisfaction.style.display = "block"
+				zonesIndSatisfaction.childNodes[0].children[0].children[0].children[0].children[0].children[0].children[0].innerHTML = `Satisfacción del Cliente ${this.currentZone.stats.satisfaction}%`
+
+				const satisfactionInd = await getCanvas('satisfactionIndZones')
+				pdf.addImage(satisfactionInd.toDataURL('image/png'), 'PNG', 10, 70, 190, 30)
+
+				const zonesIndicators = document.getElementById('indicatorsZones')
+
+				zonesIndicators.style.display = "flex"
+
+				zonesIndicators.childNodes[0].children[0].children[0].children[0]
+				.children[0].children[0].children[0].children[0].innerHTML = `Quejas ${this.currentZone.stats.indicatorsGlobal.complain[1]}% - Total ${this.currentZone.stats.indicatorsGlobal.complain[0]}`
+
+				zonesIndicators.childNodes[1].children[0].children[0].children[0]
+				.children[0].children[0].children[0].children[0].innerHTML = `Com. Positivos ${this.currentZone.stats.indicatorsGlobal.comment[1]}% - Total ${this.currentZone.stats.indicatorsGlobal.comment[0]}`
+
+				document.getElementById('indicatorsZones').style.display = "flex"
 				
-				// const weekChartPDF = await getCanvas('weekChart')
-				// pdf.addImage(weekChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+				const indicators = await getCanvas('indicatorsZones')
+				pdf.addImage(indicators.toDataURL('image/png'), 'PNG', 10, 95, 190, 30)
+				pdf.text('Gráficos de Valoraciones por Tiempo', 49, 130)
 
-				// const dayChartPDF = await getCanvas('dayChart')
-				// pdf.addImage(dayChartPDF.toDataURL('image/png'), 'PNG', 10, 150, 190, 120)
-				// pdf.addPage('a4', 'portrait')
-
-				// const monthChartPDF = await getCanvas('monthChart')
-				// pdf.addImage(monthChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
-				// pdf.text('Resultados por Categoría', 65, 155)
-
-				// const services = await getCanvas('services')
-				// pdf.addImage(services.toDataURL('image/png'), 'PNG', 10, 165, 220, 50)
+				const chartHourZone = document.getElementById('chartHourZones')
+				chartHourZone.style.display = "block"
 				
-				// const reasons = await getCanvas('reasons')
-				// pdf.addImage(reasons.toDataURL('image/png'), 'PNG', 10, 210, 220, 50)
-				// pdf.addPage('a4', 'portrait')
+				const hour = await getCanvas('chartHourZones')
+				pdf.addImage(hour.toDataURL('image/png'), 'PNG', 10, 145, 190, 120)
+				pdf.addPage('a4', 'portrait')
+
+				const weekChartZone = document.getElementById('weekChartZones')
+				weekChartZone.style.display = "block"
 				
-				// const zones = await getCanvas('zones')
-				// pdf.addImage(zones.toDataURL('image/png'), 'PNG', 10, 20, 200, 80)
-				// pdf.text('Puntos Débiles y Fuertes', 65, 115)
-				
-				// const strongPoints = await getCanvas('strongPoints')
-				// pdf.addImage(strongPoints.toDataURL('image/png'), 'PNG', 10, 125, 190, 120)
+				const weekChartPDF = await getCanvas('weekChartZones')
+				pdf.addImage(weekChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
 
-				// const weakPoints = await getCanvas('weakPoints')
-				// pdf.addPage('a4', 'portrait')
-				// pdf.addImage(weakPoints.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
-				// pdf.text('Gráficos de Valoraciones por Locales', 50, 150)
+				const dayChartZone = document.getElementById('dayChartZones')
+				dayChartZone.style.display = "block"
 
-				// const topLocals = await getCanvas('topLocals')
-				// pdf.addImage(topLocals.toDataURL('image/png'), 'PNG', 10, 160, 190, 120)
-				// pdf.addPage('a4', 'portrait')
+				const dayChartPDF = await getCanvas('dayChartZones')
+				pdf.addImage(dayChartPDF.toDataURL('image/png'), 'PNG', 10, 150, 190, 120)
+				pdf.addPage('a4', 'portrait')
 
-				// const badLocals = await getCanvas('badLocals')
-				// pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
-				pdf.save(FILENAME)
-				zoneFacesData2.style.display = "none"
-				zonesIndSatisfaction.style.display = "none"
-				chartHourZone.style.display = "none"
-				weekChartZone.style.display = "none"
-				dayChartZone.style.display = "none"
-				monthChartZone.style.display = "none"
-				this.loading2 = false
-				this.loader2 = null
+				const monthChartZone = document.getElementById('monthChartZones')
+				monthChartZone.style.display = "block"
+
+				const monthChartPDF = await getCanvas('monthChartZones')
+				pdf.addImage(monthChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+
+					// const serviceFaces = await getCanvas('serviceFaces')
+					// console.log(document.getElementById('serviceFaces'))
+					// pdf.addImage(serviceFaces.toDataURL('image/png'), 'PNG', 10, 35, 195, 30)
+
+					// const satisfactionInd = await getCanvas('satisfactionInd')
+					// pdf.addImage(satisfactionInd.toDataURL('image/png'), 'PNG', 10, 70, 190, 30)
+
+					// const indicators = await getCanvas('indicators')
+					// pdf.addImage(indicators.toDataURL('image/png'), 'PNG', 10, 95, 190, 50)
+					// pdf.text('Gráficos de Valoraciones por Tiempo', 49, 160)
+					
+					// const hour = await getCanvas('hour')
+					// pdf.addImage(hour.toDataURL('image/png'), 'PNG', 10, 165, 190, 120)
+					// pdf.addPage('a4', 'portrait')
+					
+					// const weekChartPDF = await getCanvas('weekChart')
+					// pdf.addImage(weekChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+
+					// const dayChartPDF = await getCanvas('dayChart')
+					// pdf.addImage(dayChartPDF.toDataURL('image/png'), 'PNG', 10, 150, 190, 120)
+					// pdf.addPage('a4', 'portrait')
+
+					// const monthChartPDF = await getCanvas('monthChart')
+					// pdf.addImage(monthChartPDF.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+					// pdf.text('Resultados por Categoría', 65, 155)
+
+					// const services = await getCanvas('services')
+					// pdf.addImage(services.toDataURL('image/png'), 'PNG', 10, 165, 220, 50)
+					
+					// const reasons = await getCanvas('reasons')
+					// pdf.addImage(reasons.toDataURL('image/png'), 'PNG', 10, 210, 220, 50)
+					// pdf.addPage('a4', 'portrait')
+					
+					// const zones = await getCanvas('zones')
+					// pdf.addImage(zones.toDataURL('image/png'), 'PNG', 10, 20, 200, 80)
+					// pdf.text('Puntos Débiles y Fuertes', 65, 115)
+					
+					// const strongPoints = await getCanvas('strongPoints')
+					// pdf.addImage(strongPoints.toDataURL('image/png'), 'PNG', 10, 125, 190, 120)
+
+					// const weakPoints = await getCanvas('weakPoints')
+					// pdf.addPage('a4', 'portrait')
+					// pdf.addImage(weakPoints.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+					// pdf.text('Gráficos de Valoraciones por Locales', 50, 150)
+
+					// const topLocals = await getCanvas('topLocals')
+					// pdf.addImage(topLocals.toDataURL('image/png'), 'PNG', 10, 160, 190, 120)
+					// pdf.addPage('a4', 'portrait')
+
+					// const badLocals = await getCanvas('badLocals')
+					// pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+					pdf.save(FILENAME)
+					zoneFacesData2.style.display = "none"
+					zonesIndSatisfaction.style.display = "none"
+					chartHourZone.style.display = "none"
+					weekChartZone.style.display = "none"
+					dayChartZone.style.display = "none"
+					monthChartZone.style.display = "none"
+					this.loading2 = false
+					this.loader2 = null
 			},
 			downloadXLSX(data) {
 				this.loader2 = 'loading3'
@@ -400,22 +387,24 @@
         this.chartDayGlobal = []
         this.chartMonthGlobal = []
       },
-			dynamicDialog(data) {
+			async dynamicDialog(data) {
 				if (this.title == "quej.") return false
-        data.stats.indicatorsGlobal = { satisfaction: null, complain: [null, null], comment: [null, null] }
-        this.currentZone = data
-        this.dynamicDialogAct = !this.dynamicDialogAct
-        this.getIndicatorsGlobal(data)
-        this.getChartGlobalDatesHour(data)
-        this.getChartGlobalDatesDayW(data)
-        this.getChartGlobalDatesDay(data)
+				this.statsFacesZone = (await this.$axios.post('zones/stats/faces/value-prc', { zone:  data.ftitle })).data
+				
+				this.dynamicDialogAct = !this.dynamicDialogAct
+				data.stats.indicatorsGlobal = { 
+					faces: this.statsFacesReason,
+					satisfaction: null,
+					complain: [null, null],
+					comment: [null, null]
+				}
+				this.currentZone = data
+				// console.log(this.currentService.stats)
+				this.getIndicatorsGlobal(data)
+				this.getChartGlobalDatesHour(data)
+				this.getChartGlobalDatesDayW(data)
+				this.getChartGlobalDatesDay(data)
 				this.getChartGlobalDatesMonth(data)
-				this.$bus.$emit('updateDataZone', [
-					this.chartHourGlobal,
-					this.chartDayWGlobal, 
-					this.chartDayGlobal,
-					this.chartMonthGlobal
-				])
       },
    		converTime(date) {
 				function pad(s) { return (s < 10) ? '0' + s : s }
@@ -426,114 +415,56 @@
 				var d = new Date(date)
 				return d.getMonth()
       },
-			getChartGlobalDatesHour(data) {
-				let timesVeryGood = new Array(24).fill(0)
-				let timesGood = new Array(24).fill(0)
-				let timesBad = new Array(24).fill(0)
-        let timesVeryBad = new Array(24).fill(0)
+			async getChartGlobalDatesHour(data) {
+				const hoursStats = (await this.$axios.post('/zones/stats/hour', { zone:  data.ftitle })).data
 
-				for(let assessment of data.stats.assessments) {
-					let currentTime = this.converTime(assessment.date)
-					switch(assessment.face) {
-						case 'veryGood':
-							timesVeryGood[currentTime]++
-						break
-						case 'good':
-							timesGood[currentTime]++
-						break
-						case 'bad':
-							timesBad[currentTime]++
-						break
-						case 'veryBad':
-							timesVeryBad[currentTime]++
-						break
-					}
-				}
+				this.chartHourGlobal = []
 
-				for (let i = 8; i < 23; i++) {
-					let total = timesVeryGood[i] + timesGood[i] + timesBad[i] + timesVeryBad[i]
+				for (let i = 8; i < hoursStats.length; i++) {
 					this.chartHourGlobal.push({
 						title: i + " hs",
-						total,
-						veryGood: this.getPercentage(timesVeryGood[i], total),
-						good: this.getPercentage(timesGood[i], total),
-						bad: this.getPercentage(timesBad[i], total),
-						veryBad: this.getPercentage(timesVeryBad[i], total)
+						total: hoursStats[i].total,
+						veryGood: this.getPercentage(hoursStats[i].veryGood, hoursStats[i].total),
+						good: this.getPercentage(hoursStats[i].good, hoursStats[i].total),
+						bad: this.getPercentage(hoursStats[i].bad, hoursStats[i].total),
+						veryBad: this.getPercentage(hoursStats[i].veryBad, hoursStats[i].total)
 					})
-        }
+				}
+
+				this.chartHourGlobalZone = this.chartHourGlobal
       },
-			getChartGlobalDatesDayW(data) {
-				let daysWVeryGood = new Array(7).fill(0)
-				let daysWGood = new Array(7).fill(0)
-				let daysWBad = new Array(7).fill(0)
-				let daysWVeryBad = new Array(7).fill(0)
+			async getChartGlobalDatesDayW(data) {
+				const dayWStats = (await this.$axios.post('/zones/stats/dayW', { zone:  data.ftitle })).data
 				const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 
-				for(let assessment of data.stats.assessments) {
-					let currentDay = this.getDayOfWeek(assessment.date)
-					switch(assessment.face) {
-						case 'veryGood':
-							daysWVeryGood[currentDay]++
-						break
-						case 'good':
-							daysWGood[currentDay]++
-						break
-						case 'bad':
-							daysWBad[currentDay]++
-						break
-						case 'veryBad':
-							daysWVeryBad[currentDay]++
-						break						
-					}
-				}
+				this.chartDayWGlobal = []
 
-				for (let i = 0; i < 7; i++) {
-					let total = daysWVeryGood[i] + daysWGood[i] + daysWBad[i] + daysWVeryBad[i]
+				for (let i = 0; i < dayWStats.length; i++) {
 					this.chartDayWGlobal.push({
 						title: CATEGORIES[i],
-						total,
-						veryGood: this.getPercentage(daysWVeryGood[i], total),
-						good: this.getPercentage(daysWGood[i], total),
-						bad: this.getPercentage(daysWBad[i], total),
-						veryBad: this.getPercentage(daysWVeryBad[i], total)
+						total: dayWStats[i].total,
+						veryGood: this.getPercentage(dayWStats[i].veryGood, dayWStats[i].total),
+						good: this.getPercentage(dayWStats[i].good, dayWStats[i].total),
+						bad: this.getPercentage(dayWStats[i].bad, dayWStats[i].total),
+						veryBad: this.getPercentage(dayWStats[i].veryBad, dayWStats[i].total)
 					})
 				}
       },
-			getChartGlobalDatesMonth(data) {
-				let monthsVeryGood = new Array(12).fill(0)
-				let monthsGood = new Array(12).fill(0)
-				let monthsBad = new Array(12).fill(0)
-				let monthsVeryBad = new Array(12).fill(0)
+			async getChartGlobalDatesMonth(data) {
+				const monthStats = (await this.$axios.post('/zones/stats/month', { zone:  data.ftitle })).data
 				const CATEGORIES = ['Ene', 'Feb', 'Mar', 'Abr', 'May',
 							'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec']
 
-				for(let assessment of data.stats.assessments) {
-					let currentMonth = this.getMonth(assessment.date)
-					switch(assessment.face) {
-						case 'veryGood':
-							monthsVeryGood[currentMonth]++
-						break
-						case 'good':
-							monthsGood[currentMonth]++
-						break
-						case 'bad':
-							monthsBad[currentMonth]++
-						break
-						case 'veryBad':
-							monthsVeryBad[currentMonth]++
-						break						
-					}
-				}
+				this.chartMonthGlobal = []
 
-				for (let i = 0; i < 12; i++) {
-					let total = monthsVeryGood[i] + monthsGood[i] + monthsBad[i] + monthsVeryBad[i]
+				for (let i = 0; i < monthStats.length; i++) {
 					this.chartMonthGlobal.push({
 						title: CATEGORIES[i],
-						total,
-						veryGood: this.getPercentage(monthsVeryGood[i], total),
-						good: this.getPercentage(monthsGood[i], total),
-						bad: this.getPercentage(monthsBad[i], total),
-						veryBad: this.getPercentage(monthsVeryBad[i], total)
+						total: monthStats[i].total,
+						veryGood: this.getPercentage(monthStats[i].veryGood, monthStats[i].total),
+						good: this.getPercentage(monthStats[i].good, monthStats[i].total),
+						bad: this.getPercentage(monthStats[i].bad, monthStats[i].total),
+						veryBad: this.getPercentage(monthStats[i].veryBad, monthStats[i].total)
 					})
 				}
 			},
@@ -545,23 +476,14 @@
 				let result = parseFloat(((part * 100) / universe).toFixed(2))
 				return isNaN(result) ? 0 : result
 			},
-			getIndicatorsGlobal(data) {
+			async getIndicatorsGlobal(data) {
 				const PRC_GOOD_R = 0.25, PRC_BAD_R = 0.50, PRC_VERY_BAD_R = 1
 				
         const total = data.value
-				
-        let complains = 0, comments = 0, services = 0, reasons = 0
 
-				for (let assessment of data.stats.assessments) {
-					assessment.complain ? complains++ : complains
-					assessment.comment ? comments++ : comments
-					assessment.flow.justification ? services++ : services
-					assessment.flow.justificationTwo ? reasons++ : reasons
-				}
-
-				const partialGood = data.stats.good[0] * PRC_GOOD_R
-				const partialBad = data.stats.bad[0] * PRC_BAD_R
-				const partialVeryBad = data.stats.veryBad[0] * PRC_VERY_BAD_R
+				const partialGood = data.stats.good.value * PRC_GOOD_R
+				const partialBad = data.stats.bad.value * PRC_BAD_R
+				const partialVeryBad = data.stats.veryBad.value * PRC_VERY_BAD_R
 				
 				const partials = partialGood + partialBad + partialVeryBad
 				if (!partials) this.currentZone.stats.indicatorsGlobal.satisfaction = 100
@@ -570,42 +492,28 @@
 					else this.currentZone.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
 				}
 				
-				this.currentZone.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
-				this.currentZone.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
+				const complains = (await this.$axios.post('/zones/stats/complain', { zone: data.ftitle })).data[0]
+				const comments = (await this.$axios.post('/zones/stats/comment', { zone: data.ftitle })).data[0]
+
+				this.currentZone.stats.indicatorsGlobal.complain = [complains.value, complains.percentage]
+				this.currentZone.stats.indicatorsGlobal.comment = [comments.value, comments.percentage]
+				
+				this.dynamicDialogAct = false
+				this.dynamicDialogAct = true
       },
-			getChartGlobalDatesDay(data) {
-				let daysVeryGood = new Array(31).fill(0)
-				let daysGood = new Array(31).fill(0)
-				let daysBad = new Array(31).fill(0)
-				let daysVeryBad = new Array(31).fill(0)
+			async getChartGlobalDatesDay(data) {
+				const dayStats = (await this.$axios.post('/zones/stats/day', { zone:  data.ftitle })).data
 
-				for(let assessment of data.stats.assessments) {
-					let currentDay = new Date(assessment.date).getDate()
-					switch(assessment.face) {
-						case 'veryGood':
-							daysVeryGood[currentDay]++
-						break
-						case 'good':
-							daysGood[currentDay]++
-						break
-						case 'bad':
-							daysBad[currentDay]++
-						break
-						case 'veryBad':
-							daysVeryBad[currentDay]++
-						break						
-					}
-				}
+				this.chartDayGlobal = []
 
-				for (let i = 1; i < 32; i++) {
-					let total = daysVeryGood[i] + daysGood[i] + daysBad[i] + daysVeryBad[i]
+				for (let data of dayStats) {
 					this.chartDayGlobal.push({
-						title: "Día " + i,
-						total: isNaN(total) ? 0 : total,
-						veryGood: this.getPercentage(daysVeryGood[i], total),
-						good: this.getPercentage(daysGood[i], total),
-						bad: this.getPercentage(daysBad[i], total),
-						veryBad: this.getPercentage(daysVeryBad[i], total)
+						title: "Día " + data.day,
+						total: data.total,
+						veryGood: this.getPercentage(data.veryGood, data.total),
+						good: this.getPercentage(data.good, data.total),
+						bad: this.getPercentage(data.bad, data.total),
+						veryBad: this.getPercentage(data.veryBad, data.total)
 					})
 				}
 			},

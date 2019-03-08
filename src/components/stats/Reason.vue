@@ -16,7 +16,7 @@
             v-btn(dark flat @click="finalize") Regresar
         v-card-text
           v-flex(xs9 offset-xs2)
-            Face.pb-5(:data="currentReason.stats")
+            Face.pb-5(:data="statsFacesReason")
           v-flex(xs3 offset-xs10)
             v-tooltip(top)
               v-btn(
@@ -45,20 +45,23 @@
               v-card-media.white--text.primary(height="75px")
                 span.headline.ml-4.pt-3 Satisfacción de Cliente: {{ currentReason.stats.indicatorsGlobal.satisfaction }}%
               v-card-title
-                v-progress-linear(:value="currentReason.stats.indicatorsGlobal.satisfaction" height="20" color="info")
+                //v-progress-linear(:value="currentReason.stats.indicatorsGlobal.satisfaction" height="20" color="info")
+                span.display-1.headline % que representa el grado general de satisfacción del cliente.
           v-layout
             v-flex(xs6)
               v-card.my-1.mr-1(flat tile)
                 v-card-media.white--text.primary(height="75px")
                   span.indicatorsTwoTitle.ml-4.pt-3 Quejas: {{ currentReason.stats.indicatorsGlobal.complain[1] }}% - {{ currentReason.stats.indicatorsGlobal.complain[0] }} total
                 v-card-title
-                  v-progress-linear(:value="currentReason.stats.indicatorsGlobal.complain[1]" height="20" color="info")
+                  //v-progress-linear(:value="currentReason.stats.indicatorsGlobal.complain[1]" height="20" color="info")
+                  span.display-1.headline % del total de encuestados que dejaron una queja.
             v-flex(xs6)
               v-card.my-1.mr-1(flat tile)
                 v-card-media.white--text.primary(height="75px")
                   span.indicatorsTwoTitle.ml-4.pt-3 Com. Positivos: {{ currentReason.stats.indicatorsGlobal.comment[1] }}% - {{ currentReason.stats.indicatorsGlobal.comment[0] }} total
                 v-card-title
-                  v-progress-linear(:value="currentReason.stats.indicatorsGlobal.comment[1]" height="20" color="info")
+                  //v-progress-linear(:value="currentReason.stats.indicatorsGlobal.comment[1]" height="20" color="info")
+                  span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
           v-tabs(fixed centered)
             v-tabs-bar.primary(dark)
               v-tabs-slider.yellow
@@ -99,34 +102,37 @@
   props: ['data'],
   data () {
     return {
-    loader2: null,
-    loading3: false,
-    loading2: false,
-    locals: [],
-    zones: [],
-    userStorage: JSON.parse(localStorage.getItem('user')),
-    locals: [],
-    chartHourGlobal: [],
-    chartDayWGlobal: [],
-    chartDayGlobal: [],
-    chartMonthGlobal: [],
-    dynamicDialogAct: false,
-    currentReason: { stats: { indicatorsGlobal: { comment: [], complain: [] }}},
-        reasons: {
-          0: { url: "./../../../static/reasons/atencion-cajero.png", title: 'Atención del Cajero', value: 0, percentage: 0, stats: {} },
-          1: { url: "./../../../static/reasons/tiempo-espera.png", title: 'Tiempo de Espera', value: 0, percentage: 0, stats: {} },
-          2: { url: "./../../../static/reasons/estado-local.png", title: 'Estado del Local', value: 0, percentage: 0, stats: {} },
-          3: { url: "./../../../static/reasons/servicio-utilizado.png", title: 'Servicio Utilizado', value: 0, percentage: 0, stats: {} },
-        },
+      statsFacesReason: null,
+      loader2: null,
+      loading3: false,
+      loading2: false,
+      locals: [],
+      zones: [],
+      userStorage: JSON.parse(localStorage.getItem('user')),
+      locals: [],
+      chartHourGlobal: [],
+      chartDayWGlobal: [],
+      chartDayGlobal: [],
+      chartMonthGlobal: [],
+      dynamicDialogAct: false,
+      currentReason: { stats: { indicatorsGlobal: { comment: [], complain: [] }}},
+      reasons: {
+        0: { index: 0, ftitle: 'Atencion del Cajero', url: "./../../../static/reasons/atencion-cajero.png", title: 'Atención del Cajero', value: 0, percentage: 0, stats: {} },
+        1: { index: 1, ftitle: 'Tiempo de Espera', url: "./../../../static/reasons/tiempo-espera.png", title: 'Tiempo de Espera', value: 0, percentage: 0, stats: {} },
+        2: { index: 2, ftitle: 'Estado del Local', url: "./../../../static/reasons/estado-local.png", title: 'Estado del Local', value: 0, percentage: 0, stats: {} },
+        3: { index: 3, ftitle: 'Servicio Utilizado', url: "./../../../static/reasons/servicio-utilizado.png", title: 'Servicio Utilizado', value: 0, percentage: 0, stats: {} },
+      },
     }
   },
   watch: {
     data() {
       if (this.$props.data) {
+        let index
         for (let reason in this.reasons) {
-          this.reasons[reason].value = this.$props.data.reasons[reason][0]
-          this.reasons[reason].percentage = this.$props.data.reasons[reason][1]
-          this.reasons[reason].stats = this.$props.data.reasons[reason][2]
+          index = this.reasons[reason].index
+          this.reasons[reason].value = this.$props.data[index][0]
+          this.reasons[reason].percentage = this.$props.data[index][1]
+          this.reasons[reason].stats = this.$props.data[index][2]
         }
       }
     },
@@ -135,34 +141,6 @@
       this[l] = !this[l]
     },
   },
-  async created() {
-    let assessment = null
-    let i = 0
-
-    let zones = this.$firebase.firestore().collection("zones").where('business', '==', this.userStorage.business)
-    zones.get().then(querySnapshot => {
-      this.zones = []
-      querySnapshot.forEach(doc => {
-        let zone = doc.data()
-        zone.id = doc.id
-        this.zones.unshift(zone)
-      })
-    })
-
-    this.$firebase.firestore().collection('locals').where('business', '==', this.userStorage.business)
-      .get().then(async querySnapshot => {
-        this.locals = []
-        await querySnapshot.forEach(doc => {
-          let local = doc.data()
-          local.id = doc.id
-          local.assessments = []
-          this.locals.unshift(local)
-        })
-
-
-        if (!this.locals.length) this.locals = false
-      })
-		},
   methods: {
     async printGeneralReport(data) {
       this.loader2 = 'loading2'
@@ -391,131 +369,64 @@
       }
     },
     finalize() {
-    this.dynamicDialogAct = false
-    this.chartHourGlobal = []
-    this.chartDayWGlobal = []
-    this.chartDayGlobal = []
-    this.chartMonthGlobal = []
+      this.dynamicDialogAct = false
+      this.chartHourGlobal = []
+      this.chartDayWGlobal = []
+      this.chartDayGlobal = []
+      this.chartMonthGlobal = []
     },
-    converTime(date) {
-        function pad(s) { return (s < 10) ? '0' + s : s }
-        var d = new Date(date)
-        return d.getHours()
+    async getChartGlobalDatesHour(data) {
+      const hoursStats = (await this.$axios.post('/reasons/stats/hour', { reason:  data.ftitle })).data
+
+      this.chartHourGlobal = []
+
+      for (let i = 8; i < hoursStats.length; i++) {
+        this.chartHourGlobal.push({
+          title: i + " hs",
+          total: hoursStats[i].total,
+          veryGood: this.getPercentage(hoursStats[i].veryGood, hoursStats[i].total),
+          good: this.getPercentage(hoursStats[i].good, hoursStats[i].total),
+          bad: this.getPercentage(hoursStats[i].bad, hoursStats[i].total),
+          veryBad: this.getPercentage(hoursStats[i].veryBad, hoursStats[i].total)
+        })
+      }
+
+      this.chartHourGlobalReason = this.chartHourGlobal
     },
-    getMonth(date) {
-        var d = new Date(date)
-        return d.getMonth()
-      },
-      getChartGlobalDatesHour(data) {
-        let timesVeryGood = new Array(24).fill(0)
-        let timesGood = new Array(24).fill(0)
-        let timesBad = new Array(24).fill(0)
-    let timesVeryBad = new Array(24).fill(0)
+    async getChartGlobalDatesDayW(data) {
+				const dayWStats = (await this.$axios.post('/reasons/stats/dayW', { reason:  data.ftitle })).data
+				const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 
-        for(let assessment of data.stats.assessments) {
-          let currentTime = this.converTime(assessment.date)
-          switch(assessment.face) {
-            case 'veryGood':
-              timesVeryGood[currentTime]++
-            break
-            case 'good':
-              timesGood[currentTime]++
-            break
-            case 'bad':
-              timesBad[currentTime]++
-            break
-            case 'veryBad':
-              timesVeryBad[currentTime]++
-            break						
-          }
-        }
+				this.chartDayWGlobal = []
 
-        for (let i = 8; i < 23; i++) {
-          let total = timesVeryGood[i] + timesGood[i] + timesBad[i] + timesVeryBad[i]
-          this.chartHourGlobal.push({
-            title: i + " hs",
-            total,
-            veryGood: this.getPercentage(timesVeryGood[i], total),
-            good: this.getPercentage(timesGood[i], total),
-            bad: this.getPercentage(timesBad[i], total),
-            veryBad: this.getPercentage(timesVeryBad[i], total)
-          })
-    }
+				for (let i = 0; i < 7; i++) {
+					this.chartDayWGlobal.push({
+						title: CATEGORIES[i],
+						total: dayWStats[i].total,
+						veryGood: this.getPercentage(dayWStats[i].veryGood, dayWStats[i].total),
+						good: this.getPercentage(dayWStats[i].good, dayWStats[i].total),
+						bad: this.getPercentage(dayWStats[i].bad, dayWStats[i].total),
+						veryBad: this.getPercentage(dayWStats[i].veryBad, dayWStats[i].total)
+					})
+				}
     },
-      getChartGlobalDatesDayW(data) {
-        let daysWVeryGood = new Array(7).fill(0)
-        let daysWGood = new Array(7).fill(0)
-        let daysWBad = new Array(7).fill(0)
-        let daysWVeryBad = new Array(7).fill(0)
-        const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
+    async getChartGlobalDatesMonth(data) {
+				const monthStats = (await this.$axios.post('/reasons/stats/month', { reason:  data.ftitle })).data
+				const CATEGORIES = ['Ene', 'Feb', 'Mar', 'Abr', 'May',
+							'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec']
 
-        for(let assessment of data.stats.assessments) {
-          let currentDay = this.getDayOfWeek(assessment.date)
-          switch(assessment.face) {
-            case 'veryGood':
-              daysWVeryGood[currentDay]++
-            break
-            case 'good':
-              daysWGood[currentDay]++
-            break
-            case 'bad':
-              daysWBad[currentDay]++
-            break
-            case 'veryBad':
-              daysWVeryBad[currentDay]++
-            break						
-          }
-        }
+				this.chartMonthGlobal = []
 
-        for (let i = 0; i < 7; i++) {
-          let total = daysWVeryGood[i] + daysWGood[i] + daysWBad[i] + daysWVeryBad[i]
-          this.chartDayWGlobal.push({
-            title: CATEGORIES[i],
-            total,
-            veryGood: this.getPercentage(daysWVeryGood[i], total),
-            good: this.getPercentage(daysWGood[i], total),
-            bad: this.getPercentage(daysWBad[i], total),
-            veryBad: this.getPercentage(daysWVeryBad[i], total)
-          })
-        }
-    },
-      getChartGlobalDatesMonth(data) {
-        let monthsVeryGood = new Array(12).fill(0)
-        let monthsGood = new Array(12).fill(0)
-        let monthsBad = new Array(12).fill(0)
-        let monthsVeryBad = new Array(12).fill(0)
-        const CATEGORIES = ['Ene', 'Feb', 'Mar', 'Abr', 'May',
-              'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec']
-
-        for(let assessment of data.stats.assessments) {
-          let currentMonth = this.getMonth(assessment.date)
-          switch(assessment.face) {
-            case 'veryGood':
-              monthsVeryGood[currentMonth]++
-            break
-            case 'good':
-              monthsGood[currentMonth]++
-            break
-            case 'bad':
-              monthsBad[currentMonth]++
-            break
-            case 'veryBad':
-              monthsVeryBad[currentMonth]++
-            break						
-          }
-        }
-
-        for (let i = 0; i < 12; i++) {
-          let total = monthsVeryGood[i] + monthsGood[i] + monthsBad[i] + monthsVeryBad[i]
-          this.chartMonthGlobal.push({
-            title: CATEGORIES[i],
-            total,
-            veryGood: this.getPercentage(monthsVeryGood[i], total),
-            good: this.getPercentage(monthsGood[i], total),
-            bad: this.getPercentage(monthsBad[i], total),
-            veryBad: this.getPercentage(monthsVeryBad[i], total)
-          })
-        }
+				for (let i = 0; i < monthStats.length; i++) {
+					this.chartMonthGlobal.push({
+						title: CATEGORIES[i],
+						total: monthStats[i].total,
+						veryGood: this.getPercentage(monthStats[i].veryGood, monthStats[i].total),
+						good: this.getPercentage(monthStats[i].good, monthStats[i].total),
+						bad: this.getPercentage(monthStats[i].bad, monthStats[i].total),
+						veryBad: this.getPercentage(monthStats[i].veryBad, monthStats[i].total)
+					})
+				}
       },
       getDayOfWeek(date) {
         var d = new Date(date)
@@ -525,82 +436,62 @@
         let result = parseFloat(((part * 100) / universe).toFixed(2))
         return isNaN(result) ? 0 : result
       },
-      dynamicDialog(data) {
-        data.stats.indicatorsGlobal = { satisfaction: null, complain: [null, null], comment: [null, null] }
-        this.currentReason = data
-        this.dynamicDialogAct = !this.dynamicDialogAct
-        this.getIndicatorsGlobal(data)
-        this.getChartGlobalDatesHour(data)
-        this.getChartGlobalDatesDayW(data)
-        this.getChartGlobalDatesDay(data)
-        this.getChartGlobalDatesMonth(data)
-				this.$bus.$emit('updateDataReason', [
-					this.chartHourGlobal,
-					this.chartDayWGlobal, 
-					this.chartDayGlobal,
-					this.chartMonthGlobal
-				])
+      async dynamicDialog(data) {
+				this.statsFacesReason = (await this.$axios.post('reasons/stats/faces/value-prc', { reason:  data.ftitle })).data
+				
+				this.dynamicDialogAct = !this.dynamicDialogAct
+				data.stats.indicatorsGlobal = { 
+					faces: this.statsFacesReason,
+					satisfaction: null,
+					complain: [null, null],
+					comment: [null, null]
+				}
+				this.currentReason = data
+				// console.log(this.currentService.stats)
+				this.getIndicatorsGlobal(data)
+				this.getChartGlobalDatesHour(data)
+				this.getChartGlobalDatesDayW(data)
+				this.getChartGlobalDatesDay(data)
+				this.getChartGlobalDatesMonth(data)
       },
-      getIndicatorsGlobal(data) {
-        const PRC_GOOD_R = 0.25, PRC_BAD_R = 0.50, PRC_VERY_BAD_R = 1
-        const total = data.value
-            
-        let complains = 0, comments = 0, services = 0, reasons = 0
+      async getIndicatorsGlobal(data) {
+				const PRC_GOOD_R = 0.25, PRC_BAD_R = 0.50, PRC_VERY_BAD_R = 1
+				
+				const total = data.value
 
-            for (let assessment of data.stats.assessments) {
-              assessment.complain ? complains++ : complains
-              assessment.comment ? comments++ : comments
-              assessment.flow.justification ? services++ : services
-              assessment.flow.justificationTwo ? reasons++ : reasons
-            }
+				const partialGood = data.stats.good.value * PRC_GOOD_R
+				const partialBad = data.stats.bad.value * PRC_BAD_R
+				const partialVeryBad = data.stats.veryBad.value * PRC_VERY_BAD_R
+				
+				const partials = partialGood + partialBad + partialVeryBad
 
-            const partialGood = data.stats.good[0] * PRC_GOOD_R
-            const partialBad = data.stats.bad[0] * PRC_BAD_R
-            const partialVeryBad = data.stats.veryBad[0] * PRC_VERY_BAD_R
-            
-            const partials = partialGood + partialBad + partialVeryBad
+				if (!this.getPercentage(partials, total)) this.currentReason.stats.indicatorsGlobal.satisfaction = 0
+				else this.currentReason.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
+				
+				const complains = (await this.$axios.post('/reasons/stats/complain', { reason: data.ftitle })).data[0]
+				const comments = (await this.$axios.post('/reasons/stats/comment', { reason: data.ftitle })).data[0]
 
-        if (!this.getPercentage(partials, total)) this.currentReason.stats.indicatorsGlobal.satisfaction = 0
-        else this.currentReason.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
-            
-            this.currentReason.stats.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
-            this.currentReason.stats.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
+				this.currentReason.stats.indicatorsGlobal.complain = [complains.value, complains.percentage]
+				this.currentReason.stats.indicatorsGlobal.comment = [comments.value, comments.percentage]
+				
+				this.dynamicDialogAct = false
+				this.dynamicDialogAct = true
       },
-      getChartGlobalDatesDay(data) {
-        let daysVeryGood = new Array(31).fill(0)
-        let daysGood = new Array(31).fill(0)
-        let daysBad = new Array(31).fill(0)
-        let daysVeryBad = new Array(31).fill(0)
+      async getChartGlobalDatesDay(data) {
+				const dayStats = (await this.$axios.post('/reasons/stats/day', { reason:  data.ftitle })).data
 
-        for(let assessment of data.stats.assessments) {
-          let currentDay = new Date(assessment.date).getDate()
-          switch(assessment.face) {
-            case 'veryGood':
-              daysVeryGood[currentDay]++
-            break
-            case 'good':
-              daysGood[currentDay]++
-            break
-            case 'bad':
-              daysBad[currentDay]++
-            break
-            case 'veryBad':
-              daysVeryBad[currentDay]++
-            break						
-          }
-        }
+				this.chartDayGlobal = []
 
-        for (let i = 1; i < 32; i++) {
-          let total = daysVeryGood[i] + daysGood[i] + daysBad[i] + daysVeryBad[i]
-          this.chartDayGlobal.push({
-            title: "Día " + i,
-            total: isNaN(total) ? 0 : total,
-            veryGood: this.getPercentage(daysVeryGood[i], total),
-            good: this.getPercentage(daysGood[i], total),
-            bad: this.getPercentage(daysBad[i], total),
-            veryBad: this.getPercentage(daysVeryBad[i], total)
-          })
-        }
+				for (let data of dayStats) {
+					this.chartDayGlobal.push({
+						title: "Día " + data.day,
+						total: data.total,
+						veryGood: this.getPercentage(data.veryGood, data.total),
+						good: this.getPercentage(data.good, data.total),
+						bad: this.getPercentage(data.bad, data.total),
+						veryBad: this.getPercentage(data.veryBad, data.total)
+					})
+				}
       },
   },
   components: {
