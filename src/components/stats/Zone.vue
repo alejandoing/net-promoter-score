@@ -389,7 +389,8 @@
       },
 			async dynamicDialog(data) {
 				if (this.title == "quej.") return false
-				this.statsFacesZone = (await this.$axios.post('zones/stats/faces/value-prc', { zone:  data.ftitle })).data
+				this.statsFacesZone = (await this.$axios.post('zones/stats/faces/value-prc', { 
+					zone:  data.ftitle, condition: data.stats.filter })).data
 				
 				this.dynamicDialogAct = !this.dynamicDialogAct
 				data.stats.indicatorsGlobal = { 

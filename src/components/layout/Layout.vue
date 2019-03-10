@@ -51,8 +51,8 @@
 			}
 		},
 		async created() {
-			this.totalAssessments = (await this.$axios.get('assessments/stats/total')).data[0].total
-			const statsFaces = (await this.$axios.get('assessments/stats/faces/value-prc')).data
+			this.totalAssessments = (await this.$axios.post('assessments/stats/total')).data[0].total
+			const statsFaces = (await this.$axios.post('assessments/stats/faces/value-prc')).data
 			this.veryGood = statsFaces[3].value
 			this.good = statsFaces[1].value
 			this.veryBad = statsFaces[2].value

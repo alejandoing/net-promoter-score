@@ -350,8 +350,10 @@
 				this.chartMonthGlobal = []
 			},
 			async dynamicDialog(data) {
-				this.statsFacesService = (await this.$axios.post('services/stats/faces/value-prc', { service:  data.ftitle })).data
-				
+				this.statsFacesService = (await this.$axios.post('services/stats/faces/value-prc', { 
+					service:  data.ftitle, condition: data.stats.filter
+				})).data
+
 				this.dynamicDialogAct = !this.dynamicDialogAct
 				data.stats.indicatorsGlobal = { 
 					faces: this.statsFacesService,
@@ -360,7 +362,6 @@
 					comment: [null, null]
 				}
 				this.currentService = data
-				// console.log(this.currentService.stats)
 				this.getIndicatorsGlobal(data)
 				this.getChartGlobalDatesHour(data)
 				this.getChartGlobalDatesDayW(data)

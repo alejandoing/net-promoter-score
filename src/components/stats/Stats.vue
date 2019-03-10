@@ -291,14 +291,14 @@
 						Zone.pb-5(:data="statsZones")
 			v-flex#weakPoints(xs12)
 				Chart.pb-5(type="barStacked" title="Puntos Débiles y Fuertes" :data="weakPoints")
-			//- v-flex(xs12 v-if="userStorage.privileges !== 'Local'")
-			//- 	div.pb-5
-			//- 		span.display-1 Locales
-			//- 		v-divider
-			//- v-flex#topLocals(xs12 v-if="assessments && userStorage.privileges !== 'Local'")
-			//- 	Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
-			//- v-flex#badLocals(xs12 v-if="assessments && userStorage.privileges !== 'Local'")
-			//- 	Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="badLocals")
+			v-flex(xs12 v-if="userStorage.privileges !== 'Local'")
+				div.pb-5
+					span.display-1 Locales
+					v-divider
+			v-flex#topLocals(xs12 v-if="assessments && userStorage.privileges !== 'Local'")
+				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
+			v-flex#badLocals(xs12 v-if="assessments && userStorage.privileges !== 'Local'")
+				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="badLocals")
 		v-dialog(v-model="dialogPreResults" persistent max-width="500")
 			v-card
 				v-card-title.headline(v-html="titleDialogPreResults")
@@ -317,7 +317,7 @@
 						v-btn(dark flat @click="dialogResults = false") Regresar
 				v-card-text
 					v-flex(xs9 offset-xs2)
-						Face#customFaces.pb-5(:data="results.stats")
+						Face#customFaces.pb-5(:data="results.statsFaces")
 					v-flex(xs3 offset-xs10)
 						v-tooltip(top)
 							v-btn(
@@ -409,22 +409,22 @@
 							div.pb-5
 								span.display-1 Servicios
 								v-divider
-						v-flex(xs9 offset-xs2)
-							Service.pb-5(:data="results.stats")
+						v-flex(xs9 offset-xs2 v-if="results")
+							Service.pb-5(:data="results.statsServices")
 					#reasonsCustom
 						v-flex(xs12)
 							div.pb-5
 								span.display-1 Motivos
 								v-divider
 						v-flex(xs9 offset-xs2)
-							Reason.pb-5(:data="results.stats")
+							Reason.pb-5(:data="results.statsReasons")
 					#zonesCustom(v-if="userStorage.privileges !== 'Zone'")
 						v-flex(xs12)
 							div.pb-5
 								span.display-1 Jefe Zonales
 								v-divider
 						v-flex(xs9 offset-xs2)
-							Zone.pb-5(:data="results.stats")
+							Zone.pb-5(:data="results.statsZones")
 					v-flex#strongPointsCustom(xs12)
 						Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPointsCustom")
 					v-flex#weakPointsCustom(xs12)
@@ -587,6 +587,7 @@
 		validations: {},
     data () {
       return {
+				totalAssessmentsCustom: null,
 				totalAssessments: null,
 				statsFaces: null,
 				statsReasons: null,
@@ -974,11 +975,11 @@
 				this.chartMonthGlobalZone = data[3]
 			})
 
-			this.totalAssessments = (await this.$axios.get('assessments/stats/total')).data[0].total
+			this.totalAssessments = (await this.$axios.post('assessments/stats/total')).data[0].total
 
-			this.statsFaces = (await this.$axios.get('assessments/stats/faces/value-prc')).data
+			this.statsFaces = (await this.$axios.post('assessments/stats/faces/value-prc')).data
 
-			const objectService = (await this.$axios.get('assessments/stats/service')).data[0]
+			const objectService = (await this.$axios.post('assessments/stats/service')).data[0]
 
 			const { pagoServicio, pagoServicioVeryGood, pagoServicioGood, pagoServicioBad,
 			pagoServicioVeryBad, casaDeCambio, casaDeCambioVeryGood, casaDeCambioGood, 
@@ -998,15 +999,6 @@
 					}
 				],
 				[
-					casaDeCambio, this.getPercentage(casaDeCambio, total), {
-					veryGood: { face: 'veryGood', value: casaDeCambioVeryGood, percentage: this.getPercentage(casaDeCambioVeryGood, casaDeCambio) },
-					good: { face: 'good', value: casaDeCambioGood, percentage: this.getPercentage(casaDeCambioGood, casaDeCambio) },
-					bad: { face: 'bad', value: casaDeCambioBad, percentage: this.getPercentage(casaDeCambioBad, casaDeCambio) },
-					veryBad: { face: 'veryBad', value: casaDeCambioVeryBad, percentage: this.getPercentage(casaDeCambioVeryBad, casaDeCambio) },
-					assessments: 0,
-					satisfaction: this.getIndicatorsReason(casaDeCambio, casaDeCambioGood, casaDeCambioBad, casaDeCambioVeryBad)
-				}],
-				[
 					envioInternacional, this.getPercentage(envioInternacional, total), {
 					veryGood: { face: 'veryGood', value: envioInternacionalVeryGood, percentage: this.getPercentage(envioInternacionalVeryGood, envioInternacional) },
 					good: { face: 'good', value: envioInternacionalGood, percentage: this.getPercentage(envioInternacionalGood, envioInternacional) },
@@ -1023,10 +1015,19 @@
 					veryBad: { face: 'veryBad', value: envioNacionalVeryBad, percentage: this.getPercentage(envioNacionalVeryBad, envioNacional) },
 					assessments: 0,
 					satisfaction: this.getIndicatorsReason(envioNacional, envioNacionalGood, envioNacionalBad, envioNacionalVeryBad)
+				}],
+				[
+					casaDeCambio, this.getPercentage(casaDeCambio, total), {
+					veryGood: { face: 'veryGood', value: casaDeCambioVeryGood, percentage: this.getPercentage(casaDeCambioVeryGood, casaDeCambio) },
+					good: { face: 'good', value: casaDeCambioGood, percentage: this.getPercentage(casaDeCambioGood, casaDeCambio) },
+					bad: { face: 'bad', value: casaDeCambioBad, percentage: this.getPercentage(casaDeCambioBad, casaDeCambio) },
+					veryBad: { face: 'veryBad', value: casaDeCambioVeryBad, percentage: this.getPercentage(casaDeCambioVeryBad, casaDeCambio) },
+					assessments: 0,
+					satisfaction: this.getIndicatorsReason(casaDeCambio, casaDeCambioGood, casaDeCambioBad, casaDeCambioVeryBad)
 				}]
 			]
 
-			const objectReason = (await this.$axios.get('assessments/stats/reason')).data[0]
+			const objectReason = (await this.$axios.post('assessments/stats/reason')).data[0]
 
 			const { atencionDelCajero, atencionDelCajeroVeryGood, atencionDelCajeroGood, atencionDelCajeroBad,
 			atencionDelCajeroVeryBad, estadoDelLocal, estadoDelLocalVeryGood, estadoDelLocalGood, 
@@ -1046,6 +1047,15 @@
 					}
 				],
 				[
+					tiempoDeEspera, this.getPercentage(tiempoDeEspera, totalR), {
+					veryGood: { face: 'veryGood', value: tiempoDeEsperaVeryGood, percentage: this.getPercentage(tiempoDeEsperaVeryGood, tiempoDeEspera) },
+					good: { face: 'good', value: tiempoDeEsperaGood, percentage: this.getPercentage(tiempoDeEsperaGood, tiempoDeEspera) },
+					bad: { face: 'bad', value: tiempoDeEsperaBad, percentage: this.getPercentage(tiempoDeEsperaBad, tiempoDeEspera) },
+					veryBad: { face: 'veryBad', value: tiempoDeEsperaVeryBad, percentage: this.getPercentage(tiempoDeEsperaVeryBad, tiempoDeEspera) },
+					assessments: 0,
+					satisfaction: this.getIndicatorsReason(tiempoDeEspera, tiempoDeEsperaGood, tiempoDeEsperaBad, tiempoDeEsperaVeryBad)
+				}],
+				[
 					estadoDelLocal, this.getPercentage(estadoDelLocal, totalR), {
 					veryGood: { face: 'veryGood', value: estadoDelLocalVeryGood, percentage: this.getPercentage(estadoDelLocalVeryGood, estadoDelLocal) },
 					good: { face: 'good', value: estadoDelLocalGood, percentage: this.getPercentage(estadoDelLocalGood, estadoDelLocal) },
@@ -1062,19 +1072,10 @@
 					veryBad: { face: 'veryBad', value: servicioUtilizadoVeryBad, percentage: this.getPercentage(servicioUtilizadoVeryBad, servicioUtilizado) },
 					assessments: 0,
 					satisfaction: this.getIndicatorsReason(servicioUtilizado, servicioUtilizadoGood, servicioUtilizadoBad, servicioUtilizadoVeryBad)
-				}],
-				[
-					tiempoDeEspera, this.getPercentage(tiempoDeEspera, totalR), {
-					veryGood: { face: 'veryGood', value: tiempoDeEsperaVeryGood, percentage: this.getPercentage(tiempoDeEsperaVeryGood, tiempoDeEspera) },
-					good: { face: 'good', value: tiempoDeEsperaGood, percentage: this.getPercentage(tiempoDeEsperaGood, tiempoDeEspera) },
-					bad: { face: 'bad', value: tiempoDeEsperaBad, percentage: this.getPercentage(tiempoDeEsperaBad, tiempoDeEspera) },
-					veryBad: { face: 'veryBad', value: tiempoDeEsperaVeryBad, percentage: this.getPercentage(tiempoDeEsperaVeryBad, tiempoDeEspera) },
-					assessments: 0,
-					satisfaction: this.getIndicatorsReason(tiempoDeEspera, tiempoDeEsperaGood, tiempoDeEsperaBad, tiempoDeEsperaVeryBad)
 				}]
 			]
 
-			const objectZone = (await this.$axios.get('assessments/stats/zone')).data[0]
+			const objectZone = (await this.$axios.post('assessments/stats/zone')).data[0]
 
 			const { eduardoCesio, eduardoCesioVeryGood, eduardoCesioGood, eduardoCesioBad,
 			eduardoCesioVeryBad, walterMancho, walterManchoVeryGood, walterManchoGood, 
@@ -1086,16 +1087,6 @@
 			florenciaCasaBad, florenciaCasaVeryBad, totalZ } = objectZone
 
 			this.statsZones = [
-				[
-					eduardoCesio, this.getPercentage(eduardoCesio, totalZ), {
-						veryGood: { face: 'veryGood', value: eduardoCesioVeryGood, percentage: this.getPercentage(eduardoCesioVeryGood, eduardoCesio) },
-						good: { face: 'good', value: eduardoCesioGood, percentage: this.getPercentage(eduardoCesioGood, eduardoCesio) },
-						bad: { face: 'bad', value: eduardoCesioBad, percentage: this.getPercentage(eduardoCesioBad, eduardoCesio) },
-						veryBad: { face: 'veryBad', value: eduardoCesioVeryBad, percentage: this.getPercentage(eduardoCesioVeryBad, eduardoCesio) },
-						assessments: 0,
-						satisfaction: this.getIndicatorsReason(eduardoCesio, eduardoCesioGood, eduardoCesioBad, eduardoCesioVeryBad)
-					}
-				],
 				[
 					walterMancho, this.getPercentage(walterMancho, totalZ), {
 					veryGood: { face: 'veryGood', value: walterManchoVeryGood, percentage: this.getPercentage(walterManchoVeryGood, walterMancho) },
@@ -1149,7 +1140,17 @@
 					veryBad: { face: 'veryBad', value: florenciaCasaVeryBad, percentage: this.getPercentage(florenciaCasaVeryBad, florenciaCasa) },
 					assessments: 0,
 					satisfaction: this.getIndicatorsReason(florenciaCasa, florenciaCasaGood, florenciaCasaBad, florenciaCasaVeryBad)
-				}]
+				}],
+				[
+					eduardoCesio, this.getPercentage(eduardoCesio, totalZ), {
+						veryGood: { face: 'veryGood', value: eduardoCesioVeryGood, percentage: this.getPercentage(eduardoCesioVeryGood, eduardoCesio) },
+						good: { face: 'good', value: eduardoCesioGood, percentage: this.getPercentage(eduardoCesioGood, eduardoCesio) },
+						bad: { face: 'bad', value: eduardoCesioBad, percentage: this.getPercentage(eduardoCesioBad, eduardoCesio) },
+						veryBad: { face: 'veryBad', value: eduardoCesioVeryBad, percentage: this.getPercentage(eduardoCesioVeryBad, eduardoCesio) },
+						assessments: 0,
+						satisfaction: this.getIndicatorsReason(eduardoCesio, eduardoCesioGood, eduardoCesioBad, eduardoCesioVeryBad)
+					}
+				]
 			]
 
 				let reasonChart = [{
@@ -1188,15 +1189,24 @@
 
 			const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 			this.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
-			// 	this.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).slice(0,20)
+
+			const statsLocals = (await this.$axios.post('locals/stats/faces')).data
+
+			let activeLocals = []
+
+			for (let local of statsLocals) {
+				activeLocals.push(this.getChartLocal(local))
+			}
+
+			this.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).slice(0,5)
 				
-			// 	this.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,20)
+			this.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,5)
+			
 			this.getIndicatorsGlobal()
 			this.getChartGlobalDatesHour()
 			this.getChartGlobalDatesDayW()
 			this.getChartGlobalDatesDay()
 			this.getChartGlobalDatesMonth()
-			//})
 		},
 
 		methods: {
@@ -1218,52 +1228,39 @@
 					['ID' , 'Local', 'Jefe Zonal', 'Fecha', 'Hora', 'Valoración', 'Servicio', 'Motivo', 'Comentario', 'Email', 'Teléfono'],
 				]
 
-				for (let assessment of this.assessments) {
+				const assessmentsXLS = (await this.$axios.get('/assessments/xls')).data
+
+				for (let i in assessmentsXLS) {
 					ws_data.push(new Array(10).fill(null))
-					ws_data[ws_data.length - 1][0] = assessment.id
-					ws_data[ws_data.length - 1][1] = this.locals.find(item => item.id == assessment.local).title
-					ws_data[ws_data.length - 1][2] = this.zones.find(item => item.id == assessment.zone).responsable
-					ws_data[ws_data.length - 1][3] = `
-						${new Date(assessment.date).getDate() > 9 ? new Date(assessment.date).getDate() : "0" + new Date(assessment.date).getDate()}/
-						${new Date(assessment.date).getMonth() + 1 > 9 ? new Date(assessment.date).getMonth() + 1 : "0" + (new Date(assessment.date).getMonth() + 1)}/
-						${new Date(assessment.date).getFullYear()}
-					`
-					ws_data[ws_data.length - 1][4] = `
-						${new Date(assessment.date).getHours()}:
-						${new Date(assessment.date).getMinutes() > 9 ? new Date(assessment.date).getMinutes() : "0" + new Date(assessment.date).getMinutes()}:
-						${new Date(assessment.date).getSeconds() > 9 ? new Date(assessment.date).getSeconds() : "0" + new Date(assessment.date).getSeconds()}
-					`
-					ws_data[ws_data.length - 1][5] = assessment.face
-					ws_data[ws_data.length - 1][6] = assessment.justification
-					ws_data[ws_data.length - 1][7] = assessment.justificationTwo
-					this.$firebase.firestore().collection('tickets').where('assessment', '==', assessment.id).get().then(querySnapshot => {
-						querySnapshot.forEach(doc => {
-							const a = ws_data.findIndex(item => item[0] == assessment.id)
-							ws_data[a][8] = doc.data().description
-							ws_data[a][9] = doc.data().email
-							ws_data[a][10] = doc.data().telephone
-						})
-						y++
-						if (y == this.assessments.length) {
-							const ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-							wb.Sheets["NPS Crudo de Datos"] = ws;
-
-							const wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
-							
-							function s2ab(s) { 
-								const buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-								const view = new Uint8Array(buf);  //create uint8array as viewer
-								for (let i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-								return buf;
-							}
-
-							saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'NPS_Datos_Crudos_WU.xlsx');
-							this.loading3 = false
-							this.loader2 = null
-						}
-					})
+					ws_data[ws_data.length - 1][0] = assessmentsXLS[i].id
+					ws_data[ws_data.length - 1][1] = assessmentsXLS[i].local
+					ws_data[ws_data.length - 1][2] = assessmentsXLS[i].zone
+					ws_data[ws_data.length - 1][3] = assessmentsXLS[i].date
+					ws_data[ws_data.length - 1][4] = assessmentsXLS[i].time
+					ws_data[ws_data.length - 1][5] = assessmentsXLS[i].face
+					ws_data[ws_data.length - 1][6] = assessmentsXLS[i].justification
+					ws_data[ws_data.length - 1][7] = assessmentsXLS[i].justificationTwo
+					ws_data[ws_data.length - 1][8] = assessmentsXLS[i].description
+					ws_data[ws_data.length - 1][9] = assessmentsXLS[i].email
+					ws_data[ws_data.length - 1][10] = assessmentsXLS[i].telephone
 				}
+
+				const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+				wb.Sheets["NPS Crudo de Datos"] = ws;
+
+				const wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+				
+				function s2ab(s) {
+					const buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+					const view = new Uint8Array(buf);  //create uint8array as viewer
+					for (let i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+					return buf;
+				}
+
+				saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'NPS_Datos_Crudos_WU.xlsx');
+				this.loading3 = false
+				this.loader2 = null
 			},
 			async downloadXLSXCustom() {
 				this.loader2 = 'loading3'
@@ -1497,100 +1494,38 @@
 			dynamicDialog(data) {
 				this.dynamicDialogAct = !this.dynamicDialogAct
 			},
-			searchStats() {
-				let timeSince = '00:00:00.000'
-				let timeUntil = '23:59:00.000'
-				let dateSince = '1999-01-01'
-				let dateUntil = '2099-12-31'
-
-				function pad(s) { return (s < 10) ? '0' + s : s }
-				
-				function timeSearch(date) {
-					return `${pad(new Date(date).getHours())}:${pad(new Date(date).getMinutes())}` 
-				}
-				
-				function compareTimes(timeRecord, timeSince, timeUntil) {
-
-					let arrayTimeRecord = timeRecord.split(":")
-					let arraytimeSince = timeSince.split(":")
-					let arraytimeUntil = timeUntil.split(":")
-
-					let recordHour = parseInt(arrayTimeRecord[0],10)
-					let recordMinutes = parseInt(arrayTimeRecord[1],10)
-					
-					let sinceHour = parseInt(arraytimeSince[0],10)
-					let sinceMinutes = parseInt(arraytimeSince[1],10)
-
-					let untilHour = parseInt(arraytimeUntil[0],10)
-					let untilMinutes = parseInt(arraytimeUntil[1],10)
-					
-					if (recordHour > sinceHour || (recordHour == sinceHour && recordMinutes >= sinceMinutes)) {
-						if (recordHour < untilHour || (recordHour == untilHour && recordMinutes <= untilMinutes)) return true
-						else return false
-					}
-					else return false
-				}
-
+			async searchStats() {
 				this.loader = 'loading'
 
-				if (this.timeSince) timeSince = this.timeSince
-				if (this.timeUntil) timeUntil = this.timeUntil
+				this.results.filter = null
 
 				if (this.dateSince) {
-					dateSince = this.dateSince
-					dateUntil = this.dateSince
+					this.results.filter = ` AND DATE(date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
 				}
 
-				if (this.dateUntil) dateUntil = this.dateUntil
+				const queryFaces = (await this.$axios.post('assessments/stats/faces/value-prc', { condition: this.results.filter })).data
 
-				let searchSince = new Date(`${dateSince} ${timeSince}`).toISOString()
-				let searchUntil = new Date(`${dateUntil} ${timeUntil}`).toISOString()
-
-				let query = this.$firebase.firestore().collection('assessments').where('business','==',this.userStorage.business)
-				if (searchSince) {
-					query = query.where('date','>=', searchSince).where('date','<=', searchUntil)
+				this.results.statsFaces = queryFaces
+				this.results.totalAssessments = (await this.$axios.post('assessments/stats/total', { condition: this.results.filter })).data[0].total
+				
+				this['loading'] = false
+				this.loader = null
+				
+				if (!this.results.totalAssessments) {
+					this.textDialogPreResults = "La búsqueda no ha devuelto ningún resultado. Intentá con otros valores."
+					this.titleDialogPreResults = "¡Advertencia!"
+					this.dialogPreResults = true
 				}
-
-				if (this.localID) query = query.where('local','==', this.localID)
 				else {
-					if (this.zoneID) query = query.where('zone','==', this.zoneID)
+					this.getChartCustomM(this.results.filter)
+					// this.getInidicatorsCustom()
+					// this.getChartCustomDatesHour()
+					// this.getChartCustomDatesDayW()
+					// this.getChartCustomDatesDay()
+					// this.getChartCustomDatesMonth()
+					// this.getIndicatorsGlobal()
+					this.dialogResults = true
 				}
-
-				if (this.interior) query = query.where('region','==', 'MKITRJYc46G8XLR0Kjsv')
-
-				if (this.AMBA) query = query.where('region','==', '0l5DtjJ6UQ1J4DxX0fdY')
-
-				if (this.userStorage.privileges === 'Local') query = query.where('local','==', this.userStorage.local)
-				if (this.userStorage.privileges === 'Zone') query = query.where('zone','==', this.userStorage.zone)
-
-				query.get().then(querySnapshot => {
-					this.results = []
-					querySnapshot.forEach(doc => {
-						if (compareTimes(timeSearch(new Date(doc.data().date).toISOString()), timeSearch(searchSince), timeSearch(searchUntil))) {
-							let assessment = doc.data()
-							assessment.id = doc.id
-							this.results.unshift(assessment)
-						}
-					})
-
-					this['loading'] = false
-					this.loader = null
-					if (!this.results.length) {
-						this.textDialogPreResults = "La búsqueda no ha devuelto ningún resultado. Intentá con otros valores."
-						this.titleDialogPreResults = "¡Advertencia!"
-						this.dialogPreResults = true
-					}
-					else {
-						this.getChartCustomM()
-						this.getInidicatorsCustom()
-						this.getChartCustomDatesHour()
-						this.getChartCustomDatesDayW()
-						this.getChartCustomDatesDay()
-						this.getChartCustomDatesMonth()
-						this.getIndicatorsGlobal()
-						this.dialogResults = true
-					}
-				})
 			},
 
       formatDate (date) {
@@ -2016,369 +1951,233 @@
 				this.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,20)
 			},
 
-			getChartCustomM() {
+			async getChartCustomM(filter) {
+				console.log(filter)
+				const objectService = (await this.$axios.post('assessments/stats/service', { condition: filter })).data[0]
+
+				const { pagoServicio, pagoServicioVeryGood, pagoServicioGood, pagoServicioBad,
+				pagoServicioVeryBad, casaDeCambio, casaDeCambioVeryGood, casaDeCambioGood, 
+				casaDeCambioBad, casaDeCambioVeryBad, envioInternacional, envioInternacionalVeryGood, 
+				envioInternacionalGood, envioInternacionalBad, envioInternacionalVeryBad, envioNacional, 
+				envioNacionalVeryGood, envioNacionalGood, envioNacionalBad, envioNacionalVeryBad, total } = objectService
+
+				this.results.statsServices = [
+				[
+					pagoServicio, this.getPercentage(pagoServicio, total), {
+						veryGood: { face: 'veryGood', value: pagoServicioVeryGood, percentage: this.getPercentage(pagoServicioVeryGood, pagoServicio) },
+						good: { face: 'good', value: pagoServicioGood, percentage: this.getPercentage(pagoServicioGood, pagoServicio) },
+						bad: { face: 'bad', value: pagoServicioBad, percentage: this.getPercentage(pagoServicioBad, pagoServicio) },
+						veryBad: { face: 'veryBad', value: pagoServicioVeryBad, percentage: this.getPercentage(pagoServicioVeryBad, pagoServicio) },
+						filter,
+						satisfaction: this.getIndicatorsReason(pagoServicio, pagoServicioGood, pagoServicioBad, pagoServicioVeryBad)
+					}
+				],
+				[
+					envioInternacional, this.getPercentage(envioInternacional, total), {
+					veryGood: { face: 'veryGood', value: envioInternacionalVeryGood, percentage: this.getPercentage(envioInternacionalVeryGood, envioInternacional) },
+					good: { face: 'good', value: envioInternacionalGood, percentage: this.getPercentage(envioInternacionalGood, envioInternacional) },
+					bad: { face: 'bad', value: envioInternacionalBad, percentage: this.getPercentage(envioInternacionalBad, envioInternacional) },
+					veryBad: { face: 'veryBad', value: envioInternacionalVeryBad, percentage: this.getPercentage(envioInternacionalVeryBad, envioInternacional) },
+					filter,
+					satisfaction: this.getIndicatorsReason(envioInternacional, envioInternacionalGood, envioInternacionalBad, envioInternacionalVeryBad)
+				}],
+				[
+					envioNacional, this.getPercentage(envioNacional, total), {
+					veryGood: { face: 'veryGood', value: envioNacionalVeryGood, percentage: this.getPercentage(envioNacionalVeryGood, envioNacional) },
+					good: { face: 'good', value: envioNacionalGood, percentage: this.getPercentage(envioNacionalGood, envioNacional) },
+					bad: { face: 'bad', value: envioNacionalBad, percentage: this.getPercentage(envioNacionalBad, envioNacional) },
+					veryBad: { face: 'veryBad', value: envioNacionalVeryBad, percentage: this.getPercentage(envioNacionalVeryBad, envioNacional) },
+					filter,
+					satisfaction: this.getIndicatorsReason(envioNacional, envioNacionalGood, envioNacionalBad, envioNacionalVeryBad)
+				}],
+				[
+					casaDeCambio, this.getPercentage(casaDeCambio, total), {
+					veryGood: { face: 'veryGood', value: casaDeCambioVeryGood, percentage: this.getPercentage(casaDeCambioVeryGood, casaDeCambio) },
+					good: { face: 'good', value: casaDeCambioGood, percentage: this.getPercentage(casaDeCambioGood, casaDeCambio) },
+					bad: { face: 'bad', value: casaDeCambioBad, percentage: this.getPercentage(casaDeCambioBad, casaDeCambio) },
+					veryBad: { face: 'veryBad', value: casaDeCambioVeryBad, percentage: this.getPercentage(casaDeCambioVeryBad, casaDeCambio) },
+					filter,
+					satisfaction: this.getIndicatorsReason(casaDeCambio, casaDeCambioGood, casaDeCambioBad, casaDeCambioVeryBad)
+					}]
+				]
+
+				const objectReason = (await this.$axios.post('assessments/stats/reason', { condition: filter })).data[0]
+
+				const { atencionDelCajero, atencionDelCajeroVeryGood, atencionDelCajeroGood, atencionDelCajeroBad,
+				atencionDelCajeroVeryBad, estadoDelLocal, estadoDelLocalVeryGood, estadoDelLocalGood, 
+				estadoDelLocalBad, estadoDelLocalVeryBad, servicioUtilizado, servicioUtilizadoVeryGood, 
+				servicioUtilizadoGood, servicioUtilizadoBad, servicioUtilizadoVeryBad, tiempoDeEspera, 
+				tiempoDeEsperaVeryGood, tiempoDeEsperaGood, tiempoDeEsperaBad, tiempoDeEsperaVeryBad, totalR } = objectReason
+
+				this.results.statsReasons = [
+					[
+						atencionDelCajero, this.getPercentage(atencionDelCajero, totalR), {
+							veryGood: { face: 'veryGood', value: atencionDelCajeroVeryGood, percentage: this.getPercentage(atencionDelCajeroVeryGood, atencionDelCajero) },
+							good: { face: 'good', value: atencionDelCajeroGood, percentage: this.getPercentage(atencionDelCajeroGood, atencionDelCajero) },
+							bad: { face: 'bad', value: atencionDelCajeroBad, percentage: this.getPercentage(atencionDelCajeroBad, atencionDelCajero) },
+							veryBad: { face: 'veryBad', value: atencionDelCajeroVeryBad, percentage: this.getPercentage(atencionDelCajeroVeryBad, atencionDelCajero) },
+							filter,
+							satisfaction: this.getIndicatorsReason(atencionDelCajero, atencionDelCajeroGood, atencionDelCajeroBad, atencionDelCajeroVeryBad)
+						}
+					],
+					[
+						tiempoDeEspera, this.getPercentage(tiempoDeEspera, totalR), {
+						veryGood: { face: 'veryGood', value: tiempoDeEsperaVeryGood, percentage: this.getPercentage(tiempoDeEsperaVeryGood, tiempoDeEspera) },
+						good: { face: 'good', value: tiempoDeEsperaGood, percentage: this.getPercentage(tiempoDeEsperaGood, tiempoDeEspera) },
+						bad: { face: 'bad', value: tiempoDeEsperaBad, percentage: this.getPercentage(tiempoDeEsperaBad, tiempoDeEspera) },
+						veryBad: { face: 'veryBad', value: tiempoDeEsperaVeryBad, percentage: this.getPercentage(tiempoDeEsperaVeryBad, tiempoDeEspera) },
+						filter,
+						satisfaction: this.getIndicatorsReason(tiempoDeEspera, tiempoDeEsperaGood, tiempoDeEsperaBad, tiempoDeEsperaVeryBad)
+					}],
+					[
+						estadoDelLocal, this.getPercentage(estadoDelLocal, totalR), {
+						veryGood: { face: 'veryGood', value: estadoDelLocalVeryGood, percentage: this.getPercentage(estadoDelLocalVeryGood, estadoDelLocal) },
+						good: { face: 'good', value: estadoDelLocalGood, percentage: this.getPercentage(estadoDelLocalGood, estadoDelLocal) },
+						bad: { face: 'bad', value: estadoDelLocalBad, percentage: this.getPercentage(estadoDelLocalBad, estadoDelLocal) },
+						veryBad: { face: 'veryBad', value: estadoDelLocalVeryBad, percentage: this.getPercentage(estadoDelLocalVeryBad, estadoDelLocal) },
+						filter,
+						satisfaction: this.getIndicatorsReason(estadoDelLocal, estadoDelLocalGood, estadoDelLocalBad, estadoDelLocalVeryBad)
+					}],
+					[
+						servicioUtilizado, this.getPercentage(servicioUtilizado, totalR), {
+						veryGood: { face: 'veryGood', value: servicioUtilizadoVeryGood, percentage: this.getPercentage(servicioUtilizadoVeryGood, servicioUtilizado) },
+						good: { face: 'good', value: servicioUtilizadoGood, percentage: this.getPercentage(servicioUtilizadoGood, servicioUtilizado) },
+						bad: { face: 'bad', value: servicioUtilizadoBad, percentage: this.getPercentage(servicioUtilizadoBad, servicioUtilizado) },
+						veryBad: { face: 'veryBad', value: servicioUtilizadoVeryBad, percentage: this.getPercentage(servicioUtilizadoVeryBad, servicioUtilizado) },
+						filter,
+						satisfaction: this.getIndicatorsReason(servicioUtilizado, servicioUtilizadoGood, servicioUtilizadoBad, servicioUtilizadoVeryBad)
+					}]
+				]
+
+				const objectZone = (await this.$axios.post('assessments/stats/zone', { condition: filter })).data[0]
+
+				const { eduardoCesio, eduardoCesioVeryGood, eduardoCesioGood, eduardoCesioBad,
+				eduardoCesioVeryBad, walterMancho, walterManchoVeryGood, walterManchoGood, 
+				walterManchoBad, walterManchoVeryBad, lucianaBernadotti, lucianaBernadottiVeryGood, 
+				lucianaBernadottiGood, lucianaBernadottiBad, lucianaBernadottiVeryBad, cristinaMarigomez, 
+				cristinaMarigomezVeryGood, cristinaMarigomezGood, cristinaMarigomezBad, cristinaMarigomezVeryBad,
+				dardoRicci, dardoRicciVeryGood, dardoRicciGood, dardoRicciBad, dardoRicciVeryBad, diegoLongo, diegoLongoVeryGood,
+				diegoLongoGood, diegoLongoBad, diegoLongoVeryBad, florenciaCasa, florenciaCasaVeryGood, florenciaCasaGood,
+				florenciaCasaBad, florenciaCasaVeryBad, totalZ } = objectZone
+
+				this.results.statsZones = [
+					[
+						walterMancho, this.getPercentage(walterMancho, totalZ), {
+						veryGood: { face: 'veryGood', value: walterManchoVeryGood, percentage: this.getPercentage(walterManchoVeryGood, walterMancho) },
+						good: { face: 'good', value: walterManchoGood, percentage: this.getPercentage(walterManchoGood, walterMancho) },
+						bad: { face: 'bad', value: walterManchoBad, percentage: this.getPercentage(walterManchoBad, walterMancho) },
+						veryBad: { face: 'veryBad', value: walterManchoVeryBad, percentage: this.getPercentage(walterManchoVeryBad, walterMancho) },
+						filter,
+						satisfaction: this.getIndicatorsReason(walterMancho, walterManchoGood, walterManchoBad, walterManchoVeryBad)
+					}],
+					[
+						lucianaBernadotti, this.getPercentage(lucianaBernadotti, totalZ), {
+						veryGood: { face: 'veryGood', value: lucianaBernadottiVeryGood, percentage: this.getPercentage(lucianaBernadottiVeryGood, lucianaBernadotti) },
+						good: { face: 'good', value: lucianaBernadottiGood, percentage: this.getPercentage(lucianaBernadottiGood, lucianaBernadotti) },
+						bad: { face: 'bad', value: lucianaBernadottiBad, percentage: this.getPercentage(lucianaBernadottiBad, lucianaBernadotti) },
+						veryBad: { face: 'veryBad', value: lucianaBernadottiVeryBad, percentage: this.getPercentage(lucianaBernadottiVeryBad, lucianaBernadotti) },
+						filter,
+						satisfaction: this.getIndicatorsReason(lucianaBernadotti, lucianaBernadottiGood, lucianaBernadottiBad, lucianaBernadottiVeryBad)
+					}],
+					[
+						cristinaMarigomez, this.getPercentage(cristinaMarigomez, totalZ), {
+						veryGood: { face: 'veryGood', value: cristinaMarigomezVeryGood, percentage: this.getPercentage(cristinaMarigomezVeryGood, cristinaMarigomez) },
+						good: { face: 'good', value: cristinaMarigomezGood, percentage: this.getPercentage(cristinaMarigomezGood, cristinaMarigomez) },
+						bad: { face: 'bad', value: cristinaMarigomezBad, percentage: this.getPercentage(cristinaMarigomezBad, cristinaMarigomez) },
+						veryBad: { face: 'veryBad', value: cristinaMarigomezVeryBad, percentage: this.getPercentage(cristinaMarigomezVeryBad, cristinaMarigomez) },
+						filter,
+						satisfaction: this.getIndicatorsReason(cristinaMarigomez, cristinaMarigomezGood, cristinaMarigomezBad, cristinaMarigomezVeryBad)
+					}],
+					[
+						dardoRicci, this.getPercentage(dardoRicci, totalZ), {
+						veryGood: { face: 'veryGood', value: dardoRicciVeryGood, percentage: this.getPercentage(dardoRicciVeryGood, dardoRicci) },
+						good: { face: 'good', value: dardoRicciGood, percentage: this.getPercentage(dardoRicciGood, dardoRicci) },
+						bad: { face: 'bad', value: dardoRicciBad, percentage: this.getPercentage(dardoRicciBad, dardoRicci) },
+						veryBad: { face: 'veryBad', value: dardoRicciVeryBad, percentage: this.getPercentage(dardoRicciVeryBad, dardoRicci) },
+						filter,
+						satisfaction: this.getIndicatorsReason(dardoRicci, dardoRicciGood, dardoRicciBad, dardoRicciVeryBad)
+					}],
+					[
+						diegoLongo, this.getPercentage(diegoLongo, totalZ), {
+						veryGood: { face: 'veryGood', value: diegoLongoVeryGood, percentage: this.getPercentage(diegoLongoVeryGood, diegoLongo) },
+						good: { face: 'good', value: diegoLongoGood, percentage: this.getPercentage(diegoLongoGood, diegoLongo) },
+						bad: { face: 'bad', value: diegoLongoBad, percentage: this.getPercentage(diegoLongoBad, diegoLongo) },
+						veryBad: { face: 'veryBad', value: diegoLongoVeryBad, percentage: this.getPercentage(diegoLongoVeryBad, diegoLongo) },
+						filter,
+						satisfaction: this.getIndicatorsReason(diegoLongo, diegoLongoGood, diegoLongoBad, diegoLongoVeryBad)
+					}],
+					[
+						florenciaCasa, this.getPercentage(florenciaCasa, totalZ), {
+						veryGood: { face: 'veryGood', value: florenciaCasaVeryGood, percentage: this.getPercentage(florenciaCasaVeryGood, florenciaCasa) },
+						good: { face: 'good', value: florenciaCasaGood, percentage: this.getPercentage(florenciaCasaGood, florenciaCasa) },
+						bad: { face: 'bad', value: florenciaCasaBad, percentage: this.getPercentage(florenciaCasaBad, florenciaCasa) },
+						veryBad: { face: 'veryBad', value: florenciaCasaVeryBad, percentage: this.getPercentage(florenciaCasaVeryBad, florenciaCasa) },
+						filter,
+						satisfaction: this.getIndicatorsReason(florenciaCasa, florenciaCasaGood, florenciaCasaBad, florenciaCasaVeryBad)
+					}],
+					[
+						eduardoCesio, this.getPercentage(eduardoCesio, totalZ), {
+							veryGood: { face: 'veryGood', value: eduardoCesioVeryGood, percentage: this.getPercentage(eduardoCesioVeryGood, eduardoCesio) },
+							good: { face: 'good', value: eduardoCesioGood, percentage: this.getPercentage(eduardoCesioGood, eduardoCesio) },
+							bad: { face: 'bad', value: eduardoCesioBad, percentage: this.getPercentage(eduardoCesioBad, eduardoCesio) },
+							veryBad: { face: 'veryBad', value: eduardoCesioVeryBad, percentage: this.getPercentage(eduardoCesioVeryBad, eduardoCesio) },
+							filter,
+							satisfaction: this.getIndicatorsReason(eduardoCesio, eduardoCesioGood, eduardoCesioBad, eduardoCesioVeryBad)
+						}
+					]
+				]
+
+					let reasonChart = [{
+						title: 'Atención del Cajero',
+						bad: this.getPercentage(atencionDelCajeroBad, atencionDelCajero),
+						veryBad: this.getPercentage(atencionDelCajeroVeryBad, atencionDelCajero),
+						good: this.getPercentage(atencionDelCajeroGood, atencionDelCajero),
+						veryGood: this.getPercentage(atencionDelCajeroVeryGood, atencionDelCajero),
+						total: atencionDelCajero,
+						satisfaction: this.getIndicatorsReason(atencionDelCajero, atencionDelCajeroGood, atencionDelCajeroBad, atencionDelCajeroVeryBad)
+					}, {
+						title: 'Tiempo de Espera',
+						bad: this.getPercentage(tiempoDeEsperaBad, tiempoDeEspera),
+						veryBad: this.getPercentage(tiempoDeEsperaVeryBad, tiempoDeEspera),
+						good: this.getPercentage(tiempoDeEsperaGood, tiempoDeEspera),
+						veryGood: this.getPercentage(tiempoDeEsperaVeryGood, tiempoDeEspera),
+						total: tiempoDeEspera,
+						satisfaction: this.getIndicatorsReason(tiempoDeEspera, tiempoDeEsperaGood, tiempoDeEsperaBad, tiempoDeEsperaVeryBad)
+					}, {
+						title: 'Estado del Local',
+						bad: this.getPercentage(estadoDelLocalBad, estadoDelLocal),
+						veryBad: this.getPercentage(estadoDelLocalVeryBad, estadoDelLocal),
+						good: this.getPercentage(estadoDelLocalGood, estadoDelLocal),
+						veryGood: this.getPercentage(estadoDelLocalVeryGood, estadoDelLocal),
+						total: estadoDelLocal,
+						satisfaction: this.getIndicatorsReason(estadoDelLocal, estadoDelLocalGood, estadoDelLocalBad, estadoDelLocalVeryBad)
+					}, {
+						title: 'Servicio Utilizado',
+						bad: this.getPercentage(servicioUtilizadoBad, servicioUtilizado),
+						veryBad: this.getPercentage(servicioUtilizadoVeryBad, servicioUtilizado),
+						good: this.getPercentage(servicioUtilizadoGood, servicioUtilizado),
+						veryGood: this.getPercentage(servicioUtilizadoVeryGood, servicioUtilizado),
+						total: servicioUtilizado,
+						satisfaction: this.getIndicatorsReason(servicioUtilizado, servicioUtilizadoGood, servicioUtilizadoBad, servicioUtilizadoVeryBad)
+					}]
+
 				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
-				const total = this.results.length
-				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
-				
-				let numServ = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
-				let objServ = [], objServ2 = [], objServ3 = [], objServ4 = []
-				let servVeryGood = 0, servGood = 0, servBad = 0, servVeryBad = 0
-				let serv2VeryGood = 0, serv2Good = 0, serv2Bad = 0, serv2VeryBad = 0
-				let serv3VeryGood = 0, serv3Good = 0, serv3Bad = 0, serv3VeryBad = 0
-				let serv4VeryGood = 0, serv4Good = 0, serv4Bad = 0, serv4VeryBad = 0
-				let servObjVeryGood = [], servObjGood = [], servObjBad = [], servObjVeryBad = []
-				let serv2ObjVeryGood = [], serv2ObjGood = [], serv2ObjBad = [], serv2ObjVeryBad = []
-				let serv3ObjVeryGood = [], serv3ObjGood = [], serv3ObjBad = [], serv3ObjVeryBad = []
-				let serv4ObjVeryGood = [], serv4ObjGood = [], serv4ObjBad = [], serv4ObjVeryBad = []
-				
-				let numReas = 0, numReas2 = 0, numReas3 = 0, numReas4 = 0
-				let objReas = [], objReas2 = [], objReas3 = [], objReas4 = []
-				let reasVeryGood = 0, reasGood = 0, reasBad = 0, reasVeryBad = 0
-				let reas2VeryGood = 0, reas2Good = 0, reas2Bad = 0, reas2VeryBad = 0
-				let reas3VeryGood = 0, reas3Good = 0, reas3Bad = 0, reas3VeryBad = 0
-				let reas4VeryGood = 0, reas4Good = 0, reas4Bad = 0, reas4VeryBad = 0
-				let reasObjVeryGood = [], reasObjGood = [], reasObjBad = [], reasObjVeryBad = []
-				let reas2ObjVeryGood = [], reas2ObjGood = [], reas2ObjBad = [], reas2ObjVeryBad = []
-				let reas3ObjVeryGood = [], reas3ObjGood = [], reas3ObjBad = [], reas3ObjVeryBad = []
-				let reas4ObjVeryGood = [], reas4ObjGood = [], reas4ObjBad = [], reas4ObjVeryBad = []
+				this.results.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
 
-				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
-				let objzoneWM = [], objzoneLB = [], objzoneDR = [], objzoneDL = [], objzoneCM = [], objzoneFC = []
-				
-				let zoneWMVeryGood = 0, zoneWMGood = 0, zoneWMBad = 0, zoneWMVeryBad = 0
-				let zoneLBVeryGood = 0, zoneLBGood = 0, zoneLBBad = 0, zoneLBVeryBad = 0
-				let zoneDRVeryGood = 0, zoneDRGood = 0, zoneDRBad = 0, zoneDRVeryBad = 0
-				let zoneDLVeryGood = 0, zoneDLGood = 0, zoneDLBad = 0, zoneDLVeryBad = 0
-				let zoneCMVeryGood = 0, zoneCMGood = 0, zoneCMBad = 0, zoneCMVeryBad = 0
-				let zoneFCVeryGood = 0, zoneFCGood = 0, zoneFCBad = 0, zoneFCVeryBad = 0
+				const statsLocals = (await this.$axios.post('locals/stats/faces', { condition: filter })).data
 
-				let zoneWMObjVeryGood = [], zoneWMObjGood = [], zoneWMObjBad = [], zoneWMObjVeryBad = []
-				let zoneLBObjVeryGood = [], zoneLBObjGood = [], zoneLBObjBad = [], zoneLBObjVeryBad = []
-				let zoneDRObjVeryGood = [], zoneDRObjGood = [], zoneDRObjBad = [], zoneDRObjVeryBad = []
-				let zoneDLObjVeryGood = [], zoneDLObjGood = [], zoneDLObjBad = [], zoneDLObjVeryBad = []
-				let zoneCMObjVeryGood = [], zoneCMObjGood = [], zoneCMObjBad = [], zoneCMObjVeryBad = []
-				let zoneFCObjVeryGood = [], zoneFCObjGood = [], zoneFCObjBad = [], zoneFCObjVeryBad = []			
-
-				let complains = new Array(2).fill(0)
-				let comments = new Array(2).fill(0)
 				let activeLocals = []
-				let setUpLocals = []
-				
-				for (let assessment of this.results) {
-					for (let local of this.locals) {
-						if (local.assessments.length && !setUpLocals.includes(local)) {
-							setUpLocals.push(local)
-							activeLocals.push(this.getChartLocal(local))
-						}
-						if (local.id == assessment.local) {
-							switch(local.zone) {
-								case 'MM3exjMdkKaQ0cUkAkM2':
-									zoneWM++
-									assessment.face == "veryGood" ? zoneWMVeryGood++ : assessment.face == "good" ? zoneWMGood++ : assessment.face == "bad" ? zoneWMBad++ : assessment.face == "veryBad" ? zoneWMVeryBad++ : null
-									assessment.face == "veryGood" ? zoneWMObjVeryGood.push(assessment) : assessment.face == "good" ? zoneLBObjGood.push(assessment) : assessment.face == "bad" ? zoneWMObjBad.push(assessment) : assessment.face == "veryBad" ? zoneWMObjVeryBad.push(assessment) : null
-									objzoneWM.push(assessment)
-								break
-								case 'MopGQtv8fBJU4Pbad7vD':
-									zoneLB++
-									assessment.face == "veryGood" ? zoneLBVeryGood++ : assessment.face == "good" ? zoneLBGood++ : assessment.face == "bad" ? zoneLBBad++ : assessment.face == "veryBad" ? zoneLBVeryBad++ : null
-									assessment.face == "veryGood" ? zoneLBObjVeryGood.push(assessment) : assessment.face == "good" ? zoneLBObjGood.push(assessment) : assessment.face == "bad" ? zoneLBObjBad.push(assessment) : assessment.face == "veryBad" ? zoneLBObjVeryBad.push(assessment) : null
-									objzoneLB.push(assessment)
-								break
-								case 'Ngw5aiu8JFFKlHMDeZVd':
-									zoneCM++
-									assessment.face == "veryGood" ? zoneCMVeryGood++ : assessment.face == "good" ? zoneCMGood++ : assessment.face == "bad" ? zoneCMBad++ : assessment.face == "veryBad" ? zoneCMVeryBad++ : null
-									assessment.face == "veryGood" ? zoneCMObjVeryGood.push(assessment) : assessment.face == "good" ? zoneCMObjGood.push(assessment) : assessment.face == "bad" ? zoneCMObjBad.push(assessment) : assessment.face == "veryBad" ? zoneCMObjVeryBad.push(assessment) : null
-									objzoneCM.push(assessment)
-								break
-								case 'cRc6N1NsFEXInsBtkB9w':
-									zoneDR++
-									assessment.face == "veryGood" ? zoneDRVeryGood++ : assessment.face == "good" ? zoneDRGood++ : assessment.face == "bad" ? zoneDRBad++ : assessment.face == "veryBad" ? zoneDRVeryBad++ : null
-									assessment.face == "veryGood" ? zoneDRObjVeryGood.push(assessment) : assessment.face == "good" ? zoneDRObjGood.push(assessment) : assessment.face == "bad" ? zoneDRObjBad.push(assessment) : assessment.face == "veryBad" ? zoneDRObjVeryBad.push(assessment) : null
-									objzoneDR.push(assessment)
-								break
-								case 'mTMi65jxCFXXglPMEARV':
-									zoneDL++
-									assessment.face == "veryGood" ? zoneDLVeryGood++ : assessment.face == "good" ? zoneDLGood++ : assessment.face == "bad" ? zoneDLBad++ : assessment.face == "veryBad" ? zoneDLVeryBad++ : null
-									assessment.face == "veryGood" ? zoneDLObjVeryGood.push(assessment) : assessment.face == "good" ? zoneDLObjGood.push(assessment) : assessment.face == "bad" ? zoneDLObjBad.push(assessment) : assessment.face == "veryBad" ? zoneDLObjVeryBad.push(assessment) : null
-									objzoneDL.push(assessment)
-								break
-								case 'wk77ITDgnPYUjZ28MxJK':
-									zoneFC++
-									assessment.face == "veryGood" ? zoneFCVeryGood++ : assessment.face == "good" ? zoneFCGood++ : assessment.face == "bad" ? zoneFCBad++ : assessment.face == "veryBad" ? zoneFCVeryBad++ : null
-									assessment.face == "veryGood" ? zoneFCObjVeryGood.push(assessment) : assessment.face == "good" ? zoneFCObjGood.push(assessment) : assessment.face == "bad" ? zoneFCObjBad.push(assessment) : assessment.face == "veryBad" ? zoneFCObjVeryBad.push(assessment) : null
-									objzoneFC.push(assessment)
-								break
-							}
-						}
-					}
 
-					switch(assessment.face) {
-						case 'veryGood':
-							numVeryGood++
-							assessment.comment ? comments[1]++ : comments[1]
-						break
-						case 'good':
-							numGood++
-							assessment.comment ? comments[0]++ : comments[0]
-						break
-						case 'bad':
-							numBad++
-							assessment.complain ? complains[0]++ : complains[0]
-						break
-						case 'veryBad':
-							numVeryBad++
-							assessment.complain ? complains[1]++ : complains[1]
-						break
-					}
-
-					switch(assessment.justification) {
-						case 'Pago de servicios':
-							numServ++
-							assessment.face == "veryGood" ? servVeryGood++ : assessment.face == "good" ? servGood++ : assessment.face == "bad" ? servBad++ : assessment.face == "veryBad" ? servVeryBad++ : null
-							assessment.face == "veryGood" ? servObjVeryGood.push(assessment) : assessment.face == "good" ? servObjGood.push(assessment) : assessment.face == "bad" ? servObjBad.push(assessment) : assessment.face == "veryBad" ? servObjVeryBad.push(assessment) : null
-							objServ.push(assessment)
-						break
-						case 'Envío internacional':
-							numServ2++
-							assessment.face == "veryGood" ? serv2VeryGood++ : assessment.face == "good" ? serv2Good++ : assessment.face == "bad" ? serv2Bad++ : assessment.face == "veryBad" ? serv2VeryBad++ : null
-							assessment.face == "veryGood" ? serv2ObjVeryGood.push(assessment) : assessment.face == "good" ? serv2ObjGood.push(assessment) : assessment.face == "bad" ? serv2ObjBad.push(assessment) : assessment.face == "veryBad" ? serv2ObjVeryBad.push(assessment) : null
-							objServ2.push(assessment)
-						break
-						case 'Envío nacional':
-							numServ3++
-							assessment.face == "veryGood" ? serv3VeryGood++ : assessment.face == "good" ? serv3Good++ : assessment.face == "bad" ? serv3Bad++ : assessment.face == "veryBad" ? serv3VeryBad++ : null
-							assessment.face == "veryGood" ? serv3ObjVeryGood.push(assessment) : assessment.face == "good" ? serv3ObjGood.push(assessment) : assessment.face == "bad" ? serv3ObjBad.push(assessment) : assessment.face == "veryBad" ? serv3ObjVeryBad.push(assessment) : null
-							objServ3.push(assessment)
-						break
-						case 'Casa de cambio':
-							numServ4++
-							assessment.face == "veryGood" ? serv4VeryGood++ : assessment.face == "good" ? serv4Good++ : assessment.face == "bad" ? serv4Bad++ : assessment.face == "veryBad" ? serv4VeryBad++ : null
-							assessment.face == "veryGood" ? serv4ObjVeryGood.push(assessment) : assessment.face == "good" ? serv4ObjGood.push(assessment) : assessment.face == "bad" ? serv4ObjBad.push(assessment) : assessment.face == "veryBad" ? serv4ObjVeryBad.push(assessment) : null
-							objServ4.push(assessment)
-						break
-					}
-
-					switch(assessment.justificationTwo) {
-						case 'Atención del Cajero':
-							numReas++
-							assessment.face == "veryGood" ? reasVeryGood++ : assessment.face == "good" ? reasGood++ : assessment.face == "bad" ? reasBad++ : assessment.face == "veryBad" ? reasVeryBad++ : null
-							assessment.face == "veryGood" ? reasObjVeryGood.push(assessment) : assessment.face == "good" ? reasObjGood.push(assessment) : assessment.face == "bad" ? reasObjVeryBad.push(assessment) : assessment.face == "veryBad" ? reasObjVeryBad.push(assessment) : null
-							objReas.push(assessment)
-						break
-						case 'Tiempo de Espera':
-							numReas2++
-							assessment.face == "veryGood" ? reas2VeryGood++ : assessment.face == "good" ? reas2Good++ : assessment.face == "bad" ? reas2Bad++ : assessment.face == "veryBad" ? reas2VeryBad++ : null
-							assessment.face == "veryGood" ? reas2ObjVeryGood.push(assessment) : assessment.face == "good" ? reas2ObjGood.push(assessment) : assessment.face == "bad" ? reas2ObjBad.push(assessment) : assessment.face == "veryBad" ? reas2ObjVeryBad.push(assessment) : null
-							objReas2.push(assessment)
-						break
-						case 'Estado del Local':
-							numReas3++
-							assessment.face == "veryGood" ? reas3VeryGood++ : assessment.face == "good" ? reas3Good++ : assessment.face == "bad" ? reas3Bad++ : assessment.face == "veryBad" ? reas3VeryBad++ : null
-							assessment.face == "veryGood" ? reas3ObjVeryGood.push(assessment) : assessment.face == "good" ? reas3ObjGood.push(assessment) : assessment.face == "bad" ? reas3ObjBad.push(assessment) : assessment.face == "veryBad" ? reas3ObjVeryBad.push(assessment) : null
-							objReas3.push(assessment)
-						break
-						case 'Servicio Utilizado':
-							numReas4++
-							assessment.face == "veryGood" ? reas4VeryGood++ : assessment.face == "good" ? reas4Good++ : assessment.face == "bad" ? reas4Bad++ : assessment.face == "veryBad" ? reas4VeryBad++ : null
-							assessment.face == "veryGood" ? reas4ObjVeryGood.push(assessment) : assessment.face == "good" ? reas4ObjGood.push(assessment) : assessment.face == "bad" ? reas4ObjBad.push(assessment) : assessment.face == "veryBad" ? reas4ObjVeryBad.push(assessment) : null
-							objReas4.push(assessment)
-						break
-					}
+				for (let local of statsLocals) {
+					activeLocals.push(this.getChartLocal(local))
 				}
 
-				this.results.stats = {
-					veryGood: [numVeryGood, this.getPercentage(numVeryGood, total), comments[1]],
-					good: [numGood, this.getPercentage(numGood, total), comments[0]],
-					bad: [numBad, this.getPercentage(numBad, total), complains[0]],
-					veryBad: [numVeryBad, this.getPercentage(numVeryBad, total), complains[1]],
-					services: {
-						0: [numServ, this.getPercentage(numServ, total), { 
-							veryGood: [servObjVeryGood.length, this.getPercentage(servObjVeryGood.length, numServ)],
-							good: [servObjGood.length, this.getPercentage(servObjGood.length, numServ)],
-							bad: [servObjBad.length, this.getPercentage(servObjBad.length, numServ)],
-							veryBad: [servObjVeryBad.length, this.getPercentage(servObjVeryBad.length, numServ)],
-							assessments: objServ,
-							satisfaction: this.getIndicatorsReason(numServ, servGood, servBad, servVeryBad)
-						}],
-						1: [numServ2, this.getPercentage(numServ2, total), { 
-							veryGood: [serv2ObjVeryGood.length, this.getPercentage(serv2ObjVeryGood.length, numServ2)],
-							good: [serv2ObjGood.length, this.getPercentage(serv2ObjGood.length, numServ2)],
-							bad: [serv2ObjBad.length, this.getPercentage(serv2ObjBad.length, numServ2)],
-							veryBad: [serv2ObjVeryBad.length, this.getPercentage(serv2ObjVeryBad.length, numServ2)],
-							assessments: objServ2,
-							satisfaction: this.getIndicatorsReason(numServ2, serv2Good, serv2Bad, serv2VeryBad)
-						}],
-						2: [numServ3, this.getPercentage(numServ3, total), { 
-							veryGood: [serv3ObjVeryGood.length, this.getPercentage(serv3ObjVeryGood.length, numServ3)],
-							good: [serv3ObjGood.length, this.getPercentage(serv3ObjGood.length, numServ3)],
-							bad: [serv3ObjBad.length, this.getPercentage(serv3ObjBad.length, numServ3)],
-							veryBad: [serv3ObjVeryBad.length, this.getPercentage(serv3ObjVeryBad.length, numServ3)],
-							assessments: objServ3,
-							satisfaction: this.getIndicatorsReason(numServ3, serv3Good, serv3Bad, serv3VeryBad)
-						}],
-						3: [numServ4, this.getPercentage(numServ4, total), { 
-							veryGood: [serv4ObjVeryGood.length, this.getPercentage(serv4ObjVeryGood.length, numServ4)],
-							good: [serv4ObjGood.length, this.getPercentage(serv4ObjGood.length, numServ4)],
-							bad: [serv4ObjBad.length, this.getPercentage(serv4ObjBad.length, numServ4)],
-							veryBad: [serv4ObjVeryBad.length, this.getPercentage(serv4ObjVeryBad.length, numServ4)],
-							assessments: objServ4,
-							satisfaction: this.getIndicatorsReason(numServ4, serv4Good, serv4Bad, serv4VeryBad)
-						}]
-					},
-					reasons: {
-						0: [numReas, this.getPercentage(numReas, total), { 
-							veryGood: [reasObjVeryGood.length, this.getPercentage(reasObjVeryGood.length, numReas)],
-							good: [reasObjGood.length, this.getPercentage(reasObjGood.length, numReas)],
-							bad: [reasObjBad.length, this.getPercentage(reasObjBad.length, numReas)],
-							veryBad: [reasObjVeryBad.length, this.getPercentage(reasObjVeryBad.length, numReas)],
-							assessments: objReas,
-							satisfaction: this.getIndicatorsReason(numReas, reasGood, reasBad, reasVeryBad)
-						}],
-						1: [numReas2, this.getPercentage(numReas2, total), { 
-							veryGood: [reas2ObjVeryGood.length, this.getPercentage(reas2ObjVeryGood.length, numReas2)],
-							good: [reas2ObjGood.length, this.getPercentage(reas2ObjGood.length, numReas2)],
-							bad: [reas2ObjBad.length, this.getPercentage(reas2ObjBad.length, numReas2)],
-							veryBad: [reas2ObjVeryBad.length, this.getPercentage(reas2ObjVeryBad.length, numReas2)],
-							assessments: objReas2,
-							satisfaction: this.getIndicatorsReason(numReas2, reas2Good, reas2Bad, reas2VeryBad)
-						}],
-						2: [numReas3, this.getPercentage(numReas3, total), { 
-							veryGood: [reas3ObjVeryGood.length, this.getPercentage(reas3ObjVeryGood.length, numReas3), 0],
-							good: [reas3ObjGood.length, this.getPercentage(reas3ObjGood.length, numReas3), 0],
-							bad: [reas3ObjBad.length, this.getPercentage(reas3ObjBad.length, numReas3), 0],
-							veryBad: [reas3ObjVeryBad.length, this.getPercentage(reas3ObjVeryBad.length, numReas3), 0],
-							assessments: objReas3,
-							satisfaction: this.getIndicatorsReason(numReas3, reas3Good, reas3Bad, reas3VeryBad)
-						}],
-						3: [numReas4, this.getPercentage(numReas4, total), { 
-							veryGood: [reas4ObjVeryGood.length, this.getPercentage(reas4ObjVeryGood.length, numReas4)],
-							good: [reas4ObjGood.length, this.getPercentage(reas4ObjGood.length, numReas4)],
-							bad: [reas4ObjBad.length, this.getPercentage(reas4ObjBad.length, numReas4)],
-							veryBad: [reas4ObjVeryBad.length, this.getPercentage(reas4ObjVeryBad.length, numReas4)],
-							assessments: objReas4,
-							satisfaction: this.getIndicatorsReason(numReas4, reas4Good, reas4Bad, reas4VeryBad)
-						}]						
-					},
-					zones: {
-						0: [zoneWM, this.getPercentage(zoneWM, total), { 
-							veryGood: [zoneWMObjVeryGood.length, this.getPercentage(zoneWMObjVeryGood.length, zoneWM)],
-							good: [zoneWMObjGood.length, this.getPercentage(zoneWMObjGood.length, zoneWM)],
-							bad: [zoneWMObjBad.length, this.getPercentage(zoneWMObjBad.length, zoneWM)],
-							veryBad: [zoneWMObjVeryBad.length, this.getPercentage(zoneWMObjVeryBad.length, zoneWM)],
-							assessments: objzoneWM,
-							satisfaction: this.getIndicatorsReason(zoneWM, zoneWMGood, zoneWMBad, zoneWMVeryBad)
-							}],
-						1: [zoneLB, this.getPercentage(zoneLB, total), { 
-							veryGood: [zoneLBObjVeryGood.length, this.getPercentage(zoneLBObjVeryGood.length, zoneLB)],
-							good: [zoneLBObjGood.length, this.getPercentage(zoneLBObjGood.length, zoneLB)],
-							bad: [zoneLBObjBad.length, this.getPercentage(zoneLBObjBad.length, zoneLB)],
-							veryBad: [zoneLBObjVeryBad.length, this.getPercentage(zoneLBObjVeryBad.length, zoneLB)],
-							assessments: objzoneLB,
-							satisfaction: this.getIndicatorsReason(zoneLB, zoneLBGood, zoneLBBad, zoneLBVeryBad)
-							}],
-						2: [zoneCM, this.getPercentage(zoneCM, total), { 
-							veryGood: [zoneCMObjVeryGood.length, this.getPercentage(zoneCMObjVeryGood.length, zoneCM)],
-							good: [zoneCMObjGood.length, this.getPercentage(zoneCMObjGood.length, zoneCM)],
-							bad: [zoneCMObjBad.length, this.getPercentage(zoneCMObjBad.length, zoneCM)],
-							veryBad: [zoneCMObjVeryBad.length, this.getPercentage(zoneCMObjVeryBad.length, zoneCM)],
-							assessments: objzoneCM,
-							satisfaction: this.getIndicatorsReason(zoneCM, zoneCMGood, zoneCMBad, zoneCMVeryBad)
-							}],
-						3: [zoneDR, this.getPercentage(zoneDR, total), { 
-							veryGood: [zoneDRObjVeryGood.length, this.getPercentage(zoneDRObjVeryGood.length, zoneDR)],
-							good: [zoneDRObjGood.length, this.getPercentage(zoneDRObjGood.length, zoneDR)],
-							bad: [zoneDRObjBad.length, this.getPercentage(zoneDRObjBad.length, zoneDR)],
-							veryBad: [zoneDRObjVeryBad.length, this.getPercentage(zoneDRObjVeryBad.length, zoneDR)],
-							assessments: objzoneDR,
-							satisfaction: this.getIndicatorsReason(zoneDR, zoneDRGood, zoneDRBad, zoneDRVeryBad)
-							}],
-						4: [zoneDL, this.getPercentage(zoneDL, total), { 
-							veryGood: [zoneDLObjVeryGood.length, this.getPercentage(zoneDLObjVeryGood.length, zoneDL)],
-							good: [zoneDLObjGood.length, this.getPercentage(zoneDLObjGood.length, zoneDL)],
-							bad: [zoneDLObjBad.length, this.getPercentage(zoneDLObjBad.length, zoneDL)],
-							veryBad: [zoneDLObjVeryBad.length, this.getPercentage(zoneDLObjVeryBad.length, zoneDL)],
-							assessments: objzoneDL,
-							satisfaction: this.getIndicatorsReason(zoneDL, zoneDLGood, zoneDLBad, zoneDLVeryBad)
-							}],
-						5: [zoneFC, this.getPercentage(zoneFC, total), { 
-							veryGood: [zoneFCObjVeryGood.length, this.getPercentage(zoneFCObjVeryGood.length, zoneFC)],
-							good: [zoneFCObjGood.length, this.getPercentage(zoneFCObjGood.length, zoneFC)],
-							bad: [zoneFCObjBad.length, this.getPercentage(zoneFCObjBad.length, zoneFC)],
-							veryBad: [zoneFCObjVeryBad.length, this.getPercentage(zoneFCObjVeryBad.length, zoneFC)],
-							assessments: objzoneFC,
-							satisfaction: this.getIndicatorsReason(zoneFC, zoneFCGood, zoneFCBad, zoneFCVeryBad)
-						}],
-					},
-				}
+				this.results.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).slice(0,5)
+					
+				this.results.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,5)
 
-				let reasonChart = [{
-					title: 'Atención del Cajero',
-					bad: this.getPercentage(reasBad, numReas),
-					veryBad: this.getPercentage(reasVeryBad, numReas),
-					total: numReas,
-					satisfaction: this.getIndicatorsReason(numReas, reasGood, reasBad, reasVeryBad)
-				}, {
-					title: 'Tiempo de Espera',
-					bad: this.getPercentage(reas2Bad, numReas2),
-					veryBad: this.getPercentage(reas2VeryBad, numReas2),
-					total: numReas2,
-					satisfaction: this.getIndicatorsReason(numReas2, reas2Good, reas2Bad, reas2VeryBad)
-				}, {
-					title: 'Estado del Local',
-					bad: this.getPercentage(reas3Bad, numReas3),
-					veryBad: this.getPercentage(reas3VeryBad, numReas3),
-					total: numReas3,
-					satisfaction: this.getIndicatorsReason(numReas3, reas3Good, reas3Bad, reas3VeryBad)
-				}, {
-					title: 'Servicio Utilizado',
-					bad: this.getPercentage(reas4Bad, numReas4),
-					veryBad: this.getPercentage(reas4VeryBad, numReas4),
-					total: numReas4,
-					satisfaction: this.getIndicatorsReason(numReas4, reas4Good, reas4Bad, reas4VeryBad)
-				}]
-
-				let reasonChartStrong = [{
-					title: 'Atención del Cajero',
-					good: this.getPercentage(reasGood, numReas),
-					veryGood: this.getPercentage(reasVeryGood, numReas),
-					total: numReas,
-					satisfaction: this.getIndicatorsReason(numReas, reasGood, reasBad, reasVeryBad)
-				}, {
-					title: 'Tiempo de Espera',
-					good: this.getPercentage(reas2Good, numReas2),
-					veryGood: this.getPercentage(reas2VeryGood, numReas2),
-					total: numReas2,
-					satisfaction: this.getIndicatorsReason(numReas2, reas2Good, reas2Bad, reas2VeryBad)
-				}, {
-					title: 'Estado del Local',
-					good: this.getPercentage(reas3Good, numReas3),
-					veryGood: this.getPercentage(reas3VeryGood, numReas3),
-					total: numReas3,
-					satisfaction: this.getIndicatorsReason(numReas3, reas3Good, reas3Bad, reas3VeryBad)
-				}, {
-					title: 'Servicio Utilizado',
-					good: this.getPercentage(reas4Good, numReas4),
-					veryGood: this.getPercentage(reas4VeryGood, numReas4),
-					total: numReas4,
-					satisfaction: this.getIndicatorsReason(numReas4, reas4Good, reas4Bad, reas4VeryBad)
-				}]
-
-				this.weakPointsCustom = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
-				this.strongPointsCustom = reasonChartStrong.sort(sortByProperty('satisfaction'))
-
-				// this.topLocals = activeLocals.sort(sortByProperty('satisfaction'))
-
-				// function reverseArrayInPlace(arr) {
-				// 	for (var i = 0; i <= Math.floor((arr.length - 1) / 2); i++) {
-				// 		let el = arr[i]
-				// 			arr[i] = arr[arr.length - 1 - i]
-				// 			arr[arr.length - 1 - i] = el
-				// 	}
-				// 	return arr
-				// }
-				
-				// this.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+				this.dialogResults = false
+				this.dialogResults = true
 			},
 
 			async getIndicatorsGlobal() {
@@ -2392,8 +2191,8 @@
 
 				this.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, this.totalAssessments)).toFixed(2)
 
-				const services = (await this.$axios.get('/assessments/stats/service')).data[0].total
-				const reasons = (await this.$axios.get('/assessments/stats/reason')).data[0].totalR
+				const services = (await this.$axios.post('/assessments/stats/service')).data[0].total
+				const reasons = (await this.$axios.post('/assessments/stats/reason')).data[0].totalR
 
 				const complains = (await this.$axios.get('/assessments/stats/complain')).data[0]
 				const comments = (await this.$axios.get('/assessments/stats/comment')).data[0]
@@ -2409,33 +2208,20 @@
 
 			getIndicatorsLocal(local) {
 				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
-				
-				const total = local.assessments.stats.total
-				const stats = local.assessments.stats
-				
-				let complains = 0, comments = 0, services = 0, reasons = 0
-				local.indicatorsGlobal = {}
 
-				for (let assessment of local.assessments) {
-					assessment.complain ? complains++ : complains
-					assessment.comment ? comments++ : comments
-					assessment.flow.justification ? services++ : services
-					assessment.flow.justificationTwo ? reasons++ : reasons
-				}
-
-				const partialGood = (stats.good * total) / 100 * PRC_GOOD
-				const partialBad = (stats.bad * total) / 100 * PRC_BAD
-				const partialVeryBad = (stats.veryBad * total) / 100 * PRC_VERY_BAD
+				const partialGood = local.good * PRC_GOOD
+				const partialBad = local.bad * PRC_BAD
+				const partialVeryBad = local.veryBad * PRC_VERY_BAD
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
-				local.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
-				if (this.getPercentage(partials, total) == 0) local.indicatorsGlobal.satisfaction = 100
+				local.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, local.total)).toFixed(2)
+				if (this.getPercentage(partials, local.total) == 0) local.indicatorsGlobal.satisfaction = 100
 				
-				local.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
-				local.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
-				local.indicatorsGlobal.service = [services, this.getPercentage(services, total)]
-				local.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, total)]
+				// local.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
+				// local.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
+				// local.indicatorsGlobal.service = [services, this.getPercentage(services, total)]
+				// local.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, total)]
 
 				return local.indicatorsGlobal
 			},
@@ -2777,74 +2563,20 @@
 			},
 
 			getChartLocal(local) {
-				let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0
-				let numServ = 0, numServ2 = 0, numServ3 = 0, numServ4 = 0
-				let numReas = 0, numReas2 = 0, numReas3 = 0, numReas4 = 0
-				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
-				let complains = new Array(2).fill(0)
-				let comments = new Array(2).fill(0)
-				
-				for (let assesment of local.assessments) {
-					switch(assesment.face) {
-						case 'veryGood':
-							numVeryGood++
-						break
-						case 'good':
-							numGood++
-						break
-						case 'bad':
-							numBad++
-						break
-						case 'veryBad':
-							numVeryBad++
-						break
-					}
-
-					switch(assesment.justification) {
-						case 'Pago de servicios':
-							numServ++
-						break
-						case 'Envío internacional':
-							numServ2++
-						break
-						case 'Envío nacional':
-							numServ3++
-						break
-						case 'Casa de cambio':
-							numServ4++
-						break
-					}
-
-					switch(assesment.justificationTwo) {
-						case 'Atención del Cajero':
-							numReas++
-						break
-						case 'Tiempo de Espera':
-							numReas2++
-						break
-						case 'Estado del Local':
-							numReas3++
-						break
-						case 'Servicio Utilizado':
-							numReas4++
-						break
-					}
-				}
-
-				let total = numVeryGood + numGood + numBad + numVeryBad
-
-				local.assessments.stats = {
+				local.stats = {
 					title: local.title,
-					veryGood: this.getPercentage(numVeryGood, total),
-					good: this.getPercentage(numGood, total),
-					bad: this.getPercentage(numBad, total),
-					veryBad: this.getPercentage(numVeryBad, total),
-					total
+					veryGood: this.getPercentage(local.veryGood, local.total),
+					good: this.getPercentage(local.good, local.total),
+					bad: this.getPercentage(local.bad, local.total),
+					veryBad: this.getPercentage(local.veryBad, local.total),
+					total: local.total,
 				}
 
-				local.assessments.stats.satisfaction = this.getIndicatorsLocal(local).satisfaction
+				local.indicatorsGlobal = {}
 
-				return local.assessments.stats
+				local.stats.satisfaction = this.getIndicatorsLocal(local).satisfaction
+
+				return local.stats
 
 				// const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 				// let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0, activeLocals = []
