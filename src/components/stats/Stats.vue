@@ -344,7 +344,7 @@
 					v-flex#satisfactionIndCustom.pt-3.pb-5(xs12)
 						v-card.my-1.mr-1(flat tile)
 							v-card-media.white--text.primary(height="75px")
-								span.headline.ml-4.pt-3 Satisfacción de Cliente: {{ indicatorsCustom.satisfaction }}%
+								span.headline.ml-4.pt-3 Satisfacción de Cliente: {{ results.indicatorsCustom.satisfaction }}%
 							v-card-title
 								span.display-1.headline % que representa el grado general de satisfacción del cliente.
 								// v-progress-linear(:value="indicatorsCustom.satisfaction" height="20" color="info")
@@ -352,35 +352,35 @@
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Quejas: {{ indicatorsCustom.complain[1] }}% - {{ indicatorsCustom.complain[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Quejas: {{ results.indicatorsCustom.complain[1] }}% - {{ results.indicatorsCustom.complain[0] }} total
 								v-card-title
 									span.display-1.headline % del total de encuestados que dejaron una queja.
 									// v-progress-linear(:value="indicatorsCustom.complain[1]" height="20" color="info")
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Com. Positivos: {{ indicatorsCustom.comment[1] }}% - {{ indicatorsCustom.comment[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Com. Positivos: {{ results.indicatorsCustom.comment[1] }}% - {{ results.indicatorsCustom.comment[0] }} total
 								v-card-title
 									span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
 									// v-progress-linear(:value="indicatorsCustom.comment[1]" height="20" color="info")
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Servicio: {{ indicatorsCustom.service[1] }}% - {{ indicatorsCustom.service[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Servicio: {{ results.indicatorsCustom.service[1] }}% - {{ results.indicatorsCustom.service[0] }} total
 								v-card-title
 									span.display-1.headline % del total de  encuestados que indicó cuál servicio utilizó.
 									// v-progress-linear(:value="indicatorsCustom.service[1]" height="20" color="info")
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Motivo: {{ indicatorsCustom.reason[1] }}% - {{ indicatorsCustom.reason[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Motivo: {{ results.indicatorsCustom.reason[1] }}% - {{ results.indicatorsCustom.reason[0] }} total
 								v-card-title
 									span.display-1.headline % del total de encuestados que indico motivo de satisfacción o insatisfacción.
 									// v-progress-linear(:value="indicatorsCustom.reason[1]" height="20" color="info")
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Quejas sin Leer: {{ indicatorsCustom.complainUnread[1] }}% - {{ indicatorsCustom.complainUnread[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Quejas sin Leer: {{ results.indicatorsCustom.complainUnread[1] }}% - {{ results.indicatorsCustom.complainUnread[0] }} total
 								v-card-title
 									span.display-1.headline % del total de quejas que no han sido leídas.
 									// v-progress-linear(:value="indicatorsCustom.complainUnread[1]" height="20" color="info")
@@ -426,9 +426,9 @@
 						v-flex(xs9 offset-xs2)
 							Zone.pb-5(:data="results.statsZones")
 					v-flex#strongPointsCustom(xs12)
-						Chart.pb-5(type="barStacked" title="Puntos Fuertes" :data="strongPointsCustom")
-					v-flex#weakPointsCustom(xs12)
-						Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPointsCustom")
+						Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="results.weakPoints")
+					// v-flex#weakPointsCustom(xs12)
+						// Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPointsCustom")
 		
 		Chart#weekChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobal")
 		Chart#dayChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobal")
@@ -643,7 +643,7 @@
 				menuTimeUntil: false,
 				timeSince: null,
 				timeUntil: null,
-				results: {},
+				results: { indicatorsCustom: { satisfaction: null, complain: [], comment: [], service: [], reason: [], complainUnread: [] } },
         time: null,
 				loading: false,
 				loader: null,
@@ -1228,7 +1228,9 @@
 					['ID' , 'Local', 'Jefe Zonal', 'Fecha', 'Hora', 'Valoración', 'Servicio', 'Motivo', 'Comentario', 'Email', 'Teléfono'],
 				]
 
-				const assessmentsXLS = (await this.$axios.get('/assessments/xls')).data
+				const assessmentsXLS = (await this.$axios.post('/assessments/xls')).data
+
+				console.log(assessmentsXLS.sql)
 
 				for (let i in assessmentsXLS) {
 					ws_data.push(new Array(10).fill(null))
@@ -1272,60 +1274,49 @@
 					Subject: "Test",
 					Author: "Red Stapler",
 					CreatedDate: new Date(2017,12,19)
-				}
+				};
 				
-				wb.SheetNames.push("NPS Crudo de Datos")
+				wb.SheetNames.push("NPS Crudo de Datos");
 
 				const ws_data = [
 					['ID' , 'Local', 'Jefe Zonal', 'Fecha', 'Hora', 'Valoración', 'Servicio', 'Motivo', 'Comentario', 'Email', 'Teléfono'],
 				]
 
-				for (let assessment of this.results) {
+
+				const assessmentsXLS = (await this.$axios.post('/assessments/xls', { condition: this.results.filter })).data
+
+				console.log(assessmentsXLS)
+				for (let i in assessmentsXLS) {
 					ws_data.push(new Array(10).fill(null))
-					ws_data[ws_data.length - 1][0] = assessment.id
-					ws_data[ws_data.length - 1][1] = this.locals.find(item => item.id == assessment.local).title
-					ws_data[ws_data.length - 1][2] = this.zones.find(item => item.id == assessment.zone).responsable
-					ws_data[ws_data.length - 1][3] = `
-						${new Date(assessment.date).getDate() > 9 ? new Date(assessment.date).getDate() : "0" + new Date(assessment.date).getDate()}/
-						${new Date(assessment.date).getMonth() + 1 > 9 ? new Date(assessment.date).getMonth() + 1 : "0" + (new Date(assessment.date).getMonth() + 1)}/
-						${new Date(assessment.date).getFullYear()}
-					`
-					ws_data[ws_data.length - 1][4] = `
-						${new Date(assessment.date).getHours()}:
-						${new Date(assessment.date).getMinutes() > 9 ? new Date(assessment.date).getMinutes() : "0" + new Date(assessment.date).getMinutes()}:
-						${new Date(assessment.date).getSeconds() > 9 ? new Date(assessment.date).getSeconds() : "0" + new Date(assessment.date).getSeconds()}
-					`
-					ws_data[ws_data.length - 1][5] = assessment.face
-					ws_data[ws_data.length - 1][6] = assessment.justification
-					ws_data[ws_data.length - 1][7] = assessment.justificationTwo
-					this.$firebase.firestore().collection('tickets').where('assessment', '==', assessment.id).get().then(querySnapshot => {
-						querySnapshot.forEach(doc => {
-							const a = ws_data.findIndex(item => item[0] == assessment.id)
-							ws_data[a][8] = doc.data().description
-							ws_data[a][9] = doc.data().email
-							ws_data[a][10] = doc.data().telephone
-						})
-						y++
-						if (y == this.results.length) {
-							const ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-							wb.Sheets["NPS Crudo de Datos"] = ws;
-
-							const wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
-							
-							function s2ab(s) { 
-								const buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-								const view = new Uint8Array(buf);  //create uint8array as viewer
-								for (let i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-								return buf;
-							}
-
-							saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'NPS_Datos_Crudos_WU.xlsx');
-							this.loading3 = false
-							this.loader2 = null
-						}
-					})
+					ws_data[ws_data.length - 1][0] = assessmentsXLS[i].id
+					ws_data[ws_data.length - 1][1] = assessmentsXLS[i].local
+					ws_data[ws_data.length - 1][2] = assessmentsXLS[i].zone
+					ws_data[ws_data.length - 1][3] = assessmentsXLS[i].date
+					ws_data[ws_data.length - 1][4] = assessmentsXLS[i].time
+					ws_data[ws_data.length - 1][5] = assessmentsXLS[i].face
+					ws_data[ws_data.length - 1][6] = assessmentsXLS[i].justification
+					ws_data[ws_data.length - 1][7] = assessmentsXLS[i].justificationTwo
+					ws_data[ws_data.length - 1][8] = assessmentsXLS[i].description
+					ws_data[ws_data.length - 1][9] = assessmentsXLS[i].email
+					ws_data[ws_data.length - 1][10] = assessmentsXLS[i].telephone
 				}
+
+				const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+				wb.Sheets["NPS Crudo de Datos"] = ws;
+
+				const wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+				
+				function s2ab(s) {
+					const buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+					const view = new Uint8Array(buf);  //create uint8array as viewer
+					for (let i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+					return buf;
+				}
+
+				saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'NPS_Datos_Crudos_WU.xlsx');
+				this.loading3 = false
+				this.loader2 = null
 			},
 			async printGeneralReport() {
 				this.loader2 = 'loading2'
@@ -1500,13 +1491,31 @@
 				this.results.filter = null
 
 				if (this.dateSince) {
-					this.results.filter = ` AND DATE(date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
+					if (this.timeSince) {
+						this.results.filter = `
+						AND (assessments.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
+						AND '${this.dateUntil} ${this.timeUntil}'`
+						this.results.filterB = `
+						AND (tickets.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
+						AND '${this.dateUntil} ${this.timeUntil}'`
+					}
+					else {
+						this.results.filter = ` AND DATE(assessments.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
+						this.results.filterB = ` AND DATE(tickets.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
+					}
+				}
+
+				if (this.timeSince && !this.dateSince) {
+					this.results.filter = ` AND HOUR(assessments.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`
+					this.results.filterB = ` AND HOUR(tickets.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
 				}
 
 				const queryFaces = (await this.$axios.post('assessments/stats/faces/value-prc', { condition: this.results.filter })).data
 
 				this.results.statsFaces = queryFaces
 				this.results.totalAssessments = (await this.$axios.post('assessments/stats/total', { condition: this.results.filter })).data[0].total
+
+				console.log(this.results.totalAssessments)
 				
 				this['loading'] = false
 				this.loader = null
@@ -1518,12 +1527,11 @@
 				}
 				else {
 					this.getChartCustomM(this.results.filter)
-					// this.getInidicatorsCustom()
-					// this.getChartCustomDatesHour()
-					// this.getChartCustomDatesDayW()
-					// this.getChartCustomDatesDay()
-					// this.getChartCustomDatesMonth()
-					// this.getIndicatorsGlobal()
+					this.getIndicatorsCustom()
+					this.getChartCustomDatesHour()
+					this.getChartCustomDatesDayW()
+					this.getChartCustomDatesDay()
+					this.getChartCustomDatesMonth()
 					this.dialogResults = true
 				}
 			},
@@ -2194,9 +2202,9 @@
 				const services = (await this.$axios.post('/assessments/stats/service')).data[0].total
 				const reasons = (await this.$axios.post('/assessments/stats/reason')).data[0].totalR
 
-				const complains = (await this.$axios.get('/assessments/stats/complain')).data[0]
-				const comments = (await this.$axios.get('/assessments/stats/comment')).data[0]
-				const complainsUnread = (await this.$axios.get('/assessments/stats/complainUnread')).data[0]
+				const complains = (await this.$axios.post('/assessments/stats/complain')).data[0]
+				const comments = (await this.$axios.post('/assessments/stats/comment')).data[0]
+				const complainsUnread = (await this.$axios.post('/assessments/stats/complainUnread')).data[0]
 
 				this.indicatorsGlobal.complain = [complains.value, complains.percentage]
 				this.indicatorsGlobal.comment = [comments.value, comments.percentage]
@@ -2226,64 +2234,34 @@
 				return local.indicatorsGlobal
 			},
 
-			async getInidicatorsCustom() {
+			async getIndicatorsCustom() {
 				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
-				
-				const total = this.results.length
-				const stats = this.results.stats
-				
-				let complains = 0, comments = 0, services = 0, reasons = 0
-				let complainsUnread = 0
-				this.indicatorsCustom.complainUnread = [0, 0]
 
-				const getNumbers = () => {
-					for (let assessment of this.results) {
-						let tickets = this.$firebase.firestore().collection('tickets')
-						.where('assessment', '==', assessment.id)
-						if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
-						tickets.get().then(querySnapshot => {
-							querySnapshot.forEach(doc => {
-								if (doc.data().comment === 1) 
-									if (!doc.data().complain) comments++
-								if (doc.data().complain == 1) complains++
-				
-								this.indicatorsCustom.complain = [complains, this.getPercentage(complains, total)]
-								this.indicatorsCustom.comment = [comments, this.getPercentage(comments, total)]
-							})
-							if (!complains) this.indicatorsCustom.complain = [0, 0]
-							if (!comments) this.indicatorsCustom.comment = [0, 0]
-						})
+				if (!this.results.statsFaces[0]) this.results.statsFaces[0] = { value: 0 }
+				if (!this.results.statsFaces[1]) this.results.statsFaces[1] = { value: 0 }
+				if (!this.results.statsFaces[2]) this.results.statsFaces[2] = { value: 0 }
 
-						if (assessment.complain) {
-							let tickets = this.$firebase.firestore().collection('tickets')
-							.where('assessment', '==', assessment.id).where('status', '==', 0)
-							.where('complain', '==', 1)
-							if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
-							tickets.get().then(querySnapshot => {
-								querySnapshot.forEach(doc => {
-									complainsUnread++
-									this.indicatorsCustom.complainUnread = [complainsUnread, this.getPercentage(complainsUnread, complains)]
-								})
-							})
-						}
-
-						assessment.flow.justification ? services++ : services
-						assessment.flow.justificationTwo ? reasons++ : reasons
-					}
-				}
-
-				await getNumbers()
-
-				const partialGood = stats.good[0] * PRC_GOOD
-				const partialBad = stats.bad[0] * PRC_BAD
-				const partialVeryBad = stats.veryBad[0] * PRC_VERY_BAD
+				const partialGood = this.results.statsFaces[1].value * PRC_GOOD
+				const partialBad = this.results.statsFaces[0].value * PRC_BAD
+				const partialVeryBad = this.results.statsFaces[2].value || 0 * PRC_VERY_BAD
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
-				this.indicatorsCustom.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
+				const services = (await this.$axios.post('/assessments/stats/service', { condition: this.results.filter })).data[0].total
+				const reasons = (await this.$axios.post('/assessments/stats/reason', { condition: this.results.filter })).data[0].totalR
+
+				const complains = (await this.$axios.post('/assessments/stats/complain', { condition: this.results.filterB })).data[0]
+				const comments = (await this.$axios.post('/assessments/stats/comment', { condition: this.results.filterB })).data[0]
+				const complainsUnread = (await this.$axios.post('/assessments/stats/complainUnread', { condition: this.results.filterB })).data[0]
+
+				this.results.indicatorsCustom.satisfaction = (100 - this.getPercentage(partials, this.results.totalAssessments)).toFixed(2)
 				
-				this.indicatorsCustom.service = [services, this.getPercentage(services, total)]
-				this.indicatorsCustom.reason = [reasons, this.getPercentage(reasons, total)]
+				this.results.indicatorsCustom.service = [services, this.getPercentage(services, this.results.totalAssessments)]
+				this.results.indicatorsCustom.reason = [reasons, this.getPercentage(reasons, this.results.totalAssessments)]
+
+				this.results.indicatorsCustom.complain = [complains.value, complains.percentage]
+				this.results.indicatorsCustom.comment = [comments.value, comments.percentage]
+				this.results.indicatorsCustom.complainUnread = [complainsUnread.value, complainsUnread.percentage]
 			},
 
 			getIndicatorsReason(total, good, bad, veryBad) {
@@ -2306,36 +2284,13 @@
 
 			async getChartGlobalDatesHour() {
 
-				const hoursStats = (await this.$axios.get('/assessments/stats/hour')).data
-
-				// let timesVeryGood = new Array(24).fill(0)
-				// let timesGood = new Array(24).fill(0)
-				// let timesBad = new Array(24).fill(0)
-				// let timesVeryBad = new Array(24).fill(0)
-
-				// for(let assessment of this.assessments) {
-				// 	let currentTime = this.converTime(assessment.date)
-				// 	switch(assessment.face) {
-				// 		case 'veryGood':
-				// 			timesVeryGood[currentTime]++
-				// 		break
-				// 		case 'good':
-				// 			timesGood[currentTime]++
-				// 		break
-				// 		case 'bad':
-				// 			timesBad[currentTime]++
-				// 		break
-				// 		case 'veryBad':
-				// 			timesVeryBad[currentTime]++
-				// 		break						
-				// 	}
-				// }
+				const hoursStats = (await this.$axios.post('/assessments/stats/hour')).data
 
 				this.chartHourGlobal = []
 
-				for (let i = 8; i < 23; i++) {
+				for (let i = 0; i < hoursStats.length; i++) {
 					this.chartHourGlobal.push({
-						title: i + " hs",
+						title: hoursStats[i].hour + " hs",
 						total: hoursStats[i].total,
 						veryGood: this.getPercentage(hoursStats[i].veryGood, hoursStats[i].total),
 						good: this.getPercentage(hoursStats[i].good, hoursStats[i].total),
@@ -2347,47 +2302,25 @@
 				this.chartHourGlobalService = this.chartHourGlobal
 			},
 
-			getChartCustomDatesHour() {
-				let timesVeryGood = new Array(24).fill(0)
-				let timesGood = new Array(24).fill(0)
-				let timesBad = new Array(24).fill(0)
-				let timesVeryBad = new Array(24).fill(0)
-
-				for(let assessment of this.results) {
-					let currentTime = this.converTime(assessment.date)
-					switch(assessment.face) {
-						case 'veryGood':
-							timesVeryGood[currentTime]++
-						break
-						case 'good':
-							timesGood[currentTime]++
-						break
-						case 'bad':
-							timesBad[currentTime]++
-						break
-						case 'veryBad':
-							timesVeryBad[currentTime]++
-						break						
-					}
-				}
+			async getChartCustomDatesHour() {
+				const hoursStats = (await this.$axios.post('/assessments/stats/hour', { condition: this.results.filter })).data
 
 				this.chartHourCustom = []
 
-				for (let i = 8; i < 23; i++) {
-					let total = timesVeryGood[i] + timesGood[i] + timesBad[i] + timesVeryBad[i]
+				for (let i = 0; i < hoursStats.length; i++) {
 					this.chartHourCustom.push({
-						title: i + " hs",
-						total,
-						veryGood: this.getPercentage(timesVeryGood[i], total),
-						good: this.getPercentage(timesGood[i], total),
-						bad: this.getPercentage(timesBad[i], total),
-						veryBad: this.getPercentage(timesVeryBad[i], total)
+						title: hoursStats[i].hour + " hs",
+						total: hoursStats[i].total,
+						veryGood: this.getPercentage(hoursStats[i].veryGood, hoursStats[i].total),
+						good: this.getPercentage(hoursStats[i].good, hoursStats[i].total),
+						bad: this.getPercentage(hoursStats[i].bad, hoursStats[i].total),
+						veryBad: this.getPercentage(hoursStats[i].veryBad, hoursStats[i].total)
 					})
 				}
 			},
 
 			async getChartGlobalDatesDayW() {
-				const dayWStats = (await this.$axios.get('/assessments/stats/dayW')).data
+				const dayWStats = (await this.$axios.post('/assessments/stats/dayW')).data
 				const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 
 				this.chartDayWGlobal = []
@@ -2404,48 +2337,26 @@
 				}
 			},
 
-			getChartCustomDatesDayW() {
-				let daysWVeryGood = new Array(7).fill(0)
-				let daysWGood = new Array(7).fill(0)
-				let daysWBad = new Array(7).fill(0)
-				let daysWVeryBad = new Array(7).fill(0)
+			async getChartCustomDatesDayW() {
+				const dayWStats = (await this.$axios.post('/assessments/stats/dayW', { condition: this.results.filter })).data
 				const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
-
-				for(let assessment of this.results) {
-					let currentDay = this.getDayOfWeek(assessment.date)
-					switch(assessment.face) {
-						case 'veryGood':
-							daysWVeryGood[currentDay]++
-						break
-						case 'good':
-							daysWGood[currentDay]++
-						break
-						case 'bad':
-							daysWBad[currentDay]++
-						break
-						case 'veryBad':
-							daysWVeryBad[currentDay]++
-						break						
-					}
-				}
 
 				this.chartDayWCustom = []
 
 				for (let i = 0; i < 7; i++) {
-					let total = daysWVeryGood[i] + daysWGood[i] + daysWBad[i] + daysWVeryBad[i]
 					this.chartDayWCustom.push({
 						title: CATEGORIES[i],
-						total,
-						veryGood: this.getPercentage(daysWVeryGood[i], total),
-						good: this.getPercentage(daysWGood[i], total),
-						bad: this.getPercentage(daysWBad[i], total),
-						veryBad: this.getPercentage(daysWVeryBad[i], total)
+						total: dayWStats[i].total,
+						veryGood: this.getPercentage(dayWStats[i].veryGood, dayWStats[i].total),
+						good: this.getPercentage(dayWStats[i].good, dayWStats[i].total),
+						bad: this.getPercentage(dayWStats[i].bad, dayWStats[i].total),
+						veryBad: this.getPercentage(dayWStats[i].veryBad, dayWStats[i].total)
 					})
 				}
 			},
 
 			async getChartGlobalDatesDay() {
-				const dayStats = (await this.$axios.get('/assessments/stats/day')).data
+				const dayStats = (await this.$axios.post('/assessments/stats/day')).data
 
 				let nextDay = 1
 
@@ -2463,47 +2374,27 @@
 				}
 			},
 
-			getChartCustomDatesDay() {
-				let daysVeryGood = new Array(31).fill(0)
-				let daysGood = new Array(31).fill(0)
-				let daysBad = new Array(31).fill(0)
-				let daysVeryBad = new Array(31).fill(0)
+			async getChartCustomDatesDay() {
+				const dayStats = (await this.$axios.post('/assessments/stats/day', { condition: this.results.filter })).data
 
-				for(let assessment of this.results) {
-					let currentDay = new Date(assessment.date).getDate()
-					switch(assessment.face) {
-						case 'veryGood':
-							daysVeryGood[currentDay]++
-						break
-						case 'good':
-							daysGood[currentDay]++
-						break
-						case 'bad':
-							daysBad[currentDay]++
-						break
-						case 'veryBad':
-							daysVeryBad[currentDay]++
-						break						
-					}
-				}
+				let nextDay = 1
 
 				this.chartDayCustom = []
 
-				for (let i = 1; i < 32; i++) {
-					let total = daysVeryGood[i] + daysGood[i] + daysBad[i] + daysVeryBad[i]
+				for (let data of dayStats) {
 					this.chartDayCustom.push({
-						title: "Día " + i,
-						total: isNaN(total) ? 0 : total,
-						veryGood: this.getPercentage(daysVeryGood[i], total),
-						good: this.getPercentage(daysGood[i], total),
-						bad: this.getPercentage(daysBad[i], total),
-						veryBad: this.getPercentage(daysVeryBad[i], total)
+						title: "Día " + data.day,
+						total: data.total,
+						veryGood: this.getPercentage(data.veryGood, data.total),
+						good: this.getPercentage(data.good, data.total),
+						bad: this.getPercentage(data.bad, data.total),
+						veryBad: this.getPercentage(data.veryBad, data.total)
 					})
 				}
 			},
 
 			async getChartGlobalDatesMonth() {
-				const monthStats = (await this.$axios.get('/assessments/stats/month')).data
+				const monthStats = (await this.$axios.post('/assessments/stats/month')).data
 				const CATEGORIES = ['Ene', 'Feb', 'Mar', 'Abr', 'May',
 							'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -2521,43 +2412,21 @@
 				}
 			},
 
-			getChartCustomDatesMonth() {
-				let monthsVeryGood = new Array(12).fill(0)
-				let monthsGood = new Array(12).fill(0)
-				let monthsBad = new Array(12).fill(0)
-				let monthsVeryBad = new Array(12).fill(0)
+			async getChartCustomDatesMonth() {
+				const monthStats = (await this.$axios.post('/assessments/stats/month', { condition: this.results.filter })).data
 				const CATEGORIES = ['Ene', 'Feb', 'Mar', 'Abr', 'May',
 							'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec']
 
-				for(let assessment of this.results) {
-					let currentMonth = this.getMonth(assessment.date)
-					switch(assessment.face) {
-						case 'veryGood':
-							monthsVeryGood[currentMonth]++
-						break
-						case 'good':
-							monthsGood[currentMonth]++
-						break
-						case 'bad':
-							monthsBad[currentMonth]++
-						break
-						case 'veryBad':
-							monthsVeryBad[currentMonth]++
-						break						
-					}
-				}
-
 				this.chartMonthCustom = []
 
-				for (let i = 0; i < 12; i++) {
-					let total = monthsVeryGood[i] + monthsGood[i] + monthsBad[i] + monthsVeryBad[i]
+				for (let i = 0; i < monthStats.length; i++) {
 					this.chartMonthCustom.push({
 						title: CATEGORIES[i],
-						total,
-						veryGood: this.getPercentage(monthsVeryGood[i], total),
-						good: this.getPercentage(monthsGood[i], total),
-						bad: this.getPercentage(monthsBad[i], total),
-						veryBad: this.getPercentage(monthsVeryBad[i], total)
+						total: monthStats[i].total,
+						veryGood: this.getPercentage(monthStats[i].veryGood, monthStats[i].total),
+						good: this.getPercentage(monthStats[i].good, monthStats[i].total),
+						bad: this.getPercentage(monthStats[i].bad, monthStats[i].total),
+						veryBad: this.getPercentage(monthStats[i].veryBad, monthStats[i].total)
 					})
 				}
 			},
