@@ -151,7 +151,7 @@
 				v-btn#submit(
 					large outline
 					:loading="loading"
-					:disabled="loading || (!timeSince && !dateSince && !zone && !AMBA && !interior)"
+					:disabled="loading || (!timeSince && !dateSince && !local && !zone && !AMBA && !interior)"
 					@click.native="searchStats"
 					color="primary"
 					) Obtener Resultados
@@ -923,33 +923,13 @@
 				const l = this.loader
 				this[l] = !this[l]
 			},
-			local() {
-				if (!this.zone) this.localsSelect = []
-				else {
-					let locals = this.$firebase.firestore().collection("locals")
-					.where('business', '==', this.userStorage.business)
-					.where('title', '==', this.local).get()
-					.then(querySnapshot => {
-						querySnapshot.forEach(doc => this.localID = doc.id)
-					})
-				}
+			async local() {
+				const title = this.local
+				this.localID = (await this.$axios.post('locals/search', { title })).data[0].id
 			},
-			zone() {
-				this.localsSelect = []
-				let zone = this.$firebase.firestore().collection("zones").where('responsable', '==', this.zone)
-				zone.get().then(querySnapshot => {
-					querySnapshot.forEach(doc => {
-						this.zoneID = doc.id
-						let locals = this.$firebase.firestore().collection("locals").where('zone', '==', doc.id)
-						locals.get().then(querySnapshot => {
-							querySnapshot.forEach(doc => {
-								let local = doc.data()
-								local.id = doc.id
-								this.localsSelect.unshift(local.title)
-							})
-						})
-					})
-				})
+			async zone() {
+				const responsable = this.zone
+				this.zoneID = (await this.$axios.post('zones/search', { responsable })).data[0].id
 			},
 		},
 		
@@ -978,6 +958,14 @@
 			this.totalAssessments = (await this.$axios.post('assessments/stats/total')).data[0].total
 
 			this.statsFaces = (await this.$axios.post('assessments/stats/faces/value-prc')).data
+
+			const zonesData = (await this.$axios.post('zones/responsables')).data
+
+			const localsData = (await this.$axios.post('locals/title')).data
+
+			for (let local of localsData) this.localsSelect.push(local.title)
+
+			for (let zone of zonesData) this.zonesSelect.push(zone.responsable)
 
 			const objectService = (await this.$axios.post('assessments/stats/service')).data[0]
 
@@ -1488,37 +1476,58 @@
 			async searchStats() {
 				this.loader = 'loading'
 
-				this.results.filter = null
+				this.results.filter = ''
+				this.results.filterB = ''
+
+				if (this.AMBA) {
+					this.results.filter = ` AND (assessments.region_id) = '0l5DtjJ6UQ1J4DxX0fdY'`
+					this.results.filterB = ` AND (tickets.region_id) = '0l5DtjJ6UQ1J4DxX0fdY'`					
+				}
+
+				if (this.interior) {
+					this.results.filter = ` AND (assessments.region_id) = 'MKITRJYc46G8XLR0Kjsv'`
+					this.results.filterB = ` AND (tickets.region_id) = 'MKITRJYc46G8XLR0Kjsv'`					
+				}
+
+				if (this.zone) {
+					this.results.filter = ` AND (assessments.zone_id) = '${this.zoneID}'`
+					this.results.filterB = ` AND (tickets.zone_id) = '${this.zoneID}'`
+				}
+
+				if (this.local) {
+					this.results.filter = `${this.results.filter} AND (assessments.local_id) = '${this.localID}'`
+					this.results.filterB = `${this.results.filterB} AND (tickets.local_id) = '${this.localID}'`
+				}
 
 				if (this.dateSince) {
 					if (this.timeSince) {
-						this.results.filter = `
-						AND (assessments.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
+						this.results.filter = `${this.results.filter} AND (assessments.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
 						AND '${this.dateUntil} ${this.timeUntil}'`
-						this.results.filterB = `
-						AND (tickets.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
+						
+						this.results.filterB = `${this.results.filterB}
+						 AND (tickets.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
 						AND '${this.dateUntil} ${this.timeUntil}'`
 					}
 					else {
-						this.results.filter = ` AND DATE(assessments.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
-						this.results.filterB = ` AND DATE(tickets.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
+						this.results.filter = `${this.results.filter} AND DATE(assessments.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
+						this.results.filterB = `${this.results.filterB} AND DATE(tickets.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
 					}
 				}
 
 				if (this.timeSince && !this.dateSince) {
-					this.results.filter = ` AND HOUR(assessments.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`
-					this.results.filterB = ` AND HOUR(tickets.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
+					this.results.filter = `${this.results.filter} AND HOUR(assessments.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`
+					this.results.filterB = `${this.results.filterB} AND HOUR(tickets.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
 				}
 
 				const queryFaces = (await this.$axios.post('assessments/stats/faces/value-prc', { condition: this.results.filter })).data
 
 				this.results.statsFaces = queryFaces
 				this.results.totalAssessments = (await this.$axios.post('assessments/stats/total', { condition: this.results.filter })).data[0].total
-
-				console.log(this.results.totalAssessments)
 				
 				this['loading'] = false
 				this.loader = null
+
+				console.log(this.results.filterB)
 				
 				if (!this.results.totalAssessments) {
 					this.textDialogPreResults = "La búsqueda no ha devuelto ningún resultado. Intentá con otros valores."
@@ -1960,7 +1969,6 @@
 			},
 
 			async getChartCustomM(filter) {
-				console.log(filter)
 				const objectService = (await this.$axios.post('assessments/stats/service', { condition: filter })).data[0]
 
 				const { pagoServicio, pagoServicioVeryGood, pagoServicioGood, pagoServicioBad,
@@ -2184,7 +2192,6 @@
 					
 				this.results.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,5)
 
-				this.dialogResults = false
 				this.dialogResults = true
 			},
 
@@ -2247,8 +2254,8 @@
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
-				const services = (await this.$axios.post('/assessments/stats/service', { condition: this.results.filter })).data[0].total
-				const reasons = (await this.$axios.post('/assessments/stats/reason', { condition: this.results.filter })).data[0].totalR
+				const services = (await this.$axios.post('/assessments/stats/service/ind', { condition: this.results.filter })).data[0].total
+				const reasons = (await this.$axios.post('/assessments/stats/reason/ind', { condition: this.results.filter })).data[0].total
 
 				const complains = (await this.$axios.post('/assessments/stats/complain', { condition: this.results.filterB })).data[0]
 				const comments = (await this.$axios.post('/assessments/stats/comment', { condition: this.results.filterB })).data[0]
@@ -2325,7 +2332,7 @@
 
 				this.chartDayWGlobal = []
 
-				for (let i = 0; i < 7; i++) {
+				for (let i = 0; i < dayWStats.length; i++) {
 					this.chartDayWGlobal.push({
 						title: CATEGORIES[i],
 						total: dayWStats[i].total,
@@ -2343,7 +2350,7 @@
 
 				this.chartDayWCustom = []
 
-				for (let i = 0; i < 7; i++) {
+				for (let i = 0; i < dayWStats.length; i++) {
 					this.chartDayWCustom.push({
 						title: CATEGORIES[i],
 						total: dayWStats[i].total,

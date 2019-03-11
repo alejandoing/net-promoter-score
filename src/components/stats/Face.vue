@@ -20,14 +20,15 @@
     watch: {
       data() {
         if (this.$props.data) {
+          if (this.$props.data.length != 4) {
+            for (let i in this.faces) {
+              this.faces[i].value = 0
+              this.faces[i].percentage = 0
+            }
+          }
           for (let data of this.$props.data) {
-            if (this.faces[data.face]) {
-              this.faces[data.face].value = data.value
-              this.faces[data.face].percentage = data.percentage
-            }
-            else {
-              this.faces[data.face] = { value: 0, percentage: 0 }
-            }
+            this.faces[data.face].value = data.value
+            this.faces[data.face].percentage = data.percentage
           }
         }
       }
