@@ -219,8 +219,14 @@
 				this.i = 0
 				if (this.description) { 
 					this.flow.contact = true
-					if (this.assessment == "bad" || this.assessment == "veryBad") this.complain = 1
-					if (this.assessment == "veryGood" || this.assessment == "good") this.comment = 1
+					if (this.assessment == "bad" || this.assessment == "veryBad") {
+						this.complain = 1
+						this.comment = 0
+					}
+					if (this.assessment == "veryGood" || this.assessment == "good") {
+						this.comment = 1
+						this.complain = 0
+					}
 				}
 				// const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
 				this.loader = 'loading'
@@ -228,7 +234,6 @@
 				const urlAssessment = 'http://174.36.119.3:8080/firestore/assessment/add/'
 				axios.post(urlAssessment, {
 				 	face: this.assessment,
-				 	date: new Date(),
 				 	flow: this.flow,
 				 	justification: this.justification,
 				 	justificationTwo: this.justificationTwo,
@@ -276,7 +281,6 @@
 			createTicket(assessment) {
 				const urlTicket = 'http://174.36.119.3:8080/firestore/ticket/add/'
 				axios.post(urlTicket, {
-				 	date: new Date(),
 				 	description: this.description,
 				 	email: this.email,
 				 	telephone: this.telephone,

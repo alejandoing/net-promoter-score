@@ -195,7 +195,7 @@
 						v-container(fill-height fluid)
 							v-layout(fill-height)
 								v-flex(xs12 align-end flexbox)
-									span.display-4.headline Satisfacción de Cliente: {{ indicatorsGlobal.satisfaction }}%
+									span.display-4.headline Satisfacción de Cliente: {{ indicatorsGlobal.satisfaction || 'calculando...' }}
 					v-card-title
 						span.display-1.headline % que representa el grado general de satisfacción del cliente.
 						// v-progress-linear(:value="indicatorsGlobal.satisfaction" height="20" color="info")
@@ -206,7 +206,7 @@
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
-										span.indicatorsTwoTitle Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
+										span.indicatorsTwoTitle Quejas: {{ indicatorsGlobal.complain[1] || 'calculando...' }} - {{ indicatorsGlobal.complain[0] || 'calculando...' }}
 						v-card-title
 							span.display-1.headline % del total de encuestados que dejaron una queja.
 							// v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
@@ -216,7 +216,7 @@
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
-										span.indicatorsTwoTitle Com. Positivos: {{ indicatorsGlobal.comment[1] }}% - {{ indicatorsGlobal.comment[0] }} total
+										span.indicatorsTwoTitle Com. Positivos: {{ indicatorsGlobal.comment[1] || 'calculando...' }} - {{ indicatorsGlobal.comment[0] || 'calculando...' }}
 						v-card-title
 							span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
 							// v-progress-linear(:value="indicatorsGlobal.comment[1]" height="20" color="info")
@@ -226,7 +226,7 @@
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
-										span.indicatorsTwoTitle Resp. Servicio: {{ indicatorsGlobal.service[1] }}% - {{ indicatorsGlobal.service[0] }} total
+										span.indicatorsTwoTitle Resp. Servicio: {{ indicatorsGlobal.service[1] || 'calculando...' }} - {{ indicatorsGlobal.service[0] || 'calculando...' }}
 						v-card-title
 							span.display-1.headline % del total de  encuestados que indicó cuál servicio utilizó.
 							// v-progress-linear(:value="indicatorsGlobal.service[1]" height="20" color="info")
@@ -236,7 +236,7 @@
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
-										span.indicatorsTwoTitle Resp. Motivo: {{ indicatorsGlobal.reason[1] }}% - {{ indicatorsGlobal.reason[0] }} total
+										span.indicatorsTwoTitle Resp. Motivo: {{ indicatorsGlobal.reason[1] || 'calculando...' }} - {{ indicatorsGlobal.reason[0] || 'calculando...' }}
 						v-card-title
 							span.display-1.headline % del total de encuestados que indico motivo de satisfacción o insatisfacción.
 							// v-progress-linear(:value="indicatorsGlobal.reason[1]" height="20" color="info")
@@ -246,7 +246,7 @@
 							v-container(fill-height fluid)
 								v-layout(fill-height)
 									v-flex(xs12 align-end flexbox)
-										span.indicatorsTwoTitle Quejas sin Leer: {{ indicatorsGlobal.complainUnread[1] }}% - {{ indicatorsGlobal.complainUnread[0] }} total
+										span.indicatorsTwoTitle Quejas sin Leer: {{ indicatorsGlobal.complainUnread[1] || 'calculando...' }} - {{ indicatorsGlobal.complainUnread[0] || 'calculando...' }}
 						v-card-title
 							span.display-1.headline % del total de quejas que no han sido leídas.
 							// v-progress-linear(:value="indicatorsGlobal.complainUnread[1]" height="20" color="info")
@@ -309,12 +309,12 @@
 		v-dialog(v-model="dialogResults" persistent max-width="500" fullscreen transition="dialog-bottom-transition" :overlay=false scrollable)
 			v-card
 				v-toolbar(dark color="primary")
-					v-btn(icon dark @click="dialogResults = false")
+					v-btn(icon dark @click="finalize")
 						v-icon close
 					v-toolbar-title Resultados Personalizados
 					v-spacer
 					v-toolbar-items
-						v-btn(dark flat @click="dialogResults = false") Regresar
+						v-btn(dark flat @click="finalize") Regresar
 				v-card-text
 					v-flex(xs9 offset-xs2)
 						Face#customFaces.pb-5(:data="results.statsFaces")
@@ -344,7 +344,7 @@
 					v-flex#satisfactionIndCustom.pt-3.pb-5(xs12)
 						v-card.my-1.mr-1(flat tile)
 							v-card-media.white--text.primary(height="75px")
-								span.headline.ml-4.pt-3 Satisfacción de Cliente: {{ results.indicatorsCustom.satisfaction }}%
+								span.headline.ml-4.pt-3 Satisfacción de Cliente: {{ results.indicatorsCustom.satisfaction || 'calculando...' }}
 							v-card-title
 								span.display-1.headline % que representa el grado general de satisfacción del cliente.
 								// v-progress-linear(:value="indicatorsCustom.satisfaction" height="20" color="info")
@@ -352,35 +352,35 @@
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Quejas: {{ results.indicatorsCustom.complain[1] }}% - {{ results.indicatorsCustom.complain[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Quejas: {{ results.indicatorsCustom.complain[1] || 'calculando...' }} - {{ results.indicatorsCustom.complain[0] || 'calculando...' }}
 								v-card-title
 									span.display-1.headline % del total de encuestados que dejaron una queja.
 									// v-progress-linear(:value="indicatorsCustom.complain[1]" height="20" color="info")
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Com. Positivos: {{ results.indicatorsCustom.comment[1] }}% - {{ results.indicatorsCustom.comment[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Com. Positivos: {{ results.indicatorsCustom.comment[1] || 'calculando...' }} - {{ results.indicatorsCustom.comment[0] || 'calculando...' }}
 								v-card-title
 									span.display-1.headline % del total de encuestados que dejaron un comentario positivo.
 									// v-progress-linear(:value="indicatorsCustom.comment[1]" height="20" color="info")
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Servicio: {{ results.indicatorsCustom.service[1] }}% - {{ results.indicatorsCustom.service[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Servicio: {{ results.indicatorsCustom.service[1] || 'calculando...' }} - {{ results.indicatorsCustom.service[0] || 'calculando...' }}
 								v-card-title
 									span.display-1.headline % del total de  encuestados que indicó cuál servicio utilizó.
 									// v-progress-linear(:value="indicatorsCustom.service[1]" height="20" color="info")
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Motivo: {{ results.indicatorsCustom.reason[1] }}% - {{ results.indicatorsCustom.reason[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Resp. Motivo: {{ results.indicatorsCustom.reason[1] || 'calculando...' }} - {{ results.indicatorsCustom.reason[0] || 'calculando...' }}
 								v-card-title
 									span.display-1.headline % del total de encuestados que indico motivo de satisfacción o insatisfacción.
 									// v-progress-linear(:value="indicatorsCustom.reason[1]" height="20" color="info")
 						v-flex(xs6 md4)
 							v-card.my-1.mr-1(flat tile)
 								v-card-media.white--text.primary(height="75px")
-									span.indicatorsTwoTitle.ml-4.pt-3 Quejas sin Leer: {{ results.indicatorsCustom.complainUnread[1] }}% - {{ results.indicatorsCustom.complainUnread[0] }} total
+									span.indicatorsTwoTitle.ml-4.pt-3 Quejas sin Leer: {{ results.indicatorsCustom.complainUnread[1] || 'calculando...' }} - {{ results.indicatorsCustom.complainUnread[0] || 'calculando...' }}
 								v-card-title
 									span.display-1.headline % del total de quejas que no han sido leídas.
 									// v-progress-linear(:value="indicatorsCustom.complainUnread[1]" height="20" color="info")
@@ -425,7 +425,7 @@
 								v-divider
 						v-flex(xs9 offset-xs2)
 							Zone.pb-5(:data="results.statsZones")
-					v-flex#strongPointsCustom(xs12)
+					v-flex#weakPointsCustom(xs12)
 						Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="results.weakPoints")
 					// v-flex#weakPointsCustom(xs12)
 						// Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPointsCustom")
@@ -497,7 +497,7 @@
 								v-flex(xs12 align-end flexbox)
 									span.indicatorsTwoTitle Quejas: {{ indicatorsGlobal.complain[1] }}% - {{ indicatorsGlobal.complain[0] }} total
 					v-card-title
-						span.display-1.headline % del total de encuestados que dejaron una queja.
+						span.display-1.headline % del total de encuestados que dejaron un comentario una queja.
 						// v-progress-linear(:value="indicatorsGlobal.complain[1]" height="20" color="info")
 			v-flex(xs6)
 				v-card.my-1.mr-1(flat tile)
@@ -1198,6 +1198,10 @@
 		},
 
 		methods: {
+			async finalize() {
+				this.dialogResults = false
+				this.results = { indicatorsCustom: { complain: [], comment: [], complainUnread: [], reason: [], service: [] } }
+			},
 			async downloadXLSX() {
 				this.loader2 = 'loading3'
 				const wb = XLSX.utils.book_new();
@@ -1373,21 +1377,17 @@
 				const zones = await getCanvas('zones')
 				pdf.addImage(zones.toDataURL('image/png'), 'PNG', 10, 20, 200, 80)
 				pdf.text('Puntos Débiles y Fuertes', 65, 115)
-				
-				const strongPoints = await getCanvas('strongPoints')
-				pdf.addImage(strongPoints.toDataURL('image/png'), 'PNG', 10, 125, 190, 120)
 
 				const weakPoints = await getCanvas('weakPoints')
+				pdf.addImage(weakPoints.toDataURL('image/png'), 'PNG', 10, 125, 190, 120)
 				pdf.addPage('a4', 'portrait')
-				pdf.addImage(weakPoints.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
-				pdf.text('Gráficos de Valoraciones por Locales', 50, 150)
+				pdf.text('Gráficos de Valoraciones por Locales', 49, 20)
 
 				const topLocals = await getCanvas('topLocals')
-				pdf.addImage(topLocals.toDataURL('image/png'), 'PNG', 10, 160, 190, 120)
-				pdf.addPage('a4', 'portrait')
+				pdf.addImage(topLocals.toDataURL('image/png'), 'PNG', 10, 35, 190, 100)
 
 				const badLocals = await getCanvas('badLocals')
-				pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+				pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 120, 190, 100)
 				pdf.save(FILENAME)
 				weekChart.style.display = dayChart.style.display = monthChart.style.display = "none"
 				this.loading2 = false
@@ -1459,12 +1459,9 @@
 				pdf.addImage(zonesCustom.toDataURL('image/png'), 'PNG', 10, 20, 200, 80)
 				pdf.text('Puntos Débiles y Fuertes', 65, 115)
 
-				const strongPointsCustom = await getCanvas('strongPointsCustom')
-				pdf.addImage(strongPointsCustom.toDataURL('image/png'), 'PNG', 10, 125, 190, 120)
-				pdf.addPage('a4', 'portrait')
-
 				const weakPointsCustom = await getCanvas('weakPointsCustom')
-				pdf.addImage(weakPointsCustom.toDataURL('image/png'), 'PNG', 10, 20, 190, 120)
+				pdf.addImage(weakPointsCustom.toDataURL('image/png'), 'PNG', 10, 125, 190, 120)
+
 				pdf.save(FILENAME)
 				weekChartCustom.style.display = dayChartCustom.style.display = monthChartCustom.style.display = "none"
 				this.loading2 = false
@@ -2204,7 +2201,7 @@
 				
 				const partials = partialGood + partialBad + partialVeryBad
 
-				this.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, this.totalAssessments)).toFixed(2)
+				this.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, this.totalAssessments)).toFixed(2) + '%'
 
 				const services = (await this.$axios.post('/assessments/stats/service')).data[0].total
 				const reasons = (await this.$axios.post('/assessments/stats/reason')).data[0].totalR
@@ -2213,12 +2210,12 @@
 				const comments = (await this.$axios.post('/assessments/stats/comment')).data[0]
 				const complainsUnread = (await this.$axios.post('/assessments/stats/complainUnread')).data[0]
 
-				this.indicatorsGlobal.complain = [complains.value, complains.percentage]
-				this.indicatorsGlobal.comment = [comments.value, comments.percentage]
-				this.indicatorsGlobal.complainUnread = [complainsUnread.value, complainsUnread.percentage]
+				this.indicatorsGlobal.complain = [`${complains.value} total`, `${complains.percentage}%`]
+				this.indicatorsGlobal.comment = [`${comments.value} total`, `${comments.percentage}%`]
+				this.indicatorsGlobal.complainUnread = [`${complainsUnread.value} total`, `${complainsUnread.percentage}%`]
 				
-				this.indicatorsGlobal.service = [services, this.getPercentage(services, this.totalAssessments)]
-				this.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, this.totalAssessments)]
+				this.indicatorsGlobal.service = [`${services} total`, `${this.getPercentage(services, this.totalAssessments)}%`]
+				this.indicatorsGlobal.reason = [`${reasons} total`, `${this.getPercentage(reasons, this.totalAssessments)}%`]
 			},
 
 			getIndicatorsLocal(local) {
@@ -2257,18 +2254,18 @@
 				const services = (await this.$axios.post('/assessments/stats/service/ind', { condition: this.results.filter })).data[0].total
 				const reasons = (await this.$axios.post('/assessments/stats/reason/ind', { condition: this.results.filter })).data[0].total
 
-				const complains = (await this.$axios.post('/assessments/stats/complain', { condition: this.results.filterB })).data[0]
-				const comments = (await this.$axios.post('/assessments/stats/comment', { condition: this.results.filterB })).data[0]
+				const complains = (await this.$axios.post('/assessments/stats/complain', { condition: this.results.filterB, conditionB: this.results.filter })).data[0]
+				const comments = (await this.$axios.post('/assessments/stats/comment', { condition: this.results.filterB, conditionB: this.results.filter })).data[0]
 				const complainsUnread = (await this.$axios.post('/assessments/stats/complainUnread', { condition: this.results.filterB })).data[0]
 
-				this.results.indicatorsCustom.satisfaction = (100 - this.getPercentage(partials, this.results.totalAssessments)).toFixed(2)
+				this.results.indicatorsCustom.satisfaction = (100 - this.getPercentage(partials, this.results.totalAssessments)).toFixed(2) + '%'
 				
-				this.results.indicatorsCustom.service = [services, this.getPercentage(services, this.results.totalAssessments)]
-				this.results.indicatorsCustom.reason = [reasons, this.getPercentage(reasons, this.results.totalAssessments)]
-
-				this.results.indicatorsCustom.complain = [complains.value, complains.percentage]
-				this.results.indicatorsCustom.comment = [comments.value, comments.percentage]
-				this.results.indicatorsCustom.complainUnread = [complainsUnread.value, complainsUnread.percentage]
+				this.results.indicatorsCustom.complain = [`${complains.value} total`, `${complains.percentage}%`]
+				this.results.indicatorsCustom.comment = [`${comments.value} total`, `${comments.percentage}%`]
+				this.results.indicatorsCustom.complainUnread = [`${complainsUnread.value} total`, `${complainsUnread.percentage}%`]
+				
+				this.results.indicatorsCustom.service = [`${services} total`, `${this.getPercentage(services, this.results.totalAssessments)}%`]
+				this.results.indicatorsCustom.reason = [`${reasons} total`, `${this.getPercentage(reasons, this.results.totalAssessments)}%`]
 			},
 
 			getIndicatorsReason(total, good, bad, veryBad) {
@@ -2409,7 +2406,7 @@
 
 				for (let i = 0; i < monthStats.length; i++) {
 					this.chartMonthGlobal.push({
-						title: CATEGORIES[i],
+						title: CATEGORIES[monthStats[i].month - 1],
 						total: monthStats[i].total,
 						veryGood: this.getPercentage(monthStats[i].veryGood, monthStats[i].total),
 						good: this.getPercentage(monthStats[i].good, monthStats[i].total),
@@ -2428,7 +2425,7 @@
 
 				for (let i = 0; i < monthStats.length; i++) {
 					this.chartMonthCustom.push({
-						title: CATEGORIES[i],
+						title: CATEGORIES[monthStats[i].month - 1],
 						total: monthStats[i].total,
 						veryGood: this.getPercentage(monthStats[i].veryGood, monthStats[i].total),
 						good: this.getPercentage(monthStats[i].good, monthStats[i].total),
@@ -2520,7 +2517,6 @@
 						}
 					}
 				}
-
 				this.optionsChartLocalDatesHour.series[0].data = timesVeryGood
 				this.optionsChartLocalDatesHour.series[1].data = timesGood
 				this.optionsChartLocalDatesHour.series[2].data = timesBad

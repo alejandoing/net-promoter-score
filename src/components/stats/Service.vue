@@ -179,17 +179,17 @@
 
 				servicesFacesData2.style.display = "grid"
 
-				servicesFacesData2.childNodes[0].children[1].children[0].innerHTML = `${this.currentService.stats.veryGood[1]}%`
-				servicesFacesData2.childNodes[0].children[1].children[1].innerHTML = `${this.currentService.stats.veryGood[0]} resp.`
+				servicesFacesData2.childNodes[0].children[1].children[0].innerHTML = `${this.statsFacesService[3].percentage}%`
+				servicesFacesData2.childNodes[0].children[1].children[1].innerHTML = `${this.statsFacesService[3].value} resp.`
 
-				servicesFacesData2.childNodes[1].children[1].children[0].innerHTML = `${this.currentService.stats.good[1]}%`
-				servicesFacesData2.childNodes[1].children[1].children[1].innerHTML = `${this.currentService.stats.good[0]} resp.`
+				servicesFacesData2.childNodes[1].children[1].children[0].innerHTML = `${this.statsFacesService[1].percentage}%`
+				servicesFacesData2.childNodes[1].children[1].children[1].innerHTML = `${this.statsFacesService[1].value} resp.`
 				
-				servicesFacesData2.childNodes[2].children[1].children[0].innerHTML = `${this.currentService.stats.bad[1]}%`
-				servicesFacesData2.childNodes[2].children[1].children[1].innerHTML = `${this.currentService.stats.bad[0]} resp.`
+				servicesFacesData2.childNodes[2].children[1].children[0].innerHTML = `${this.statsFacesService[0].percentage}%`
+				servicesFacesData2.childNodes[2].children[1].children[1].innerHTML = `${this.statsFacesService[0].value} resp.`
 
-				servicesFacesData2.childNodes[3].children[1].children[0].innerHTML = `${this.currentService.stats.veryBad[1]}%`
-				servicesFacesData2.childNodes[3].children[1].children[1].innerHTML = `${this.currentService.stats.veryBad[0]} resp.`
+				servicesFacesData2.childNodes[3].children[1].children[0].innerHTML = `${this.statsFacesService[2].percentage}%`
+				servicesFacesData2.childNodes[3].children[1].children[1].innerHTML = `${this.statsFacesService[2].value} resp.`
 
         const serviceFaces = await getCanvas('serviceFaces2')
 				pdf.addImage(serviceFaces.toDataURL('image/png'), 'PNG', 11, 35, 195, 30)
@@ -392,7 +392,7 @@
 
 				this.chartDayWGlobal = []
 
-				for (let i = 0; i < 7; i++) {
+				for (let i = 0; i < dayWStats.length; i++) {
 					this.chartDayWGlobal.push({
 						title: CATEGORIES[i],
 						total: dayWStats[i].total,
@@ -412,7 +412,7 @@
 
 				for (let i = 0; i < monthStats.length; i++) {
 					this.chartMonthGlobal.push({
-						title: CATEGORIES[i],
+						title: CATEGORIES[monthStats[i].month - 1],
 						total: monthStats[i].total,
 						veryGood: this.getPercentage(monthStats[i].veryGood, monthStats[i].total),
 						good: this.getPercentage(monthStats[i].good, monthStats[i].total),
