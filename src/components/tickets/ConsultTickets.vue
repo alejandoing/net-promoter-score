@@ -116,19 +116,13 @@
 								v-card-actions
 									v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
 			v-layout(row)
-				v-flex(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs12 sm4 offset-sm2)
+				v-flex(xs12 sm4 offset-sm2)
 					v-select(
 						label="Elegí un Jefe Zonal"
 						v-model="zone"
 						:items="zonesSelect"
 					)
-				v-flex.ml-3(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs12 sm4)
-					v-select(
-						label="Elegí un Local"
-						v-model="local"
-						:items="localsSelect"
-					)
-				v-flex(v-else offset-sm2 xs12 sm4)
+				v-flex.ml-3(xs12 sm4)
 					v-select(
 						label="Elegí un Local"
 						v-model="local"
@@ -170,18 +164,13 @@
 						type="checkbox"
 						style="position: relative; top: 20px"
 					)
-			v-layout(row v-if="userStorage.privileges !== 'Local'").mb-5.mt-3
+			v-layout(row).mb-5.mt-3
 				v-flex(xs12 sm4)
 					v-btn(block color="primary" @click="searchTickets") Filtrar Tickets
 				v-flex(xs12 sm4).pl-2
 					v-btn(block color="primary" @click="clearFields") Limpiar
 				v-flex(xs12 sm4).pl-2
 					v-btn(block color="primary" @click="searchResults") Ver Detalles
-			v-layout(row v-else).mb-5.mt-3
-				v-flex(xs12 sm6)
-					v-btn(block color="primary" @click="searchTickets") Filtrar Tickets
-				v-flex(xs12 sm6).pl-2
-					v-btn(block color="primary" @click="clearFields") Limpiar
 			v-flex.mb-5(xs12 sm12 v-if='tickets')
 				v-card
 					v-list
@@ -220,15 +209,15 @@
 							.images.ml-5(v-for="image in images")
 								img(height="200" width="220" :src="image.url")
 								span {{ image.value.length }} cant. | {{ image.percentage }}%
-					v-flex(v-if="userStorage.privileges !== 'Zone'" xs12)
+					v-flex(xs12)
 						.py-5
-							span.display-1 Jefe Zonales
+							span.display-1 Resumen por Jefe Zonal
 							v-divider
-					v-flex(v-if="userStorage.privileges !== 'Zone'" xs9 offset-xs2)
+					v-flex(xs9 offset-xs2)
 						Zone.pb-5(:data="tickets.stats")
 					v-flex(xs12)
 						.py-5
-							span.display-1 Locales
+							span.display-1 Resumen por Locales
 							v-divider
 					v-container
 						v-flex(xs12 sm12)
@@ -331,7 +320,6 @@
 		},
 		created() {
 			let locals = this.$firebase.firestore().collection("locals")
-			if (this.userStorage.privileges === 'Zone') locals = locals.where('zone', '==', this.userStorage.zone)
 			locals = locals.where('business', '==', this.userStorage.business).orderBy('title', 'desc')
 			locals.onSnapshot(querySnapshot => {
 				this.localsQ = []
@@ -345,8 +333,6 @@
 			})
 
 			let tickets = this.$firebase.firestore().collection("tickets")
-			if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
-			if (this.userStorage.privileges === 'Zone') tickets = tickets.where('zone', '==', this.userStorage.zone)
 			tickets = tickets.where('business', '==', this.userStorage.business).orderBy("date")
 			tickets.onSnapshot(querySnapshot => {
 				querySnapshot.forEach(doc => {
@@ -371,11 +357,6 @@
 				querySnapshot.forEach(doc => {
 					let zone = doc.data()
 					zone.id = doc.id
-					if (this.userStorage.privileges === 'Zone') {
-						if (this.userStorage.zone == zone.id) {
-							this.zone = zone.responsable
-						}
-					}
 					this.zones.unshift(zone)
 					this.zonesSelect.unshift(zone.responsable)
 				})
@@ -529,8 +510,6 @@
 
 			searchTickets() {
 				let tickets = this.$firebase.firestore().collection("tickets")
-				if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
-				if (this.userStorage.privileges === 'Zone') tickets = tickets.where('zone', '==', this.userStorage.zone)
 				tickets = tickets.where('business', '==', this.userStorage.business).orderBy("date")
 				if (this.read || this.unread || this.closed) {
 					if (this.read && !this.unread) tickets = tickets.where('status', '==', 1)
@@ -625,7 +604,7 @@
 
 			clearFields() {
 				this.local = null
-				if (!this.userStorage.privileges === 'Zone') this.zone = null
+				this.zone = null
 				this.read = null
 				this.unread = null
 				this.closed = null
@@ -640,8 +619,6 @@
 
 				let tickets = this.$firebase.firestore().collection("tickets")
 				tickets = tickets.where('business', '==', this.userStorage.business).orderBy("date")
-				if (this.userStorage.privileges === 'Local') tickets = tickets.where('local', '==', this.userStorage.local)
-				if (this.userStorage.privileges === 'Zone') tickets = tickets.where('zone', '==', this.userStorage.zone)
 				tickets.onSnapshot(querySnapshot => {
 					let ticketsArray = []
 					querySnapshot.forEach(doc => {

@@ -253,7 +253,10 @@
 						this.dialog = true
 					}
 				})
-				.catch(err => console.log(err))
+				.catch(err => {
+					console.log(err)
+					location.reload()
+				})
 
 				// ASSESSMENT_COLLECTION.add({
 				// 	face: this.assessment,
@@ -295,20 +298,6 @@
 					poll: 'D2KzOzdiM8dCmUw7idIW',
 					assessment: assessment
 				})
-				// const TICKETS_COLLECTION = this.$firebase.firestore().collection('tickets')
-				// TICKETS_COLLECTION.add({
-				// 	date: new Date(),
-				// 	description: this.description,
-				// 	email: this.email,
-				// 	telephone: this.telephone,
-				// 	complain: this.complain,
-				// 	comment: this.comment,
-				// 	answer: null,
-				// 	status: 0,
-				// 	business: this.local.business,
-				// 	local: this.$route.params.localId,
-				// 	poll: this.$route.params.id
-				// })
 				.then(() => {
 						this['loading'] = false
 						this.loader = null
@@ -322,7 +311,10 @@
 						}
 						this.ticket = resetTicket
 				})
-				.catch((error) => { console.log(error) })			
+				.catch((error) => { 
+					console.log(error)
+					location.reload()
+				})			
 			},
 
 			finalize() {
@@ -338,7 +330,7 @@
 				this.comment = 0
 				this.flow = { contact: false, justification: false, justificationTwo: false }
 				this.i = 0
-				//location.reload()
+				location.reload()
 			}
 		},
 

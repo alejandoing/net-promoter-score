@@ -114,32 +114,26 @@
 						template(slot-scope="{ save, cancel }")
 							v-card-actions
 								v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
-			v-flex(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs12 sm4 offset-sm2)
+			v-flex(xs12 sm4 offset-sm2)
 				v-select(
 					label="Elegí un Jefe Zonal"
 					v-model="zone"
 					:items="zonesSelect"
 				)
-			v-flex.ml-3(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs12 sm4)
+			v-flex.ml-3(xs12 sm4)
 				v-select(
 					label="Elegí un Local"
 					v-model="local"
 					:items="localsSelect"
 				)
-			v-flex(v-else offset-sm2 xs12 sm4)
-				v-select(
-					label="Elegí un Local"
-					v-model="local"
-					:items="localsSelect"
-				)
-			v-flex(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs4 sm1 offset-sm2)
+			v-flex(xs4 sm1 offset-sm2)
 				v-checkbox(
 					v-model="AMBA"
 					label="AMBA"
 					type="checkbox"
 					style="position: relative; top: 20px"
 				)
-			v-flex(v-if="userStorage.privileges !== 'Local' && userStorage.privileges !== 'Zone'" xs4 sm1)
+			v-flex(xs4 sm1)
 				v-checkbox(
 					v-model="interior"
 					label="Interior"
@@ -273,31 +267,31 @@
 			v-layout(row wrap)
 				v-flex(xs12)#services
 					div.pb-5
-						span.display-1 Servicios
+						span.display-1 Satisfacción por Tipo de Cliente
 						v-divider
 					v-flex(xs9 offset-xs2)
 						Service.pb-5(:data="statsServices")
 				v-flex(xs12)#reasons
 					div.pb-5
-						span.display-1 Motivos
+						span.display-1 Aspectos Evaluados
 						v-divider
 					v-flex(xs9 offset-xs2)
 						Reason.pb-5(:data="statsReasons")
-				v-flex(v-if="userStorage.privileges !== 'Zone'" xs12)#zones
+				v-flex(xs12)#zones
 					div.pb-5
-						span.display-1 Jefe Zonales
+						span.display-1 Resumen por Jefe Zonal
 						v-divider
 					v-flex(xs9 offset-xs2)
 						Zone.pb-5(:data="statsZones")
 			v-flex#weakPoints(xs12)
 				Chart.pb-5(type="barStacked" title="Puntos Débiles y Fuertes" :data="weakPoints")
-			v-flex(xs12 v-if="userStorage.privileges !== 'Local'")
+			v-flex(xs12)
 				div.pb-5
 					span.display-1 Locales
 					v-divider
-			v-flex#topLocals(xs12 v-if="assessments && userStorage.privileges !== 'Local'")
+			v-flex#topLocals(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" :data="topLocals")
-			v-flex#badLocals(xs12 v-if="assessments && userStorage.privileges !== 'Local'")
+			v-flex#badLocals(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" :data="badLocals")
 		v-dialog(v-model="dialogPreResults" persistent max-width="500")
 			v-card
@@ -407,21 +401,21 @@
 					#servicesCustom
 						v-flex(xs12)
 							div.pb-5
-								span.display-1 Servicios
+								span.display-1 Satisfacción por Tipo de Cliente
 								v-divider
 						v-flex(xs9 offset-xs2 v-if="results")
 							Service.pb-5(:data="results.statsServices")
 					#reasonsCustom
 						v-flex(xs12)
 							div.pb-5
-								span.display-1 Motivos
+								span.display-1 Aspectos Evaluados
 								v-divider
 						v-flex(xs9 offset-xs2)
 							Reason.pb-5(:data="results.statsReasons")
-					#zonesCustom(v-if="userStorage.privileges !== 'Zone'")
+					#zonesCustom
 						v-flex(xs12)
 							div.pb-5
-								span.display-1 Jefe Zonales
+								span.display-1 Resumen por Jefe Zonal
 								v-divider
 						v-flex(xs9 offset-xs2)
 							Zone.pb-5(:data="results.statsZones")
@@ -1578,8 +1572,8 @@
 			clearFields() {
 				this.AMBA = null
 				this.interior = null
-				if (this.userStorage.privileges === 'Zone') this.local = null
-				if (this.userStorage.privileges !== 'Zone') this.zone = null
+				this.local = null
+				this.zone = null
 				this.desactiveDateMenus()
 				this.desactiveTimeMenuSince()
 				this.desactiveTimeMenuUntil()
