@@ -916,18 +916,10 @@
 			loader () {
 				const l = this.loader
 				this[l] = !this[l]
-			},
-			async local() {
-				const title = this.local
-				this.localID = (await this.$axios.post('locals/search', { title })).data[0].id
-			},
-			async zone() {
-				const responsable = this.zone
-				this.zoneID = (await this.$axios.post('zones/search', { responsable })).data[0].id
-			},
+			}
 		},
 		
-		async created() {
+		async mounted() {
 			this.$bus.$on('updateDataService', (data) => {
 				this.chartHourGlobalService = data[0]
 				this.chartDayWGlobalService = data[1]
@@ -949,9 +941,11 @@
 				this.chartMonthGlobalZone = data[3]
 			})
 
-			this.totalAssessments = (await this.$axios.post('assessments/stats/total')).data[0].total
+			this.totalAssessments = (await this.$axios.post('assessments/stats/total',
+			{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data[0].total
 
-			this.statsFaces = (await this.$axios.post('assessments/stats/faces/value-prc')).data
+			this.statsFaces = (await this.$axios.post('assessments/stats/faces/value-prc',
+			{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 
 			const zonesData = (await this.$axios.post('zones/responsables')).data
 
@@ -961,7 +955,8 @@
 
 			for (let zone of zonesData) this.zonesSelect.push(zone.responsable)
 
-			const objectService = (await this.$axios.post('assessments/stats/service')).data[0]
+			const objectService = (await this.$axios.post('assessments/stats/service',
+			{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data[0]
 
 			const { pagoServicio, pagoServicioVeryGood, pagoServicioGood, pagoServicioBad,
 			pagoServicioVeryBad, casaDeCambio, casaDeCambioVeryGood, casaDeCambioGood, 
@@ -1009,7 +1004,8 @@
 				}]
 			]
 
-			const objectReason = (await this.$axios.post('assessments/stats/reason')).data[0]
+			const objectReason = (await this.$axios.post('assessments/stats/reason',
+			{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data[0]
 
 			const { atencionDelCajero, atencionDelCajeroVeryGood, atencionDelCajeroGood, atencionDelCajeroBad,
 			atencionDelCajeroVeryBad, estadoDelLocal, estadoDelLocalVeryGood, estadoDelLocalGood, 
@@ -1057,7 +1053,8 @@
 				}]
 			]
 
-			const objectZone = (await this.$axios.post('assessments/stats/zone')).data[0]
+			const objectZone = (await this.$axios.post('assessments/stats/zone',
+			{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data[0]
 
 			const { eduardoCesio, eduardoCesioVeryGood, eduardoCesioGood, eduardoCesioBad,
 			eduardoCesioVeryBad, walterMancho, walterManchoVeryGood, walterManchoGood, 
@@ -1172,7 +1169,8 @@
 			const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 			this.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
 
-			const statsLocals = (await this.$axios.post('locals/stats/faces')).data
+			const statsLocals = (await this.$axios.post('locals/stats/faces',
+			{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 
 			let activeLocals = []
 
@@ -1199,7 +1197,6 @@
 			async downloadXLSX() {
 				this.loader2 = 'loading3'
 				const wb = XLSX.utils.book_new();
-				let y = 0
 
 				wb.Props = {
 					Title: "SheetJS Tutorial",
@@ -1214,9 +1211,12 @@
 					['ID' , 'Local', 'Jefe Zonal', 'Fecha', 'Hora', 'Valoración', 'Servicio', 'Motivo', 'Comentario', 'Email', 'Teléfono'],
 				]
 
-				const assessmentsXLS = (await this.$axios.post('/assessments/xls')).data
+				console.log(`AND MONTH(assessments.date) = ${new Date().getMonth() + 1}`)
 
-				console.log(assessmentsXLS.sql)
+				const assessmentsXLS = (await this.$axios.post('/assessments/xls', 
+				{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+
+				console.log(assessmentsXLS)
 
 				for (let i in assessmentsXLS) {
 					ws_data.push(new Array(10).fill(null))
@@ -1227,7 +1227,7 @@
 					ws_data[ws_data.length - 1][4] = assessmentsXLS[i].time
 					ws_data[ws_data.length - 1][5] = assessmentsXLS[i].face
 					ws_data[ws_data.length - 1][6] = assessmentsXLS[i].justification
-					ws_data[ws_data.length - 1][7] = assessmentsXLS[i].justificationTwo
+					ws_data[ws_data.length - 1][7] = assessmentsXLS[i].justificationtwo
 					ws_data[ws_data.length - 1][8] = assessmentsXLS[i].description
 					ws_data[ws_data.length - 1][9] = assessmentsXLS[i].email
 					ws_data[ws_data.length - 1][10] = assessmentsXLS[i].telephone
@@ -1271,7 +1271,6 @@
 
 				const assessmentsXLS = (await this.$axios.post('/assessments/xls', { condition: this.results.filter })).data
 
-				console.log(assessmentsXLS)
 				for (let i in assessmentsXLS) {
 					ws_data.push(new Array(10).fill(null))
 					ws_data[ws_data.length - 1][0] = assessmentsXLS[i].id
@@ -1281,7 +1280,7 @@
 					ws_data[ws_data.length - 1][4] = assessmentsXLS[i].time
 					ws_data[ws_data.length - 1][5] = assessmentsXLS[i].face
 					ws_data[ws_data.length - 1][6] = assessmentsXLS[i].justification
-					ws_data[ws_data.length - 1][7] = assessmentsXLS[i].justificationTwo
+					ws_data[ws_data.length - 1][7] = assessmentsXLS[i].justificationtwo
 					ws_data[ws_data.length - 1][8] = assessmentsXLS[i].description
 					ws_data[ws_data.length - 1][9] = assessmentsXLS[i].email
 					ws_data[ws_data.length - 1][10] = assessmentsXLS[i].telephone
@@ -1481,11 +1480,13 @@
 				}
 
 				if (this.zone) {
+					this.zoneID = (await this.$axios.post('zones/search', { responsable: this.zone })).data[0].id
 					this.results.filter = ` AND (assessments.zone_id) = '${this.zoneID}'`
 					this.results.filterB = ` AND (tickets.zone_id) = '${this.zoneID}'`
 				}
 
 				if (this.local) {
+					this.localID = (await this.$axios.post('locals/search', { title: this.local })).data[0].id
 					this.results.filter = `${this.results.filter} AND (assessments.local_id) = '${this.localID}'`
 					this.results.filterB = `${this.results.filterB} AND (tickets.local_id) = '${this.localID}'`
 				}
@@ -1517,8 +1518,6 @@
 				
 				this['loading'] = false
 				this.loader = null
-
-				console.log(this.results.filterB)
 				
 				if (!this.results.totalAssessments) {
 					this.textDialogPreResults = "La búsqueda no ha devuelto ningún resultado. Intentá con otros valores."
@@ -2197,12 +2196,20 @@
 
 				this.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, this.totalAssessments)).toFixed(2) + '%'
 
-				const services = (await this.$axios.post('/assessments/stats/service')).data[0].total
-				const reasons = (await this.$axios.post('/assessments/stats/reason')).data[0].totalR
+				const services = (await this.$axios.post('/assessments/stats/service',
+				{ condition: ` AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data[0].total
+				
+				const reasons = (await this.$axios.post('/assessments/stats/reason',
+				{ condition: ` AND justificationtwo != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data[0].totalR
 
-				const complains = (await this.$axios.post('/assessments/stats/complain')).data[0]
-				const comments = (await this.$axios.post('/assessments/stats/comment')).data[0]
-				const complainsUnread = (await this.$axios.post('/assessments/stats/complainUnread')).data[0]
+				const complains = (await this.$axios.post('/assessments/stats/complain',
+				{ condition: ` AND MONTH(tickets.date) = ${new Date().getMonth() + 1 } `})).data[0]
+				
+				const comments = (await this.$axios.post('/assessments/stats/comment',
+				{ condition: ` AND MONTH(tickets.date) = ${new Date().getMonth() + 1 } `})).data[0]
+				
+				const complainsUnread = (await this.$axios.post('/assessments/stats/complainUnread',
+				{ condition: ` AND MONTH(tickets.date) = ${new Date().getMonth() + 1 } `})).data[0]
 
 				this.indicatorsGlobal.complain = [`${complains.value} total`, `${complains.percentage}%`]
 				this.indicatorsGlobal.comment = [`${comments.value} total`, `${comments.percentage}%`]
@@ -2282,7 +2289,8 @@
 
 			async getChartGlobalDatesHour() {
 
-				const hoursStats = (await this.$axios.post('/assessments/stats/hour')).data
+				const hoursStats = (await this.$axios.post('/assessments/stats/hour',
+				{ condition: ` AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 
 				this.chartHourGlobal = []
 
@@ -2318,7 +2326,9 @@
 			},
 
 			async getChartGlobalDatesDayW() {
-				const dayWStats = (await this.$axios.post('/assessments/stats/dayW')).data
+				const dayWStats = (await this.$axios.post('/assessments/stats/dayW',
+				{ condition: ` AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+				
 				const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 
 				this.chartDayWGlobal = []
@@ -2354,7 +2364,8 @@
 			},
 
 			async getChartGlobalDatesDay() {
-				const dayStats = (await this.$axios.post('/assessments/stats/day')).data
+				const dayStats = (await this.$axios.post('/assessments/stats/day',
+				{ condition: ` AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 
 				let nextDay = 1
 

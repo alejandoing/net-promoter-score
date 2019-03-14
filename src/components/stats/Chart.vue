@@ -153,16 +153,21 @@
     },
     watch: {
       data() {
-        this.types[this.$props.type].title.text = this.$props.title
-        if (this.$props.type == "barStacked") {
-          if (this.$props.data.length > 4) this.types[this.$props.type].chart.height = '900px'
-          this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp. - ${x.satisfaction}% satisf.`)
+        try {
+          this.types[this.$props.type].title.text = this.$props.title
+          if (this.$props.type == "barStacked") {
+            if (this.$props.data.length > 4) this.types[this.$props.type].chart.height = '900px'
+            this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp. - ${x.satisfaction}% satisf.`)
+          }
+          else this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp.`)
+          this.types[this.$props.type].series[0].data = this.$props.data.map(x => x.veryGood)
+          this.types[this.$props.type].series[1].data = this.$props.data.map(x => x.good)
+          this.types[this.$props.type].series[2].data = this.$props.data.map(x => x.bad)
+          this.types[this.$props.type].series[3].data = this.$props.data.map(x => x.veryBad)
         }
-        else this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp.`)
-        this.types[this.$props.type].series[0].data = this.$props.data.map(x => x.veryGood)
-        this.types[this.$props.type].series[1].data = this.$props.data.map(x => x.good)
-        this.types[this.$props.type].series[2].data = this.$props.data.map(x => x.bad)
-        this.types[this.$props.type].series[3].data = this.$props.data.map(x => x.veryBad)
+        catch(e) {
+          e = null
+        }
       }
     }
 	}

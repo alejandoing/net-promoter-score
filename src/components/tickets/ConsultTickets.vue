@@ -166,12 +166,12 @@
 					)
 			v-layout(row).mb-5.mt-3
 				v-flex(xs12 sm4)
-					v-btn(block color="primary" @click="searchTickets") Filtrar Tickets
+					v-btn(block color="primary" :loading="loading" :disabled="loading" @click="searchTickets") Filtrar Tickets
 				v-flex(xs12 sm4).pl-2
 					v-btn(block color="primary" @click="clearFields") Limpiar
 				v-flex(xs12 sm4).pl-2
 					v-btn(block color="primary" @click="searchResults") Ver Detalles
-			v-flex.mb-5(xs12 sm12 v-if='tickets')
+			v-flex.mb-5(xs12 sm12 v-if='tickets.length')
 				v-card
 					v-list
 						template(v-for="ticket in tickets")
@@ -184,11 +184,11 @@
 									v-btn(color="amber darken-4" small dark) Leído
 								v-spacer(style="flex-grow: .1 !important")
 								v-list-tile-content.pl-5(ripple @click="viewTicket(ticket.id)")
-									v-list-tile-title.black-text {{ ticket.email }} - ({{ ticket.dateFormat }})
+									v-list-tile-title.black-text {{ ticket.email }} - ({{ convertDate(ticket.date) }})
 									v-list-tile-sub-title
 										span.grey--text.text--darken-2 {{ chunkString(ticket.description, 40) ? chunkString(ticket.description, 40)[0] : null }}...
 								v-spacer
-								v-btn(v-if="ticket.complain" color="error" small) Queja
+								v-btn(v-if="ticket.complain == 1" color="error" small) Queja
 								v-btn(v-else color="success" small) Com. Positivo
 							v-divider
 			v-flex(xs12 sm12 v-else) 
@@ -208,7 +208,7 @@
 							v-flex(xs1 offset-xs1 v-if="tickets")
 							.images.ml-5(v-for="image in images")
 								img(height="200" width="220" :src="image.url")
-								span {{ image.value.length }} cant. | {{ image.percentage }}%
+								span {{ image.value }} cant. | {{ image.percentage }}%
 					v-flex(xs12)
 						.py-5
 							span.display-1 Resumen por Jefe Zonal
@@ -223,13 +223,13 @@
 						v-flex(xs12 sm12)
 							v-card
 								v-list
-									template(v-for="local in localsQ")
+									template(v-for="local in ticketsLocals")
 										v-list-tile(avatar).ticket-content
 											v-list-tile-content
 												v-list-tile-title.black-text {{ local.title }}
 											v-spacer(style="flex-grow: .1 !important")
-											v-btn(color="error" small) {{ local.complain }} Quejas
-											v-btn(color="success" small dark) {{ local.comment }} Comentarios
+											v-btn(color="error" small) {{ local.complains }} Quejas
+											v-btn(color="success" small dark) {{ local.comments }} Comentarios
 										v-divider
 </template>
 
@@ -244,6 +244,8 @@
 					{ url: './../../../static/tickets/complain.png', value: false, percentage: false }
 				],
 				tickets: [],
+				ticketZones: [],
+				ticketsLocals: [],
 				complains: null,
 				comments: null,
 				dynamicDialogAct: false,
@@ -253,6 +255,8 @@
 				localsQ: null,
 				localsSelect: [],
 				zone: null,
+				loader: null,
+				loading: false,
 				test: null,
 				zoneID: null,
 				zonesSelect: [],
@@ -275,178 +279,47 @@
       }
 		},
 		watch: {
-			local() {
-				if (!this.zone) this.localsSelect = []
-				else {
-					let locals = this.$firebase.firestore().collection("locals")
-					.where('business', '==', this.userStorage.business)
-					.where('title', '==', this.local)
-					locals.onSnapshot(querySnapshot => {
-						querySnapshot.forEach(doc => this.localID = doc.id)
-					})
-				}
-			},
-			read() {
-				//if (!this.read) this.unread = true
-			},
-			closed() {
-				if (this.closed) {
-					this.read = true
-					this.unread = false
-				}
-			},
 			unread() {
 				this.closed = false
-			},
-			zone() {
-				this.localsSelect = []
-				let zone = this.$firebase.firestore().collection("zones").where('responsable', '==', this.zone)
-				zone.onSnapshot(querySnapshot => {
-					querySnapshot.forEach(doc => {
-						this.zoneID = doc.id
-						let locals = this.$firebase.firestore().collection("locals").where('zone', '==', doc.id)
-						locals.onSnapshot(querySnapshot => {
-							this.locals = []
-							querySnapshot.forEach(doc => {
-								let local = doc.data()
-								local.id = doc.id
-								this.locals.unshift(local)
-								this.localsSelect.unshift(local.title)
-							})
-						})
-					})
-				})
 			}
 		},
-		created() {
-			let locals = this.$firebase.firestore().collection("locals")
-			locals = locals.where('business', '==', this.userStorage.business).orderBy('title', 'desc')
-			locals.onSnapshot(querySnapshot => {
-				this.localsQ = []
-				querySnapshot.forEach(doc => {
-					let local = doc.data()
-					local.id = doc.id
-					local.complain = 0
-					local.comment = 0
-					this.localsQ.unshift(local)
-				})
-			})
+		async created() {
+			this.tickets = (await this.$axios.post('tickets/search')).data
+			
+			const ticketSum = (await this.$axios.post('tickets/sum')).data[0]
+			const totalTickets = ticketSum.comments + ticketSum.complains
 
-			let tickets = this.$firebase.firestore().collection("tickets")
-			tickets = tickets.where('business', '==', this.userStorage.business).orderBy("date")
-			tickets.onSnapshot(querySnapshot => {
-				querySnapshot.forEach(doc => {
-					console.log(doc.data())
-					let ticket = doc.data()
-					ticket.dateFormat = this.convertDate(doc.data().date)
-					ticket.kind = ticket.complain == 1 ? 'Queja' : 'Comentario Positivo'
-					ticket.id = doc.id
-					this.tickets.unshift(ticket)
-				})
-				this.images[0].value = this.tickets.filter(item => !item.complain)
-				this.images[0].percentage = this.getPercentage(this.images[0].value.length, this.tickets.length)
-				this.images[1].value = this.tickets.filter(item => item.complain)
-				this.images[1].percentage = this.getPercentage(this.images[1].value.length, this.tickets.length)
-				this.getStats()
-				if (!this.tickets.length) this.tickets = false
-			})
+			this.ticketsLocals = (await this.$axios.post('tickets/stats/locals')).data
+			
+			this.ticketZones = (await this.$axios.post('tickets/stats/zones')).data
+			
+			const zonesData = (await this.$axios.post('zones/responsables')).data
 
-			let zones = this.$firebase.firestore().collection("zones").where('business', '==', this.userStorage.business)
-			zones.onSnapshot(querySnapshot => {
-				this.zones = []
-				querySnapshot.forEach(doc => {
-					let zone = doc.data()
-					zone.id = doc.id
-					this.zones.unshift(zone)
-					this.zonesSelect.unshift(zone.responsable)
-				})
-			})
+			const localsData = (await this.$axios.post('locals/title')).data
+
+			for (let local of localsData) this.localsSelect.push(local.title)
+
+			for (let zone of zonesData) this.zonesSelect.push(zone.responsable)
+			
+			this.images[0].value = ticketSum.comments
+			this.images[0].percentage = this.getPercentage(this.images[0].value, totalTickets)
+			this.images[1].value = ticketSum.complains
+			this.images[1].percentage = this.getPercentage(this.images[1].value, totalTickets)
+			this.getStats()
 		},
 		methods: {
 			getStats() {
-				let zoneWM = 0, zoneLB = 0, zoneDR = 0, zoneDL = 0, zoneCM = 0, zoneFC = 0
-				
-				let zoneWMComplain = 0, zoneWMComment = 0
-				let zoneLBComplain = 0, zoneLBComment = 0
-				let zoneDRComplain = 0, zoneDRComment = 0
-				let zoneDLComplain = 0, zoneDLComment = 0
-				let zoneCMComplain = 0, zoneCMComment = 0
-				let zoneFCComplain = 0, zoneFCComment = 0
-
-				let complains = new Array(2).fill(0)
-				let comments = new Array(2).fill(0)
-				let activeLocals = []
-				let setUpLocals = []
-				
-				for (let ticket of this.tickets) {
-					switch(ticket.zone) {
-						case 'MM3exjMdkKaQ0cUkAkM2':
-							ticket.complain ? zoneWMComplain++ : zoneWMComment++
-							zoneWM++
-						break
-						case 'MopGQtv8fBJU4Pbad7vD':
-							ticket.complain ? zoneLBComplain++ : zoneLBComment++
-							zoneLB++
-						break
-						case 'Ngw5aiu8JFFKlHMDeZVd':
-							ticket.complain ? zoneCMComplain++ : zoneCMComment++
-							zoneCM++
-						break
-						case 'cRc6N1NsFEXInsBtkB9w':
-							ticket.complain ? zoneDRComplain++ : zoneDRComment++
-							zoneDR++
-						break
-						case 'mTMi65jxCFXXglPMEARV':
-							ticket.complain ? zoneDLComplain++ : zoneDLComment++
-							zoneDL++
-						break
-						case 'wk77ITDgnPYUjZ28MxJK':
-							ticket.complain ? zoneFCComplain++ : zoneFCComment++
-							zoneFC++
-						break
-					}
-
-					ticket.complain ? this.localsQ.find(item => item.id === ticket.local).complain++ : this.localsQ.find(item => item.id === ticket.local).comment++
-				}
-
 				this.tickets.stats = {
 					zones: {
-						0: [
-								[zoneWM, this.getPercentage(zoneWM, this.tickets.length)],
-								[zoneWMComplain, this.getPercentage(zoneWMComplain, this.tickets.length)],
-								[zoneWMComment, this.getPercentage(zoneWMComment, this.tickets.length)]
-							],
-						1: [
-								[zoneLB, this.getPercentage(zoneLB, this.tickets.length)],
-								[zoneLBComplain, this.getPercentage(zoneLBComplain, this.tickets.length)],
-								[zoneLBComment, this.getPercentage(zoneLBComment, this.tickets.length)] 
-							],
-						2: [
-								[zoneCM, this.getPercentage(zoneCM, this.tickets.length)],
-								[zoneCMComplain, this.getPercentage(zoneCMComplain, this.tickets.length)],
-								[zoneCMComment, this.getPercentage(zoneCMComment, this.tickets.length)]
-							],
-						3: [
-								[zoneDR, this.getPercentage(zoneDR, this.tickets.length)],
-								[zoneDRComplain, this.getPercentage(zoneDRComplain, this.tickets.length)],
-								[zoneDRComment, this.getPercentage(zoneDRComment, this.tickets.length)]
-							],
-						4: [
-								[zoneDL, this.getPercentage(zoneDL, this.tickets.length)],
-								[zoneDLComplain, this.getPercentage(zoneDLComplain, this.tickets.length)],
-								[zoneDLComment, this.getPercentage(zoneDLComment, this.tickets.length)]
-							],
-						5: [
-								[zoneFC, this.getPercentage(zoneFC, this.tickets.length)],
-								[zoneFCComplain, this.getPercentage(zoneFCComplain, this.tickets.length)],
-								[zoneFCComment, this.getPercentage(zoneFCComment, this.tickets.length)]
-							],					
+						0: [this.ticketZones[2].complains, this.ticketZones[2].comments],
+						1: [this.ticketZones[3].complains, this.ticketZones[3].comments],
+						2: [this.ticketZones[5].complains, this.ticketZones[5].comments],
+						3: [this.ticketZones[1].complains, this.ticketZones[1].comments],
+						4: [this.ticketZones[4].complains, this.ticketZones[4].comments],
+						5: [this.ticketZones[6].complains, this.ticketZones[6].comments],
+						6: [this.ticketZones[0].complains, this.ticketZones[0].comments]					
 					}
 				}
-
-				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
-
-				this.localsQ = this.localsQ.sort(sortByProperty('complain'))
 			},
 			searchResults() {
 				this.dynamicDialogAct = true
@@ -497,10 +370,11 @@
 			},
 
 			convertDate(inputFormat) {
-				function pad(s) { return (s < 10) ? '0' + s : s; }
-				let d = new Date(inputFormat)
-				let date = [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
-				let time = [pad(d.getHours()), pad(d.getMinutes())].join(':')
+				function pad(s) { return (s < 10) ? '0' + s : s }
+				let inputFormat3 = new Date(inputFormat)
+				let inputFormat2 = new Date(inputFormat3.setHours(new Date(inputFormat3.getHours() - 2)))
+				let date = [pad(inputFormat2.getDate()), pad(inputFormat2.getMonth()+1), pad(inputFormat2.getFullYear())].join('/')
+				let time = [pad(inputFormat2.getHours()), pad(inputFormat2.getMinutes())].join(':')
 				return `${date} - ${time} hs`
 			},
 
@@ -508,98 +382,65 @@
 				return str.match(new RegExp('.{1,' + length + '}', 'g'));
 			},
 
-			searchTickets() {
-				let tickets = this.$firebase.firestore().collection("tickets")
-				tickets = tickets.where('business', '==', this.userStorage.business).orderBy("date")
+			async searchTickets() {
+				this.loader = 'loading'
+				let filter = ''
+				
 				if (this.read || this.unread || this.closed) {
-					if (this.read && !this.unread) tickets = tickets.where('status', '==', 1)
-					if (this.unread && !this.read) tickets = tickets.where('status', '==', 0)
-					if (this.closed) tickets = tickets.where('status', '==', 2)
+					if (this.read && !this.unread) filter = `${filter} AND status = 1`
+					
+					if (this.unread && !this.read) filter = `${filter} AND status = 0`
+					if (this.unread && this.read) filter = `AND status in (0,1)`
+					if (this.read && this.closed) filter = `AND status in (1,2)`
+					if (this.unread && this.closed) filter = `AND status in (0,2)`
+					
+					if (this.closed) filter = filter = `${filter} AND status = 2`
+					if (this.unread && this.read && this.closed) filter = `AND status in (0,1,2)`
 				}
-				if (this.local) tickets = tickets.where('local', '==', this.localID)
-				else {
-					if (this.zone) tickets = tickets.where('zone', '==', this.zoneID)
+
+				if (this.local) {
+					this.localID = (await this.$axios.post('locals/search', { title: this.local })).data[0].id
+					filter = `${filter} AND local_id = '${this.localID}'`
 				}
+				
+				if (this.zone) {
+					this.zoneID = (await this.$axios.post('zones/search', { responsable: this.zone })).data[0].id
+					filter = `${filter} AND zone_id = '${this.zoneID}'`
+				}
+
 				if (this.complain && !this.comment) {
-					tickets = tickets.where('complain', '==', 1)
+					filter = `${filter} AND complain = 1`
 				}
 
 				if (this.comment && !this.complain) {
-					tickets = tickets.where('comment', '==', 1)
+					filter = `${filter} AND comment = 1`
 				}
 
-				let timeSince = '00:00'
-				let timeUntil = '23:59'
-				let dateSince = '1999-01-01'
-				let dateUntil = '2099-12-31'
-
-				function pad(s) { return (s < 10) ? '0' + s : s }
-				function timeSearch(date) { return `${pad(new Date(date).getHours())}:${pad(new Date(date).getMinutes())}` }
-				function compareTimes(timeRecord, timeSince, timeUntil) {
-					let arrayTimeRecord = timeRecord.split(":")
-					let arraytimeSince = timeSince.split(":")
-					let arraytimeUntil = timeUntil.split(":")
-
-					let recordHour = parseInt(arrayTimeRecord[0],10)
-					let recordMinutes = parseInt(arrayTimeRecord[1],10)
-					
-					let sinceHour = parseInt(arraytimeSince[0],10)
-					let sinceMinutes = parseInt(arraytimeSince[1],10)
-
-					let untilHour = parseInt(arraytimeUntil[0],10)
-					let untilMinutes = parseInt(arraytimeUntil[1],10)
-					
-					if (recordHour > sinceHour || (recordHour == sinceHour && recordMinutes >= sinceMinutes)) {
-						if (recordHour < untilHour || (recordHour == untilHour && recordMinutes <= untilMinutes)) return true
-						else return false
-					}
-					else return false
+				if (this.comment && this.complain) {
+					filter = `${filter} AND comment = 1 OR complain = 1`
 				}
-
-				this.loader = 'loading'
-
-				if (this.timeSince) timeSince = this.timeSince
-				if (this.timeUntil) timeUntil = this.timeUntil
 
 				if (this.dateSince) {
-					dateSince = this.dateSince
-					dateUntil = this.dateSince
-				}
-
-				if (this.dateUntil) dateUntil = this.dateUntil
-
-				let searchSince = new Date(`${dateSince} ${timeSince}`)
-				let searchUntil = new Date(`${dateUntil} ${timeUntil}`)
-				
-				if (this.dateSince || this.timeSince) {
-					tickets = tickets
-					.where('date','>=',new Date(`${dateSince} ${timeSince}`).toISOString())
-					.where('date','<=',new Date(`${dateUntil} ${timeUntil}`).toISOString())
-				}
-				
-				tickets.onSnapshot(querySnapshot => {
-					console.log(querySnapshot)
-					this.tickets = []
-					if (!this.timeSince) {
-						querySnapshot.forEach(doc => {
-							let ticket = doc.data()
-							ticket.dateFormat = this.convertDate(doc.data().date)
-							ticket.id = doc.id
-							this.tickets.unshift(ticket)
-						})
+					if (this.timeSince) {
+						filter = `${filter} AND DATE(date) BETWEEN '${this.dateSince} ${this.timeSince}' 
+						AND '${this.dateUntil} ${this.timeUntil}'`
 					}
 					else {
-						querySnapshot.forEach(doc => {
-							if (compareTimes(timeSearch(doc.data().date), timeSearch(searchSince), timeSearch(searchUntil))) {
-								let ticket = doc.data()
-								ticket.dateFormat = this.convertDate(doc.data().date)
-								ticket.id = doc.id
-								this.tickets.unshift(ticket)
-							}
-						})
+						filter = `${filter} AND DATE(date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
 					}
-					if (!this.tickets.length) this.tickets = false
-				})
+				}
+
+				if (this.timeSince && !this.dateSince) {
+					filter = `${filter} AND HOUR(date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
+				}
+
+				filter = `${filter} ORDER BY date DESC`
+				console.log(filter)
+				this.tickets = (await this.$axios.post('tickets/search', { condition: filter })).data
+				console.log(this.tickets)
+				
+				this['loading'] = false
+				this.loader = null
 			},
 
 			clearFields() {

@@ -133,23 +133,20 @@
         if (this.$props.data) {
 					let index
           for (let zone in this.zones) {
-						try {
-							if (typeof(this.$props.data.zones[zone][0]) === "object") {
-								this.title = "quej."
-								this.titleTwo = " com."
-								this.zones[zone].value = this.$props.data.zones[zone][1][0]
-								this.zones[zone].stats.satisfaction = this.$props.data.zones[zone][2][0]
-							} else {
-								index = this.zones[zone].index
-								this.zones[zone].value = this.$props.data[index][0]
-								this.zones[zone].percentage = this.$props.data[index][1]
-								this.zones[zone].stats = this.$props.data[index][2]
+						if (this.$props.data.zones) {
+							this.title = "quej."
+							this.titleTwo = " com."
+							try {
+								this.zones[zone].value = this.$props.data.zones[zone][0]
+								this.zones[zone].stats.satisfaction = this.$props.data.zones[zone][1]
+							} catch(e) {
+								e = null
 							}
-						} catch(e) {
+						} else {
 							index = this.zones[zone].index
 							this.zones[zone].value = this.$props.data[index][0]
 							this.zones[zone].percentage = this.$props.data[index][1]
-							this.zones[zone].stats = this.$props.data[index][2]							
+							this.zones[zone].stats = this.$props.data[index][2]					
 						}
 					}
         }
