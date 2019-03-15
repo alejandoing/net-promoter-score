@@ -2228,19 +2228,13 @@
 				const partialVeryBad = this.statsFaces[2].value * PRC_VERY_BAD
 				
 				const partials = partialGood + partialBad + partialVeryBad
-
-				console.log(new Date())
 				
 				this.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, this.totalAssessments)).toFixed(2) + '%'
-
-				console.log(new Date())
 
 				const complains = this.$axios.post('/assessments/stats/complain',
 				{ condition: ` AND MONTH(tickets.date) = ${new Date().getMonth() + 1 } `}).then(res => {
 					this.indicatorsGlobal.complain = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
 				})
-
-				console.log(new Date())
 				
 				const comments = this.$axios.post('/assessments/stats/comment',
 				{ condition: ` AND MONTH(tickets.date) = ${new Date().getMonth() + 1 } `}).then(res => {
