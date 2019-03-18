@@ -387,7 +387,7 @@
 			async dynamicDialog(data) {
 				if (this.title == "quej.") return false
 				this.statsFacesZone = (await this.$axios.post('zones/stats/faces/value-prc', { 
-					zone: data.ftitle, condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+					zone: data.ftitle, condition: data.stats.filter || ` AND MONTH(date) = ${new Date().getMonth() + 1 } `})).data
 				
 				this.dynamicDialogAct = !this.dynamicDialogAct
 				data.stats.indicatorsGlobal = { 
@@ -415,13 +415,13 @@
       },
 			async getChartGlobalDatesHour(data) {
 				const hoursStats = (await this.$axios.post('/zones/stats/hour', { zone:  data.ftitle,
-				condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+				condition: data.stats.filter || ` AND MONTH(date) = ${new Date().getMonth() + 1 } `})).data
 
 				this.chartHourGlobal = []
 
 				for (let i = 0; i < hoursStats.length; i++) {
 					this.chartHourGlobal.push({
-						title: i + " hs",
+						title: hoursStats[i].hour + " hs",
 						total: hoursStats[i].total,
 						veryGood: this.getPercentage(hoursStats[i].veryGood, hoursStats[i].total),
 						good: this.getPercentage(hoursStats[i].good, hoursStats[i].total),
@@ -434,7 +434,7 @@
       },
 			async getChartGlobalDatesDayW(data) {
 				const dayWStats = (await this.$axios.post('/zones/stats/dayW', { zone:  data.ftitle,
-				condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+				condition: data.stats.filter || ` AND MONTH(date) = ${new Date().getMonth() + 1 } `})).data
 				
 				const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 

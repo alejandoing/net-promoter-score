@@ -383,7 +383,7 @@
 
       for (let i = 0; i < hoursStats.length; i++) {
         this.chartHourGlobal.push({
-          title: i + " hs",
+          title: hoursStats[i].hour + " hs",
           total: hoursStats[i].total,
           veryGood: this.getPercentage(hoursStats[i].veryGood, hoursStats[i].total),
           good: this.getPercentage(hoursStats[i].good, hoursStats[i].total),

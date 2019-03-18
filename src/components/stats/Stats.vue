@@ -2249,13 +2249,11 @@
 
 				const services = this.$axios.post('/assessments/stats/service',
 				{ condition: ` AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
-					console.log(res)
 					this.indicatorsGlobal.service = [`${res.data[0].total} total`, `${this.getPercentage(res.data[0].total, this.totalAssessments)}%`]
 				})
 				
 				const reasons = this.$axios.post('/assessments/stats/reason',
 				{ condition: ` AND justificationtwo != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
-					console.log(res)
 					this.indicatorsGlobal.reason = [`${res.data[0].totalR} total`, `${this.getPercentage(res.data[0].totalR, this.totalAssessments)}%`]
 				})
 			},
@@ -2298,13 +2296,12 @@
 
 				const complains = (await this.$axios.post('/assessments/stats/complain', 
 				{ condition: this.results.filter })).data[0]
-				console.log(complains)
 				
 				const comments = (await this.$axios.post('/assessments/stats/comment',
 				{ condition: this.results.filter })).data[0]
 				
 				const complainsUnread = (await this.$axios.post('/assessments/stats/complainUnread',
-				{ condition: this.results.filterB })).data[0]
+				{ condition: this.results.filter })).data[0]
 
 				this.results.indicatorsCustom.satisfaction = (100 - this.getPercentage(partials, this.results.totalAssessments)).toFixed(2) + '%'
 				
@@ -2337,7 +2334,9 @@
 			async getChartGlobalDatesHour() {
 
 				const hoursStats = (await this.$axios.post('/assessments/stats/hour',
-				{ condition: ` AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+				{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `})).data
+
+				console.log(hoursStats)
 
 				this.chartHourGlobal = []
 
@@ -2374,7 +2373,7 @@
 
 			async getChartGlobalDatesDayW() {
 				const dayWStats = (await this.$axios.post('/assessments/stats/dayW',
-				{ condition: ` AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+				{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 				
 				const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 
@@ -2412,7 +2411,7 @@
 
 			async getChartGlobalDatesDay() {
 				const dayStats = (await this.$axios.post('/assessments/stats/day',
-				{ condition: ` AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+				{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 
 				let nextDay = 1
 
