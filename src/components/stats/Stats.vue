@@ -1505,30 +1505,30 @@
 				this.results.filterB = ''
 
 				if (this.AMBA) {
-					this.results.filter = ` AND (assessments.region_id) = '0l5DtjJ6UQ1J4DxX0fdY'`
-					this.results.filterB = ` AND (tickets.region_id) = '0l5DtjJ6UQ1J4DxX0fdY'`					
+					this.results.filter = ` AND (region_id) = '0l5DtjJ6UQ1J4DxX0fdY'`
+					this.results.filterB = ` AND (region_id) = '0l5DtjJ6UQ1J4DxX0fdY'`					
 				}
 
 				if (this.interior) {
-					this.results.filter = ` AND (assessments.region_id) = 'MKITRJYc46G8XLR0Kjsv'`
-					this.results.filterB = ` AND (tickets.region_id) = 'MKITRJYc46G8XLR0Kjsv'`					
+					this.results.filter = ` AND (region_id) = 'MKITRJYc46G8XLR0Kjsv'`
+					this.results.filterB = ` AND (region_id) = 'MKITRJYc46G8XLR0Kjsv'`					
 				}
 
 				if (this.zone) {
 					this.zoneID = (await this.$axios.post('zones/search', { responsable: this.zone })).data[0].id
-					this.results.filter = ` AND (assessments.zone_id) = '${this.zoneID}'`
-					this.results.filterB = ` AND (tickets.zone_id) = '${this.zoneID}'`
+					this.results.filter = ` AND (zone_id) = '${this.zoneID}'`
+					this.results.filterB = ` AND (zone_id) = '${this.zoneID}'`
 				}
 
 				if (this.local) {
 					this.localID = (await this.$axios.post('locals/search', { title: this.local })).data[0].id
-					this.results.filter = `${this.results.filter} AND (assessments.local_id) = '${this.localID}'`
-					this.results.filterB = `${this.results.filterB} AND (tickets.local_id) = '${this.localID}'`
+					this.results.filter = `${this.results.filter} AND (local_id) = '${this.localID}'`
+					this.results.filterB = `${this.results.filterB} AND (local_id) = '${this.localID}'`
 				}
 
 				if (this.dateSince) {
 					if (this.timeSince) {
-						this.results.filter = `${this.results.filter} AND (assessments.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
+						this.results.filter = `${this.results.filter} AND (date) BETWEEN '${this.dateSince} ${this.timeSince}' 
 						AND '${this.dateUntil} ${this.timeUntil}'`
 						
 						this.results.filterB = `${this.results.filterB}
@@ -1536,14 +1536,14 @@
 						AND '${this.dateUntil} ${this.timeUntil}'`
 					}
 					else {
-						this.results.filter = `${this.results.filter} AND DATE(assessments.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
-						this.results.filterB = `${this.results.filterB} AND DATE(tickets.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
+						this.results.filter = `${this.results.filter} AND DATE(date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
+						this.results.filterB = `${this.results.filterB} AND DATE(date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
 					}
 				}
 
 				if (this.timeSince && !this.dateSince) {
-					this.results.filter = `${this.results.filter} AND HOUR(assessments.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`
-					this.results.filterB = `${this.results.filterB} AND HOUR(tickets.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
+					this.results.filter = `${this.results.filter} AND HOUR(date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`
+					this.results.filterB = `${this.results.filterB} AND HOUR(date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
 				}
 
 				const queryFaces = (await this.$axios.post('assessments/stats/faces/value-prc', { condition: this.results.filter })).data
@@ -2296,9 +2296,15 @@
 				const services = (await this.$axios.post('/assessments/stats/service/ind', { condition: this.results.filter })).data[0].total
 				const reasons = (await this.$axios.post('/assessments/stats/reason/ind', { condition: this.results.filter })).data[0].total
 
-				const complains = (await this.$axios.post('/assessments/stats/complain', { condition: this.results.filterB, conditionB: this.results.filter })).data[0]
-				const comments = (await this.$axios.post('/assessments/stats/comment', { condition: this.results.filterB, conditionB: this.results.filter })).data[0]
-				const complainsUnread = (await this.$axios.post('/assessments/stats/complainUnread', { condition: this.results.filterB })).data[0]
+				const complains = (await this.$axios.post('/assessments/stats/complain', 
+				{ condition: this.results.filter })).data[0]
+				console.log(complains)
+				
+				const comments = (await this.$axios.post('/assessments/stats/comment',
+				{ condition: this.results.filter })).data[0]
+				
+				const complainsUnread = (await this.$axios.post('/assessments/stats/complainUnread',
+				{ condition: this.results.filterB })).data[0]
 
 				this.results.indicatorsCustom.satisfaction = (100 - this.getPercentage(partials, this.results.totalAssessments)).toFixed(2) + '%'
 				
