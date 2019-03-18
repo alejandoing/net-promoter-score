@@ -376,11 +376,12 @@
       this.chartMonthGlobal = []
     },
     async getChartGlobalDatesHour(data) {
-      const hoursStats = (await this.$axios.post('/reasons/stats/hour', { reason:  data.ftitle })).data
+      const hoursStats = (await this.$axios.post('/reasons/stats/hour', { reason:  data.ftitle,
+      condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 
       this.chartHourGlobal = []
 
-      for (let i = 8; i < hoursStats.length; i++) {
+      for (let i = 0; i < hoursStats.length; i++) {
         this.chartHourGlobal.push({
           title: i + " hs",
           total: hoursStats[i].total,
@@ -394,7 +395,9 @@
       this.chartHourGlobalReason = this.chartHourGlobal
     },
     async getChartGlobalDatesDayW(data) {
-				const dayWStats = (await this.$axios.post('/reasons/stats/dayW', { reason:  data.ftitle })).data
+        const dayWStats = (await this.$axios.post('/reasons/stats/dayW', { reason:  data.ftitle,
+        condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+        
 				const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 
 				this.chartDayWGlobal = []
@@ -419,7 +422,7 @@
 
       for (let i = 0; i < monthStats.length; i++) {
         this.chartMonthGlobal.push({
-          title: CATEGORIES[i],
+          title: CATEGORIES[monthStats[i].month - 1],
           total: monthStats[i].total,
           veryGood: this.getPercentage(monthStats[i].veryGood, monthStats[i].total),
           good: this.getPercentage(monthStats[i].good, monthStats[i].total),
@@ -438,7 +441,7 @@
     },
     async dynamicDialog(data) {
       this.statsFacesReason = (await this.$axios.post('reasons/stats/faces/value-prc', { 
-        reason:  data.ftitle, condition: data.stats.filter })).data
+        reason:  data.ftitle, condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
       
       this.dynamicDialogAct = !this.dynamicDialogAct
       data.stats.indicatorsGlobal = { 
@@ -469,8 +472,12 @@
       if (!this.getPercentage(partials, total)) this.currentReason.stats.indicatorsGlobal.satisfaction = 0
       else this.currentReason.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
       
-      const complains = (await this.$axios.post('/reasons/stats/complain', { reason: data.ftitle })).data[0]
-      const comments = (await this.$axios.post('/reasons/stats/comment', { reason: data.ftitle })).data[0]
+      const complains = (await this.$axios.post('/reasons/stats/complain', { reason: data.ftitle,
+      condition: data.stats.filter || ` AND MONTH(date) = ${new Date().getMonth() + 1 } `})).data[0]
+
+      const comments = (await this.$axios.post('/reasons/stats/comment', { reason: data.ftitle,
+      condition: data.stats.filter || ` AND MONTH(date) = ${new Date().getMonth() + 1 } `})).data[0]
+      console.log(comments)
 
       this.currentReason.stats.indicatorsGlobal.complain = [complains.value, complains.percentage]
       this.currentReason.stats.indicatorsGlobal.comment = [comments.value, comments.percentage]
@@ -479,7 +486,8 @@
       this.dynamicDialogAct = true
     },
     async getChartGlobalDatesDay(data) {
-      const dayStats = (await this.$axios.post('/reasons/stats/day', { reason:  data.ftitle })).data
+      const dayStats = (await this.$axios.post('/reasons/stats/day', { reason:  data.ftitle,
+      condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 
       this.chartDayGlobal = []
 
