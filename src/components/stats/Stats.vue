@@ -2232,17 +2232,18 @@
 				this.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, this.totalAssessments)).toFixed(2) + '%'
 
 				const complains = this.$axios.post('/assessments/stats/complain',
-				{ condition: ` AND MONTH(tickets.date) = ${new Date().getMonth() + 1 } `}).then(res => {
+				{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
+					console.log(res)
 					this.indicatorsGlobal.complain = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
 				})
 				
 				const comments = this.$axios.post('/assessments/stats/comment',
-				{ condition: ` AND MONTH(tickets.date) = ${new Date().getMonth() + 1 } `}).then(res => {
+				{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
 					this.indicatorsGlobal.comment = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
 				})
 				
 				const complainsUnread = this.$axios.post('/assessments/stats/complainUnread',
-				{ condition: ` AND MONTH(tickets.date) = ${new Date().getMonth() + 1 } `}).then(res => {
+				{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
 					this.indicatorsGlobal.complainUnread = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
 				})
 
