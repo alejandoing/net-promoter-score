@@ -215,48 +215,50 @@
 			},
 
 			createAssessment() {
-				clearInterval(this.timer)
-				this.i = 0
-				if (this.description) { 
-					this.flow.contact = true
-					if (this.assessment == "bad" || this.assessment == "veryBad") {
-						this.complain = 1
-						this.comment = 0
+				if (this.loader !== 'loading') {
+					clearInterval(this.timer)
+					this.i = 0
+					if (this.description) { 
+						this.flow.contact = true
+						if (this.assessment == "bad" || this.assessment == "veryBad") {
+							this.complain = 1
+							this.comment = 0
+						}
+						if (this.assessment == "veryGood" || this.assessment == "good") {
+							this.comment = 1
+							this.complain = 0
+						}
 					}
-					if (this.assessment == "veryGood" || this.assessment == "good") {
-						this.comment = 1
-						this.complain = 0
-					}
-				}
-				// const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
-				this.loader = 'loading'
+					// const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
+					this.loader = 'loading'
 
-				const urlAssessment = 'http://174.36.119.3:8080/firestore/assessment/add/'
-				axios.post(urlAssessment, {
-				 	face: this.assessment,
-				 	flow: this.flow,
-				 	justification: this.justification,
-				 	justificationTwo: this.justificationTwo,
-					poll: 'D2KzOzdiM8dCmUw7idIW',
-					zone: this.local.zone,
-					region: this.local.region,
-				 	business: this.poll.business,
-				 	local: this.$route.params.localId,
-				 	complain: this.complain,
-					comment: this.comment					
-				})
-				.then(res => {
-				 	if (this.flow.contact && this.email) this.createTicket(res.data)
-				 	else {
-				 		this['loading'] = false
-				 		this.loader = null
-						this.dialog = true
-					}
-				})
-				.catch(err => {
-					console.log(err)
-					location.reload()
-				})
+					const urlAssessment = 'http://174.36.119.3:8080/firestore/assessment/add/'
+					axios.post(urlAssessment, {
+						face: this.assessment,
+						flow: this.flow,
+						justification: this.justification,
+						justificationTwo: this.justificationTwo,
+						poll: 'D2KzOzdiM8dCmUw7idIW',
+						zone: this.local.zone,
+						region: this.local.region,
+						business: this.poll.business,
+						local: this.$route.params.localId,
+						complain: this.complain,
+						comment: this.comment					
+					})
+					.then(res => {
+						if (this.flow.contact && this.email) this.createTicket(res.data)
+						else {
+							//this['loading'] = false
+							//this.loader = null
+							this.dialog = true
+						}
+					})
+					.catch(err => {
+						console.log(err)
+						location.reload()
+					})
+				}
 
 				// ASSESSMENT_COLLECTION.add({
 				// 	face: this.assessment,
@@ -299,8 +301,8 @@
 					assessment: assessment
 				})
 				.then(() => {
-						this['loading'] = false
-						this.loader = null
+						//this['loading'] = false
+						//this.loader = null
 						this.dialog = true
 
 						let resetTicket = {

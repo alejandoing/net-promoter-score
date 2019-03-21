@@ -44,12 +44,14 @@
 			{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(async res => {
 				this.totalAssessmentsMonth = res.data[0].total
 				localStorage.setItem('totalAssessments', JSON.stringify(res.data[0].total))
-				this.$axios.post('assessments/stats/faces/value-prc', { condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
+				
+				this.$axios.post('assessments/stats/faces/value-prc', 
+				{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
 					localStorage.setItem('statsFaces', JSON.stringify(res.data))
 					this.veryGood = res.data[3].value
 					this.good = res.data[1].value
 					this.veryBad = res.data[2].value
-					this.bad = res.data[0].value	
+					this.bad = res.data[0].value
 				})
 			})
 

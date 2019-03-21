@@ -11,7 +11,7 @@
 	Vue.use(VueHighcharts, { Highcharts })
 
   export default {
-    props: ['type', 'title', 'data'],
+    props: ['type', 'title', 'data', 'textSize'],
     data () {
       return {
         series: null,
@@ -29,7 +29,7 @@
               categories: null,
               labels: {
                 style: {
-                  fontSize:'14px',
+                  fontSize: '16px',
                   fontWeight: 'bold'
                 }
               }
@@ -158,6 +158,7 @@
           if (this.$props.type == "barStacked") {
             if (this.$props.data.length > 4) this.types[this.$props.type].chart.height = '900px'
             this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp. - ${x.satisfaction}% satisf.`)
+            if (this.$props.textSize) this.types[this.$props.type].xAxis.labels.style.fontSize = this.$props.textSize
           }
           else this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp.`)
           this.types[this.$props.type].series[0].data = this.$props.data.map(x => x.veryGood)

@@ -124,6 +124,14 @@
 			saveStorage() {
 				localStorage.setItem('user', JSON.stringify(this.user))
 				localStorage.setItem('assessment', '/polls/')
+				this.$axios.post('assessments/stats/total', { condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})
+				.then(res => {
+					localStorage.setItem('totalAssessments', JSON.stringify(res.data[0].total))			
+					
+					this.$axios.post('assessments/stats/faces/value-prc', { condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})
+					.then(res => localStorage.setItem('statsFaces', JSON.stringify(res.data)))
+				})
+
 				this.verifyUser()
 			},
 
