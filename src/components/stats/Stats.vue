@@ -2142,7 +2142,7 @@
 
 			getPercentage(part, universe) {
 				let result = parseFloat(((part * 100) / universe).toFixed(2))
-				return isNaN(result) ? 0 : result
+				return isNaN(result) ? 0 : (result > 100 ? 100 : result)
 			},
 			
 			getChartGlobal() {
@@ -2846,7 +2846,7 @@
 					if (!this.getPercentage(partials, total)) satisfaction = 0
 				}
 
-				return satisfaction
+				return satisfaction > 100 ? 100 : satisfaction
 			},
 
 			async getChartGlobalDatesHour() {
