@@ -398,26 +398,23 @@
 							v-tabs-content(id="monthCustom")
 								v-flex.py-5(xs12)
 									Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthCustom")
-					#servicesCustom
 						v-flex(xs12)
 							div.pb-5
 								span.display-1 Satisfacción por Tipo de Cliente
 								v-divider
 						v-flex(xs9 offset-xs2 v-if="results")
 							Service.pb-5(:data="results.statsServices")
-					#reasonsCustom
 						v-flex(xs12)
 							div.pb-5
 								span.display-1 Aspectos Evaluados
 								v-divider
-						v-flex(xs9 offset-xs2)
+						v-flex(xs9 offset-xs2 v-if="results")
 							Reason.pb-5(:data="results.statsReasons")
-					#zonesCustom
 						v-flex(xs12)
 							div.pb-5
 								span.display-1 Resumen por Jefe Zonal
 								v-divider
-						v-flex(xs9 offset-xs2)
+						v-flex(xs9 offset-xs2 v-if="results")
 							Zone.pb-5(:data="results.statsZones")
 					v-flex#weakPointsCustom(xs12)
 						Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="results.weakPoints")
@@ -639,7 +636,7 @@
 				menuTimeUntil: false,
 				timeSince: null,
 				timeUntil: null,
-				results: { indicatorsCustom: { satisfaction: null, complain: [], comment: [], service: [], reason: [], complainUnread: [] } },
+				results: { statsReasons: [], statsZones: [], statsServices: [], indicatorsCustom: { satisfaction: null, complain: [], comment: [], service: [], reason: [], complainUnread: [] } },
         time: null,
 				loading: false,
 				loader: null,
@@ -938,7 +935,6 @@
 			})
 
 			this.$bus.$on('updateDataReason', (data) => {
-				console.log(data)
 				this.chartHourGlobalReason = data[0]
 				this.chartDayWGlobalReason = data[1]
 				this.chartDayGlobalReason = data[2]

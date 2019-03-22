@@ -127,6 +127,7 @@
   watch: {
     data() {
       if (this.$props.data) {
+        console.log(this.$props.data)
         let index
         for (let reason in this.reasons) {
           index = this.reasons[reason].index
@@ -134,12 +135,12 @@
           this.reasons[reason].percentage = this.$props.data[index][1]
           this.reasons[reason].stats = this.$props.data[index][2]
         }
-      }
+      } 
     },
     loader2 () {
       const l = this.loader2
       this[l] = !this[l]
-    },
+    }
   },
   methods: {
     async printGeneralReport(data) {
