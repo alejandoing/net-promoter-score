@@ -97,7 +97,8 @@
                   style: {
                     fontSize:'15px'
                   }
-                }
+                },
+                // crosshair: true
             },
             yAxis: {
                 min: 0,
@@ -145,8 +146,20 @@
             }, {
                 name: 'Muy Malo',
                 data: null
-            }],
-					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A']
+            }
+            // ,{
+            //   name: 'Satisfaccion',
+            //   type: 'spline',
+            //   data: null,
+            //   dataLabels: {
+            //     enabled: false
+            //   },
+            //   tooltip: {
+            //     valueSuffix: '% satis.'
+            //   },
+            // }
+            ],
+					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A', '#1769aa']
           },
         }
       }
@@ -157,7 +170,7 @@
           this.types[this.$props.type].title.text = this.$props.title
           if (this.$props.type == "barStacked") {
             if (this.$props.data.length > 4) this.types[this.$props.type].chart.height = '900px'
-            this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp. - ${x.satisfaction}% satisf.`)
+            this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp - ${x.satisfaction}% satis.`)
             if (this.$props.textSize) this.types[this.$props.type].xAxis.labels.style.fontSize = this.$props.textSize
           }
           else this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp.`)
@@ -165,6 +178,7 @@
           this.types[this.$props.type].series[1].data = this.$props.data.map(x => x.good)
           this.types[this.$props.type].series[2].data = this.$props.data.map(x => x.bad)
           this.types[this.$props.type].series[3].data = this.$props.data.map(x => x.veryBad)
+          this.types[this.$props.type].series[4].data = this.$props.data.map(x => parseFloat(x.satisfaction))
         }
         catch(e) {
           e = null
