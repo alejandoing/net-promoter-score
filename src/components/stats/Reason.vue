@@ -569,7 +569,7 @@
     async getChartGlobalDatesDayW(data) {
       this.$axios.post('/reasons/stats/dayW', { reason:  data.ftitle,
         condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
-        const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
+        const CATEGORIES = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab']
 
         this.chartDayWGlobal = []
 

@@ -1586,8 +1586,6 @@
 				const weakPoints = await getCanvas('weakPoints')
 				pdf.addImage(weakPoints.toDataURL('image/png'), 'PNG', 10, 28, 190, 120)
 
-				console.log(this.statsZones)
-
 				pdf.addImage(YELLOW_TOP, 'JPEG', 0, 145, 230, 10)
 				pdf.setFontSize(16)
 				pdf.setFontStyle('bold')
@@ -2915,7 +2913,7 @@
 			async getChartGlobalDatesDayW() {
 				this.$axios.post('/assessments/stats/dayW',
 				{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
-					const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
+					const CATEGORIES = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab']
 
 					this.chartDayWGlobal = []
 
@@ -2935,7 +2933,7 @@
 
 			async getChartCustomDatesDayW() {
 				this.$axios.post('/assessments/stats/dayW', { condition: this.results.filter }).then(res => {
-					const CATEGORIES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
+					const CATEGORIES = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab']
 
 					this.chartDayWCustom = []
 

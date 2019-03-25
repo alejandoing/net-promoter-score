@@ -133,6 +133,7 @@
 				},
 				dialog: false,
 				local: null,
+				wrote: true
 			}
 		},
 		watch: {
@@ -179,6 +180,7 @@
 				i++
 				//console.log(i)
 				if (i == 15) {
+					this.wrote = false
 					clearInterval(this.timer)
 					if (!this.dialog) await this.createAssessment()
 					else this.finalize()
@@ -247,7 +249,7 @@
 						comment: this.comment					
 					})
 					.then(res => {
-						if (this.flow.contact && this.email) this.createTicket(res.data)
+						if (this.flow.contact && this.email && this.wrote) this.createTicket(res.data)
 						else {
 							//this['loading'] = false
 							//this.loader = null

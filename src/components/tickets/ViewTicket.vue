@@ -22,13 +22,13 @@
 			v-flex(xs12 md6)
 				v-text-field(
 					label="Local"
-					v-model.trim="localTitle"
+					v-model.trim="ticket.title"
 					readonly
 				)
 			v-flex(xs12 md6)
 				v-text-field(
 					label="Código de Encuesta"
-					v-model.trim="ticket.poll"
+					v-model.trim="ticket.poll_id"
 					readonly
 				)
 			v-flex(xs12)
@@ -101,19 +101,12 @@
 		},
 
 		async created() {
-			let ticket = this.$firebase.firestore().doc('tickets/' + this.$route.params.id)
-			await ticket.get().then(async doc => {
-				this.ticket = doc.data()
-				if (this.ticket.answer) this.comment = true
-					ticket.update({
-						status: 1
-					})
-					.then(() => console.log(''))
+			this.$axios.post('tickets/view', { id: this.$route.params.id }).then(res => {
+				this.ticket = res.data[0]
 			})
 
-			let localTitle = this.$firebase.firestore().doc('locals/' + this.ticket.local)
-			localTitle.get().then(doc => {
-				this.localTitle = doc.data().title
+			this.$axios.post('tickets/update', { id: this.$route.params.id }).then(res => {
+				console.log('Ticket updated')
 			})
 		},
 
@@ -143,30 +136,16 @@
 
 			async uploadComment() {
 				this.loader = 'loading'
-				let ticket = this.$firebase.firestore().doc('tickets/' + this.$route.params.id)
-				await ticket.get().then(async doc => {
-					if (this.ticket.answer) {
-						ticket.update({
-							assessment: this.ticket.assessment,
-							business: this.ticket.business,
-							date: this.ticket.date,
-							description: this.ticket.description,
-							email: this.ticket.email,
-							local: this.ticket.local,
-							poll: this.ticket.poll,
-							telephone: this.ticket.telephone,
-							comment: this.ticket.comment,
-							answer: this.ticket.answer,
-							status: 2
-						})
-						.then(() => {
-							this['loading'] = false
-							this.loader = null
-							this.dialogConfirm = true
-							this.comment = true
-						})
-					}
-				})
+				
+				if (this.ticket.answer) {
+					this.$axios.post('tickets/addAnswer', { answer: this.ticket.answer, id: this.$route.params.id }).then(res => {
+						console.log('Ticket answer updated')
+						this['loading'] = false
+						this.loader = null
+						this.dialogConfirm = true
+						this.comment = true
+					})
+				}
 			},
 
 			finalize() {

@@ -284,7 +284,11 @@
 			}
 		},
 		async created() {
-			this.tickets = (await this.$axios.post('tickets/search')).data
+			this.$axios.post('tickets/search',
+			{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 }` }).then(res => {
+				console.log(res)
+				this.tickets = res.data
+			})
 			
 			const ticketSum = (await this.$axios.post('tickets/sum')).data[0]
 			const totalTickets = ticketSum.comments + ticketSum.complains
@@ -434,10 +438,8 @@
 					filter = `${filter} AND HOUR(date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
 				}
 
-				filter = `${filter} ORDER BY date DESC`
-				console.log(filter)
+				filter = `${filter}`
 				this.tickets = (await this.$axios.post('tickets/search', { condition: filter })).data
-				console.log(this.tickets)
 				
 				this['loading'] = false
 				this.loader = null

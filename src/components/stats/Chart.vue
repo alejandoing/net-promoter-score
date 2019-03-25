@@ -152,7 +152,9 @@
             //   type: 'spline',
             //   data: null,
             //   dataLabels: {
-            //     enabled: false
+            //     color: 'white',
+            //     enabled: false,
+            //     useHTML: true
             //   },
             //   tooltip: {
             //     valueSuffix: '% satis.'
