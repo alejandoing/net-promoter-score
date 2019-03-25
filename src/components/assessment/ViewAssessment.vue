@@ -179,7 +179,7 @@
 			async waiting(i) {
 				i++
 				//console.log(i)
-				if (i == 15) {
+				if (i == 25) {
 					this.wrote = false
 					clearInterval(this.timer)
 					if (!this.dialog) await this.createAssessment()
