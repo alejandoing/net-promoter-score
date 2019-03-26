@@ -915,6 +915,12 @@
 			loader () {
 				const l = this.loader
 				this[l] = !this[l]
+			},
+			dateSinceFormatted() {
+				if (!this.dateSinceFormatted) this.dateSince = null
+			},
+			dateUntilFormatted() {
+				if (!this.dateUntilFormatted) this.dateUntil = null
 			}
 		},
 		
@@ -1190,7 +1196,7 @@
 		methods: {
 			async finalize() {
 				this.dialogResults = false
-				this.results = { indicatorsCustom: { complain: [], comment: [], complainUnread: [], reason: [], service: [] } }
+				this.results = { filter: null, filterB: null, indicatorsCustom: { complain: [], comment: [], complainUnread: [], reason: [], service: [] } }
 			},
 			async downloadXLSX() {
 				this.loader2 = 'loading3'
@@ -2090,6 +2096,8 @@
 				
 				this['loading'] = false
 				this.loader = null
+
+				console.log(this.results)
 				
 				if (!this.results.totalAssessments) {
 					this.textDialogPreResults = "La búsqueda no ha devuelto ningún resultado. Intentá con otros valores."
@@ -2876,6 +2884,7 @@
 				const partialVeryBad = veryBad * PRC_VERY_BAD
 
 				const partials = partialGood + partialBad + partialVeryBad
+				
 				if (!partials && total) satisfaction = 100
 				else {
 					satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
@@ -2954,7 +2963,7 @@
 
 					for (let i = 0; i < res.data.length; i++) {
 						this.chartDayWCustom.push({
-							title: CATEGORIES[i],
+							title: CATEGORIES[res.data[i].dayw - 1],
 							total: res.data[i].total,
 							veryGood: this.getPercentage(res.data[i].veryGood, res.data[i].total),
 							good: this.getPercentage(res.data[i].good, res.data[i].total),

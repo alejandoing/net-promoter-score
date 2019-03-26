@@ -475,8 +475,6 @@
 				const assessmentsXLS = (await this.$axios.post('/assessments/xls', 
         { condition: data.stats.filterB || ` AND justificationtwo = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 
-        console.log(data.stats)
-
 				for (let i in assessmentsXLS) {
 					ws_data.push(new Array(10).fill(null))
 					ws_data[ws_data.length - 1][0] = assessmentsXLS[i].id

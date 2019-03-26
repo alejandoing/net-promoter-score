@@ -82,14 +82,14 @@
               v-tabs-content(id="monthService")
                 v-flex.py-5(xs12)
                   Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
-            v-flex(xs12)#reasonsService
-              div.pb-5
-                span.display-1 Aspectos Evaluados
-              v-divider
-            v-flex(xs9 offset-xs2)
-              Reason.pb-5(:data="statsReasonsService")
-            v-flex#weakPointsService(xs12)
-              Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentService.weakPoints")
+            //- v-flex(xs12)#reasonsService
+            //-   div.pb-5
+            //-     span.display-1 Aspectos Evaluados
+            //-   v-divider
+            //- v-flex(xs9 offset-xs2)
+            //-   Reason.pb-5(:data="statsReasonsService")
+            //- v-flex#weakPointsService(xs12)
+            //-   Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentService.weakPoints")
           
 </template>
 
