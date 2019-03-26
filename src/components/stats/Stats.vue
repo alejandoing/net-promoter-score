@@ -1263,7 +1263,7 @@
 				]
 
 
-				const assessmentsXLS = (await this.$axios.post('/assessments/xls', { condition: this.results.filter })).data
+				const assessmentsXLS = (await this.$axios.post('/assessments/xls', { condition: this.results.filterB })).data
 
 				for (let i in assessmentsXLS) {
 					ws_data.push(new Array(10).fill(null))
@@ -2069,18 +2069,18 @@
 						AND '${this.dateUntil} ${this.timeUntil}'`
 						
 						this.results.filterB = `${this.results.filterB}
-						 AND (tickets.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
+						 AND (assessments.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
 						AND '${this.dateUntil} ${this.timeUntil}'`
 					}
 					else {
 						this.results.filter = `${this.results.filter} AND DATE(date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
-						this.results.filterB = `${this.results.filterB} AND DATE(date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
+						this.results.filterB = `${this.results.filterB} AND DATE(assessments.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
 					}
 				}
 
 				if (this.timeSince && !this.dateSince) {
 					this.results.filter = `${this.results.filter} AND HOUR(date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`
-					this.results.filterB = `${this.results.filterB} AND HOUR(date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
+					this.results.filterB = `${this.results.filterB} AND HOUR(assessments.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
 				}
 
 				const queryFaces = (await this.$axios.post('assessments/stats/faces/value-prc', { condition: this.results.filter })).data
@@ -2534,7 +2534,7 @@
 			async getChartCustomM(filter) {
 				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 				
-				this.$axios.post('assessments/stats/service', { condition: filter }).then(res => {
+				this.$axios.post('assessments/stats/service', { condition: `${this.results.filterB} AND justification != 'null'` }).then(res => {
 					const { pagoServicio, pagoServicioVeryGood, pagoServicioGood, pagoServicioBad,
 					pagoServicioVeryBad, casaDeCambio, casaDeCambioVeryGood, casaDeCambioGood, 
 					casaDeCambioBad, casaDeCambioVeryBad, envioInternacional, envioInternacionalVeryGood, 
@@ -2549,6 +2549,7 @@
 							bad: { face: 'bad', value: pagoServicioBad, percentage: this.getPercentage(pagoServicioBad, pagoServicio) },
 							veryBad: { face: 'veryBad', value: pagoServicioVeryBad, percentage: this.getPercentage(pagoServicioVeryBad, pagoServicio) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(pagoServicio, pagoServicioGood, pagoServicioBad, pagoServicioVeryBad)
 						}
 					],
@@ -2559,6 +2560,7 @@
 						bad: { face: 'bad', value: envioInternacionalBad, percentage: this.getPercentage(envioInternacionalBad, envioInternacional) },
 						veryBad: { face: 'veryBad', value: envioInternacionalVeryBad, percentage: this.getPercentage(envioInternacionalVeryBad, envioInternacional) },
 						filter,
+						filterB: this.results.filterB,
 						satisfaction: this.getIndicatorsReason(envioInternacional, envioInternacionalGood, envioInternacionalBad, envioInternacionalVeryBad)
 					}],
 					[
@@ -2568,6 +2570,7 @@
 						bad: { face: 'bad', value: envioNacionalBad, percentage: this.getPercentage(envioNacionalBad, envioNacional) },
 						veryBad: { face: 'veryBad', value: envioNacionalVeryBad, percentage: this.getPercentage(envioNacionalVeryBad, envioNacional) },
 						filter,
+						filterB: this.results.filterB,
 						satisfaction: this.getIndicatorsReason(envioNacional, envioNacionalGood, envioNacionalBad, envioNacionalVeryBad)
 					}],
 					[
@@ -2577,6 +2580,7 @@
 						bad: { face: 'bad', value: casaDeCambioBad, percentage: this.getPercentage(casaDeCambioBad, casaDeCambio) },
 						veryBad: { face: 'veryBad', value: casaDeCambioVeryBad, percentage: this.getPercentage(casaDeCambioVeryBad, casaDeCambio) },
 						filter,
+						filterB: this.results.filterB,
 						satisfaction: this.getIndicatorsReason(casaDeCambio, casaDeCambioGood, casaDeCambioBad, casaDeCambioVeryBad)
 						}]
 					]
@@ -2597,6 +2601,7 @@
 								bad: { face: 'bad', value: atencionDelCajeroBad, percentage: this.getPercentage(atencionDelCajeroBad, atencionDelCajero) },
 								veryBad: { face: 'veryBad', value: atencionDelCajeroVeryBad, percentage: this.getPercentage(atencionDelCajeroVeryBad, atencionDelCajero) },
 								filter,
+								filterB: this.results.filterB,
 								satisfaction: this.getIndicatorsReason(atencionDelCajero, atencionDelCajeroGood, atencionDelCajeroBad, atencionDelCajeroVeryBad)
 							}
 						],
@@ -2607,6 +2612,7 @@
 							bad: { face: 'bad', value: tiempoDeEsperaBad, percentage: this.getPercentage(tiempoDeEsperaBad, tiempoDeEspera) },
 							veryBad: { face: 'veryBad', value: tiempoDeEsperaVeryBad, percentage: this.getPercentage(tiempoDeEsperaVeryBad, tiempoDeEspera) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(tiempoDeEspera, tiempoDeEsperaGood, tiempoDeEsperaBad, tiempoDeEsperaVeryBad)
 						}],
 						[
@@ -2616,6 +2622,7 @@
 							bad: { face: 'bad', value: estadoDelLocalBad, percentage: this.getPercentage(estadoDelLocalBad, estadoDelLocal) },
 							veryBad: { face: 'veryBad', value: estadoDelLocalVeryBad, percentage: this.getPercentage(estadoDelLocalVeryBad, estadoDelLocal) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(estadoDelLocal, estadoDelLocalGood, estadoDelLocalBad, estadoDelLocalVeryBad)
 						}],
 						[
@@ -2625,6 +2632,7 @@
 							bad: { face: 'bad', value: servicioUtilizadoBad, percentage: this.getPercentage(servicioUtilizadoBad, servicioUtilizado) },
 							veryBad: { face: 'veryBad', value: servicioUtilizadoVeryBad, percentage: this.getPercentage(servicioUtilizadoVeryBad, servicioUtilizado) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(servicioUtilizado, servicioUtilizadoGood, servicioUtilizadoBad, servicioUtilizadoVeryBad)
 						}]
 					]
@@ -2684,6 +2692,7 @@
 							bad: { face: 'bad', value: walterManchoBad, percentage: this.getPercentage(walterManchoBad, walterMancho) },
 							veryBad: { face: 'veryBad', value: walterManchoVeryBad, percentage: this.getPercentage(walterManchoVeryBad, walterMancho) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(walterMancho, walterManchoGood, walterManchoBad, walterManchoVeryBad)
 						}],
 						[
@@ -2693,6 +2702,7 @@
 							bad: { face: 'bad', value: lucianaBernadottiBad, percentage: this.getPercentage(lucianaBernadottiBad, lucianaBernadotti) },
 							veryBad: { face: 'veryBad', value: lucianaBernadottiVeryBad, percentage: this.getPercentage(lucianaBernadottiVeryBad, lucianaBernadotti) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(lucianaBernadotti, lucianaBernadottiGood, lucianaBernadottiBad, lucianaBernadottiVeryBad)
 						}],
 						[
@@ -2702,6 +2712,7 @@
 							bad: { face: 'bad', value: cristinaMarigomezBad, percentage: this.getPercentage(cristinaMarigomezBad, cristinaMarigomez) },
 							veryBad: { face: 'veryBad', value: cristinaMarigomezVeryBad, percentage: this.getPercentage(cristinaMarigomezVeryBad, cristinaMarigomez) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(cristinaMarigomez, cristinaMarigomezGood, cristinaMarigomezBad, cristinaMarigomezVeryBad)
 						}],
 						[
@@ -2711,6 +2722,7 @@
 							bad: { face: 'bad', value: dardoRicciBad, percentage: this.getPercentage(dardoRicciBad, dardoRicci) },
 							veryBad: { face: 'veryBad', value: dardoRicciVeryBad, percentage: this.getPercentage(dardoRicciVeryBad, dardoRicci) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(dardoRicci, dardoRicciGood, dardoRicciBad, dardoRicciVeryBad)
 						}],
 						[
@@ -2720,6 +2732,7 @@
 							bad: { face: 'bad', value: diegoLongoBad, percentage: this.getPercentage(diegoLongoBad, diegoLongo) },
 							veryBad: { face: 'veryBad', value: diegoLongoVeryBad, percentage: this.getPercentage(diegoLongoVeryBad, diegoLongo) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(diegoLongo, diegoLongoGood, diegoLongoBad, diegoLongoVeryBad)
 						}],
 						[
@@ -2729,6 +2742,7 @@
 							bad: { face: 'bad', value: florenciaCasaBad, percentage: this.getPercentage(florenciaCasaBad, florenciaCasa) },
 							veryBad: { face: 'veryBad', value: florenciaCasaVeryBad, percentage: this.getPercentage(florenciaCasaVeryBad, florenciaCasa) },
 							filter,
+							filterB: this.results.filterB,
 							satisfaction: this.getIndicatorsReason(florenciaCasa, florenciaCasaGood, florenciaCasaBad, florenciaCasaVeryBad)
 						}],
 						[
@@ -2738,6 +2752,7 @@
 								bad: { face: 'bad', value: eduardoCesioBad, percentage: this.getPercentage(eduardoCesioBad, eduardoCesio) },
 								veryBad: { face: 'veryBad', value: eduardoCesioVeryBad, percentage: this.getPercentage(eduardoCesioVeryBad, eduardoCesio) },
 								filter,
+								filterB: this.results.filterB,
 								satisfaction: this.getIndicatorsReason(eduardoCesio, eduardoCesioGood, eduardoCesioBad, eduardoCesioVeryBad)
 							}
 						]
@@ -2843,12 +2858,12 @@
 					this.results.indicatorsCustom.complainUnread = [`${res.data[0].value} total`, `${res.data[0].percentage || 0}%`]
 				})
 
-				this.$axios.post('/assessments/stats/service', { condition: this.results.filter }).then(res => {
-					this.results.indicatorsCustom.service = [`${res.data[0].total} total`, `${this.getPercentage(res.data[0].total, this.totalAssessments)}%`]
+				this.$axios.post('/assessments/stats/service', { condition: `${this.results.filterB} AND justification != ""` }).then(res => {
+					this.results.indicatorsCustom.service = [`${res.data[0].total} total`, `${this.getPercentage(res.data[0].total, this.results.totalAssessments)}%`]
 				})
 				
-				this.$axios.post('/assessments/stats/reason', { condition: this.results.filter }).then(res => {
-					this.results.indicatorsCustom.reason = [`${res.data[0].totalR} total`, `${this.getPercentage(res.data[0].totalR, this.totalAssessments)}%`]
+				this.$axios.post('/assessments/stats/reason', { condition: `${this.results.filterB} AND justificationtwo != ""` }).then(res => {
+					this.results.indicatorsCustom.reason = [`${res.data[0].totalR} total`, `${this.getPercentage(res.data[0].totalR, this.results.totalAssessments)}%`]
 				})
 			},
 

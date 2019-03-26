@@ -147,19 +147,19 @@
                 name: 'Muy Malo',
                 data: null
             }
-            // ,{
-            //   name: 'Satisfaccion',
-            //   type: 'spline',
-            //   data: null,
-            //   dataLabels: {
-            //     color: 'white',
-            //     enabled: false,
-            //     useHTML: true
-            //   },
-            //   tooltip: {
-            //     valueSuffix: '% satis.'
-            //   },
-            // }
+            ,{
+              name: 'Satisfaccion',
+              type: 'spline',
+              data: null,
+              dataLabels: {
+                color: 'white',
+                enabled: false,
+                useHTML: true
+              },
+              tooltip: {
+                valueSuffix: '% satis.'
+              },
+            }
             ],
 					colors: ['#26A500', '#25F16C', '#F2E41D', '#DE4D3A', '#1769aa']
           },

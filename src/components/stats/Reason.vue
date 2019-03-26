@@ -34,7 +34,7 @@
                 fab
                 color="primary"
                 slot="activator"
-                @click="downloadXLSX(currentReason.stats.assessments)"
+                @click="downloadXLSX(currentReason)"
                 :loading="loading3"
                 :disabled="loading3"
               )
@@ -127,7 +127,6 @@
   watch: {
     data() {
       if (this.$props.data) {
-        console.log(this.$props.data)
         let index
         for (let reason in this.reasons) {
           index = this.reasons[reason].index
@@ -452,7 +451,7 @@
       this.loading2 = false
       this.loader2 = null
     },
-    downloadXLSX(data) {
+    async downloadXLSX(data) {
       this.loader2 = 'loading3'
       const wb = XLSX.utils.book_new();
       let y = 0
@@ -470,52 +469,46 @@
         ['ID' , 'Local', 'Jefe Zonal', 'Fecha', 'Hora', 'Valoración', 'Servicio', 'Motivo', 'Comentario', 'Email', 'Teléfono'],
       ]
 
-      for (let assessment of data) {
-        ws_data.push(new Array(10).fill(null))
-        ws_data[ws_data.length - 1][0] = assessment.id
-        ws_data[ws_data.length - 1][1] = this.locals.find(item => item.id == assessment.local).title
-        ws_data[ws_data.length - 1][2] = this.zones.find(item => item.id == assessment.zone).responsable
-        ws_data[ws_data.length - 1][3] = `
-          ${new Date(assessment.date).getDate() > 9 ? new Date(assessment.date).getDate() : "0" + new Date(assessment.date).getDate()}/
-          ${new Date(assessment.date).getMonth() + 1 > 9 ? new Date(assessment.date).getMonth() + 1 : "0" + (new Date(assessment.date).getMonth() + 1)}/
-          ${new Date(assessment.date).getFullYear()}
-        `
-        ws_data[ws_data.length - 1][4] = `
-          ${new Date(assessment.date).getHours()}:
-          ${new Date(assessment.date).getMinutes() > 9 ? new Date(assessment.date).getMinutes() : "0" + new Date(assessment.date).getMinutes()}:
-          ${new Date(assessment.date).getSeconds() > 9 ? new Date(assessment.date).getSeconds() : "0" + new Date(assessment.date).getSeconds()}
-        `
-        ws_data[ws_data.length - 1][5] = assessment.face
-        ws_data[ws_data.length - 1][6] = assessment.justification
-        ws_data[ws_data.length - 1][7] = assessment.justificationTwo
-        this.$firebase.firestore().collection('tickets').where('assessment', '==', assessment.id).get().then(querySnapshot => {
-          querySnapshot.forEach(doc => {
-            const a = ws_data.findIndex(item => item[0] == assessment.id)
-            ws_data[a][8] = doc.data().description
-            ws_data[a][9] = doc.data().email
-            ws_data[a][10] = doc.data().telephone
-          })
-          y++
-          if (y == data.length) {
-            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+        if (data.stats.filter) data.stats.filter = `${data.stats.filter} AND justificationtwo = '${data.ftitle}'`
+        if (data.stats.filterB) data.stats.filterB = `${data.stats.filterB} AND justificationtwo = '${data.ftitle}'`
 
-            wb.Sheets["NPS Crudo de Datos"] = ws;
+				const assessmentsXLS = (await this.$axios.post('/assessments/xls', 
+        { condition: data.stats.filterB || ` AND justificationtwo = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
 
-            const wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
-            
-            function s2ab(s) { 
-              const buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-              const view = new Uint8Array(buf);  //create uint8array as viewer
-              for (let i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-              return buf;
-            }
+        console.log(data.stats)
 
-            saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'NPS_Datos_Crudos_WU.xlsx');
-            this.loading3 = false
-            this.loader2 = null
-          }
-        })
-      }
+				for (let i in assessmentsXLS) {
+					ws_data.push(new Array(10).fill(null))
+					ws_data[ws_data.length - 1][0] = assessmentsXLS[i].id
+					ws_data[ws_data.length - 1][1] = assessmentsXLS[i].local
+					ws_data[ws_data.length - 1][2] = assessmentsXLS[i].zone
+					ws_data[ws_data.length - 1][3] = assessmentsXLS[i].date
+					ws_data[ws_data.length - 1][4] = assessmentsXLS[i].time
+					ws_data[ws_data.length - 1][5] = assessmentsXLS[i].face
+					ws_data[ws_data.length - 1][6] = assessmentsXLS[i].justification
+					ws_data[ws_data.length - 1][7] = assessmentsXLS[i].justificationtwo
+					ws_data[ws_data.length - 1][8] = assessmentsXLS[i].description
+					ws_data[ws_data.length - 1][9] = assessmentsXLS[i].email
+					ws_data[ws_data.length - 1][10] = assessmentsXLS[i].telephone
+				}
+
+				const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+				wb.Sheets["NPS Crudo de Datos"] = ws;
+
+				const wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+				
+				function s2ab(s) {
+					const buf = new ArrayBuffer(s.length);
+					const view = new Uint8Array(buf);
+					for (let i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+					return buf;
+				}
+
+				saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'NPS_Datos_Crudos_WU.xlsx');
+				this.loading3 = false
+				this.loader2 = null
+
     },
     getIndicatorsReason(total, good, bad, veryBad) {
       const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1

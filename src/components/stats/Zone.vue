@@ -82,20 +82,20 @@
               v-tabs-content(id="monthService")
                 v-flex.py-5(xs12)
                   Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
-          //- v-flex(xs12)#servicesZones
-          //-   div.pb-5
-          //-     span.display-1 Satisfacción por Tipo de Cliente
-          //-     v-divider
-          //- v-flex(xs9 offset-xs2)
-          //-   Service.pb-5(:data="statsServicesZone")
-          //- v-flex(xs12)#reasonsZones
-          //-   div.pb-5
-          //-     span.display-1 Aspectos Evaluados
-          //-     v-divider
-          //- v-flex(xs9 offset-xs2)
-          //-   Reason.pb-5(:data="statsReasonsZone")
-          //- v-flex#weakPointsZones(xs12)
-          //-   Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentZone.weakPoints")
+          v-flex(xs12)#servicesZones
+            div.pb-5
+              span.display-1 Satisfacción por Tipo de Cliente
+              v-divider
+          v-flex(xs9 offset-xs2)
+            Service.pb-5(:data="statsServicesZone")
+          v-flex(xs12)#reasonsZones
+            div.pb-5
+              span.display-1 Aspectos Evaluados
+              v-divider
+          v-flex(xs9 offset-xs2)
+            Reason.pb-5(:data="statsReasonsZone")
+          v-flex#weakPointsZones(xs12)
+            Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentZone.weakPoints")
 </template>
 
 <script>
@@ -436,9 +436,8 @@
 			async dynamicDialog(data) {
 				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 
-				if (data.stats.filter) data.stats.filter = `${data.stats.filter} AND zone_id = '${data.ftitle}'`
-
-				console.log(data.stats.filter)
+				if (data.stats.filter) data.stats.filter = `${data.stats.filter} AND assessments.zone_id = '${data.ftitle}'`
+				if (data.stats.filterB) data.stats.filterB = `${data.stats.filterB} AND assessments.zone_id = '${data.ftitle}'`
 
 				if (this.title == "quej.") return false
 				this.statsFacesZone = (await this.$axios.post('zones/stats/faces/value-prc', { 
@@ -456,7 +455,7 @@
 				this.getIndicatorsGlobal(data)	
 
 			this.$axios.post('assessments/stats/service',
-			{ condition:  data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
+			{ condition:  data.stats.filterB || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
 				
 				const { pagoServicio, pagoServicioVeryGood, pagoServicioGood, pagoServicioBad,
 				pagoServicioVeryBad, casaDeCambio, casaDeCambioVeryGood, casaDeCambioGood, 
@@ -471,7 +470,8 @@
 							good: { face: 'good', value: pagoServicioGood, percentage: this.getPercentage(pagoServicioGood, pagoServicio) },
 							bad: { face: 'bad', value: pagoServicioBad, percentage: this.getPercentage(pagoServicioBad, pagoServicio) },
 							veryBad: { face: 'veryBad', value: pagoServicioVeryBad, percentage: this.getPercentage(pagoServicioVeryBad, pagoServicio) },
-							filter: data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 }`,
+							filter: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+							filterB: data.stats.filterB || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
 							satisfaction: this.getIndicatorsReason(pagoServicio, pagoServicioGood, pagoServicioBad, pagoServicioVeryBad)
 						}
 					],
@@ -481,7 +481,8 @@
 						good: { face: 'good', value: envioInternacionalGood, percentage: this.getPercentage(envioInternacionalGood, envioInternacional) },
 						bad: { face: 'bad', value: envioInternacionalBad, percentage: this.getPercentage(envioInternacionalBad, envioInternacional) },
 						veryBad: { face: 'veryBad', value: envioInternacionalVeryBad, percentage: this.getPercentage(envioInternacionalVeryBad, envioInternacional) },
-						filter: data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 }`,
+						filter: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+						filterB: data.stats.filterB || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
 						satisfaction: this.getIndicatorsReason(envioInternacional, envioInternacionalGood, envioInternacionalBad, envioInternacionalVeryBad)
 					}],
 					[
@@ -490,7 +491,8 @@
 						good: { face: 'good', value: envioNacionalGood, percentage: this.getPercentage(envioNacionalGood, envioNacional) },
 						bad: { face: 'bad', value: envioNacionalBad, percentage: this.getPercentage(envioNacionalBad, envioNacional) },
 						veryBad: { face: 'veryBad', value: envioNacionalVeryBad, percentage: this.getPercentage(envioNacionalVeryBad, envioNacional) },
-						filter: data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 }`,
+						filterB: data.stats.filterB || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+						filter: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
 						satisfaction: this.getIndicatorsReason(envioNacional, envioNacionalGood, envioNacionalBad, envioNacionalVeryBad)
 					}],
 					[
@@ -499,14 +501,15 @@
 						good: { face: 'good', value: casaDeCambioGood, percentage: this.getPercentage(casaDeCambioGood, casaDeCambio) },
 						bad: { face: 'bad', value: casaDeCambioBad, percentage: this.getPercentage(casaDeCambioBad, casaDeCambio) },
 						veryBad: { face: 'veryBad', value: casaDeCambioVeryBad, percentage: this.getPercentage(casaDeCambioVeryBad, casaDeCambio) },
-						filter: data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 }`,
+						filter: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+						filterB: data.stats.filterB || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
 						satisfaction: this.getIndicatorsReason(casaDeCambio, casaDeCambioGood, casaDeCambioBad, casaDeCambioVeryBad)
 					}]
 				]
 			})
 
 			this.$axios.post('assessments/stats/reason', { 
-			condition: data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
+			condition: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
 				
 				const { atencionDelCajero, atencionDelCajeroVeryGood, atencionDelCajeroGood, atencionDelCajeroBad,
 				atencionDelCajeroVeryBad, estadoDelLocal, estadoDelLocalVeryGood, estadoDelLocalGood, 
@@ -521,7 +524,8 @@
 							good: { face: 'good', value: atencionDelCajeroGood, percentage: this.getPercentage(atencionDelCajeroGood, atencionDelCajero) },
 							bad: { face: 'bad', value: atencionDelCajeroBad, percentage: this.getPercentage(atencionDelCajeroBad, atencionDelCajero) },
 							veryBad: { face: 'veryBad', value: atencionDelCajeroVeryBad, percentage: this.getPercentage(atencionDelCajeroVeryBad, atencionDelCajero) },
-							filter: data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 }`,
+							filter: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+							filterB: data.stats.filterB || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
 							satisfaction: this.getIndicatorsReason(atencionDelCajero, atencionDelCajeroGood, atencionDelCajeroBad, atencionDelCajeroVeryBad)
 						}
 					],
@@ -531,7 +535,8 @@
 						good: { face: 'good', value: tiempoDeEsperaGood, percentage: this.getPercentage(tiempoDeEsperaGood, tiempoDeEspera) },
 						bad: { face: 'bad', value: tiempoDeEsperaBad, percentage: this.getPercentage(tiempoDeEsperaBad, tiempoDeEspera) },
 						veryBad: { face: 'veryBad', value: tiempoDeEsperaVeryBad, percentage: this.getPercentage(tiempoDeEsperaVeryBad, tiempoDeEspera) },
-						filter: data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 }`,
+						filter: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+						filterB: data.stats.filterB || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
 						satisfaction: this.getIndicatorsReason(tiempoDeEspera, tiempoDeEsperaGood, tiempoDeEsperaBad, tiempoDeEsperaVeryBad)
 					}],
 					[
@@ -540,7 +545,8 @@
 						good: { face: 'good', value: estadoDelLocalGood, percentage: this.getPercentage(estadoDelLocalGood, estadoDelLocal) },
 						bad: { face: 'bad', value: estadoDelLocalBad, percentage: this.getPercentage(estadoDelLocalBad, estadoDelLocal) },
 						veryBad: { face: 'veryBad', value: estadoDelLocalVeryBad, percentage: this.getPercentage(estadoDelLocalVeryBad, estadoDelLocal) },
-						filter: data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 }`,
+						filter: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+						filterB: data.stats.filterB || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
 						satisfaction: this.getIndicatorsReason(estadoDelLocal, estadoDelLocalGood, estadoDelLocalBad, estadoDelLocalVeryBad)
 					}],
 					[
@@ -549,7 +555,8 @@
 						good: { face: 'good', value: servicioUtilizadoGood, percentage: this.getPercentage(servicioUtilizadoGood, servicioUtilizado) },
 						bad: { face: 'bad', value: servicioUtilizadoBad, percentage: this.getPercentage(servicioUtilizadoBad, servicioUtilizado) },
 						veryBad: { face: 'veryBad', value: servicioUtilizadoVeryBad, percentage: this.getPercentage(servicioUtilizadoVeryBad, servicioUtilizado) },
-						filter: data.stats.filter || ` AND zone_id = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 }`,
+						filter: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+						filterB: data.stats.filterB || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
 						satisfaction: this.getIndicatorsReason(servicioUtilizado, servicioUtilizadoGood, servicioUtilizadoBad, servicioUtilizadoVeryBad)
 					}]
 				]
