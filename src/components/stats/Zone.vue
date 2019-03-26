@@ -82,20 +82,20 @@
               v-tabs-content(id="monthService")
                 v-flex.py-5(xs12)
                   Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
-          //- v-flex(xs12)#servicesZones
-          //-   div.pb-5
-          //-     span.display-1 Satisfacción por Tipo de Cliente
-          //-     v-divider
-          //- v-flex(xs9 offset-xs2)
-          //-   Service.pb-5(:data="statsServicesZone")
-          //- v-flex(xs12)#reasonsZones
-          //-   div.pb-5
-          //-     span.display-1 Aspectos Evaluados
-          //-     v-divider
-          //- v-flex(xs9 offset-xs2)
-          //-   Reason.pb-5(:data="statsReasonsZone")
-          //- v-flex#weakPointsZones(xs12)
-          //-   Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentZone.weakPoints")
+          v-flex(xs12)#servicesZones
+            div.pb-5
+              span.display-1 Satisfacción por Tipo de Cliente
+              v-divider
+          v-flex(xs9 offset-xs2)
+            Service.pb-5(:data="statsServicesZone")
+          v-flex(xs12)#reasonsZones
+            div.pb-5
+              span.display-1 Aspectos Evaluados
+              v-divider
+          v-flex(xs9 offset-xs2)
+            Reason.pb-5(:data="statsReasonsZone")
+          v-flex#weakPointsZones(xs12)
+            Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentZone.weakPoints")
 </template>
 
 <script>
