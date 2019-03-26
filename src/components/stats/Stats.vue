@@ -2060,13 +2060,13 @@
 				if (this.zone) {
 					this.zoneID = (await this.$axios.post('zones/search', { responsable: this.zone })).data[0].id
 					this.results.filter = ` AND (zone_id) = '${this.zoneID}'`
-					this.results.filterB = ` AND (zone_id) = '${this.zoneID}'`
+					this.results.filterB = ` AND (assessments.zone_id) = '${this.zoneID}'`
 				}
 
 				if (this.local) {
 					this.localID = (await this.$axios.post('locals/search', { title: this.local })).data[0].id
 					this.results.filter = `${this.results.filter} AND (local_id) = '${this.localID}'`
-					this.results.filterB = `${this.results.filterB} AND (local_id) = '${this.localID}'`
+					this.results.filterB = `${this.results.filterB} AND (assessments.local_id) = '${this.localID}'`
 				}
 
 				if (this.dateSince) {
@@ -2943,7 +2943,7 @@
 
 					for (let i = 0; i < res.data.length; i++) {
 						this.chartDayWGlobal.push({
-							title: CATEGORIES[i],
+							title: CATEGORIES[res.data[i].dayw - 1],
 							total: res.data[i].total,
 							veryGood: this.getPercentage(res.data[i].veryGood, res.data[i].total),
 							good: this.getPercentage(res.data[i].good, res.data[i].total),
