@@ -200,8 +200,6 @@
 
 				const activeLocalsPDF = (await this.$axios.post('locals/active',
         { condition: this.currentReason.stats.filter })).data[0].locales
-        
-        console.log(this.currentReason)
 				
 				pdf.addPage('a4', 'portrait')
 				pdf.addImage(YELLOW_TOP, 'JPEG', 0, 0, 230, 22)
@@ -210,7 +208,7 @@
 				pdf.text('Informe Mensual', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`Resumen Detallado por Aspectos Evaluados`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -278,7 +276,7 @@
 				pdf.text('Informe Mensual', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`Resumen Detallado por Aspectos Evaluados`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -308,7 +306,7 @@
 				pdf.text('Informe Mensual', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`Resumen Detallado por Aspectos Evaluados`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)

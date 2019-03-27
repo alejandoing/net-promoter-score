@@ -118,12 +118,14 @@
 			v-layout(row)
 				v-flex(xs12 sm4 offset-sm2)
 					v-select(
+						autocomplete
 						label="Elegí un Jefe Zonal"
 						v-model="zone"
 						:items="zonesSelect"
 					)
 				v-flex.ml-3(xs12 sm4)
 					v-select(
+						autocomplete
 						label="Elegí un Local"
 						v-model="local"
 						:items="localsSelect"
@@ -285,10 +287,7 @@
 		},
 		async created() {
 			this.$axios.post('tickets/search',
-			{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 }` }).then(res => {
-				console.log(res)
-				this.tickets = res.data
-			})
+			{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 }` }).then(res => this.tickets = res.data)
 			
 			const ticketSum = (await this.$axios.post('tickets/sum')).data[0]
 			const totalTickets = ticketSum.comments + ticketSum.complains

@@ -116,12 +116,14 @@
 								v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
 			v-flex(xs12 sm4 offset-sm2)
 				v-select(
+					autocomplete
 					label="Elegí un Jefe Zonal"
 					v-model="zone"
 					:items="zonesSelect"
 				)
 			v-flex.ml-3(xs12 sm4)
 				v-select(
+					autocomplete
 					label="Elegí un Local"
 					v-model="local"
 					:items="localsSelect"
@@ -1352,6 +1354,9 @@
 
 				const activeLocalsPDF = (await this.$axios.post('locals/active',
 				{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data[0].locales
+
+				const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre',
+				'Octubre', 'Noviembre', 'Diciembre']
 				
 				pdf.addImage(WU_LOGO, 'JPEG', 80, 80, 50, 50)
 				pdf.setFontSize(24)
@@ -1369,7 +1374,7 @@
 				pdf.text('Informe Mensual', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`${MONTHS[new Date().getMonth()]} 2019`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -1458,7 +1463,7 @@
 				pdf.text('Informe Mensual', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`${MONTHS[new Date().getMonth()]} 2019`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -1488,7 +1493,7 @@
 				pdf.text('Informe Mensual', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`${MONTHS[new Date().getMonth()]} 2019`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -1582,7 +1587,7 @@
 				pdf.text('Informe Mensual', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`${MONTHS[new Date().getMonth()]} 2019`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -1659,7 +1664,7 @@
 				pdf.text('Informe Mensual', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`${MONTHS[new Date().getMonth()]} 2019`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -1733,6 +1738,9 @@
 
 				const activeLocalsPDF = (await this.$axios.post('locals/active', 
 				{ condition: this.results.filter } )).data[0].locales
+
+				const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre',
+				'Octubre', 'Noviembre', 'Diciembre']
 				
 				pdf.addImage(WU_LOGO, 'JPEG', 80, 80, 50, 50)
 				pdf.setFontSize(24)
@@ -1750,7 +1758,7 @@
 				pdf.text('Informe Personalizado', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`Resumen Detallado por Filtros`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -1839,7 +1847,7 @@
 				pdf.text('Informe Personalizado', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`Resumen Detallado por Filtros`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -1869,7 +1877,7 @@
 				pdf.text('Informe Personalizado', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`Resumen Detallado por Filtros`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
@@ -1963,7 +1971,7 @@
 				pdf.text('Informe Personalizado', 5, 10)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(14)
-				pdf.text('Marzo 2019', 5, 18)
+				pdf.text(`Resumen Detallado por Filtros`, 5, 18)
 				pdf.setFontStyle('bold')
 				pdf.text('NPS', 195, 10)
 				pdf.setFontSize(14)
