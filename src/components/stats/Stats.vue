@@ -1015,7 +1015,7 @@
 			})
 
 			this.$axios.post('assessments/stats/reason',
-			{ condition: ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(async res => {
+			{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(async res => {
 				
 				const { atencionDelCajero, atencionDelCajeroVeryGood, atencionDelCajeroGood, atencionDelCajeroBad,
 				atencionDelCajeroVeryBad, estadoDelLocal, estadoDelLocalVeryGood, estadoDelLocalGood, 
@@ -1196,7 +1196,8 @@
 		methods: {
 			async finalize() {
 				this.dialogResults = false
-				this.results = { filter: null, filterB: null, indicatorsCustom: { complain: [], comment: [], complainUnread: [], reason: [], service: [] } }
+				this.results = { filter: null, filterB: null, indicatorsCustom: { complain: [], comment: [], complainUnread: [], reason: [], service: [],
+				statsServices: [], statsReasons: [] } }
 			},
 			async downloadXLSX() {
 				this.loader2 = 'loading3'
@@ -2096,8 +2097,6 @@
 				
 				this['loading'] = false
 				this.loader = null
-
-				console.log(this.results)
 				
 				if (!this.results.totalAssessments) {
 					this.textDialogPreResults = "La búsqueda no ha devuelto ningún resultado. Intentá con otros valores."
@@ -2542,7 +2541,7 @@
 			async getChartCustomM(filter) {
 				const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 				
-				this.$axios.post('assessments/stats/service', { condition: `${this.results.filterB} AND justification != 'null'` }).then(res => {
+				this.$axios.post('assessments/stats/service', { condition: `${this.results.filterB} AND justification != '' AND justification != 'null'` }).then(res => {
 					const { pagoServicio, pagoServicioVeryGood, pagoServicioGood, pagoServicioBad,
 					pagoServicioVeryBad, casaDeCambio, casaDeCambioVeryGood, casaDeCambioGood, 
 					casaDeCambioBad, casaDeCambioVeryBad, envioInternacional, envioInternacionalVeryGood, 
@@ -2594,7 +2593,7 @@
 					]
 				})
 
-				this.$axios.post('assessments/stats/reason', { condition: filter }).then(res => {
+				this.$axios.post('assessments/stats/reason', { condition: `${this.results.filterB} AND justificationtwo != '' AND justificationtwo != 'null'` }).then(res => {
 					const { atencionDelCajero, atencionDelCajeroVeryGood, atencionDelCajeroGood, atencionDelCajeroBad,
 					atencionDelCajeroVeryBad, estadoDelLocal, estadoDelLocalVeryGood, estadoDelLocalGood, 
 					estadoDelLocalBad, estadoDelLocalVeryBad, servicioUtilizado, servicioUtilizadoVeryGood, 
@@ -2779,6 +2778,7 @@
 					
 				this.results.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,10)
 
+				this.dialogResults = false
 				this.dialogResults = true
 			},
 
@@ -2809,12 +2809,12 @@
 				})
 
 				this.$axios.post('/assessments/stats/service',
-				{ condition: ` AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
+				{ condition: ` AND justification != '' AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
 					this.indicatorsGlobal.service = [`${res.data[0].total} total`, `${this.getPercentage(res.data[0].total, this.totalAssessments)}%`]
 				})
 				
 				this.$axios.post('/assessments/stats/reason',
-				{ condition: ` AND justificationtwo != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
+				{ condition: ` AND justificationtwo != '' AND justificationtwo != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
 					this.indicatorsGlobal.reason = [`${res.data[0].totalR} total`, `${this.getPercentage(res.data[0].totalR, this.totalAssessments)}%`]
 				})
 			},
@@ -2866,11 +2866,11 @@
 					this.results.indicatorsCustom.complainUnread = [`${res.data[0].value} total`, `${res.data[0].percentage || 0}%`]
 				})
 
-				this.$axios.post('/assessments/stats/service', { condition: `${this.results.filterB} AND justification != ""` }).then(res => {
+				this.$axios.post('/assessments/stats/service', { condition: `${this.results.filterB} AND justification != "" AND justification != 'null'` }).then(res => {
 					this.results.indicatorsCustom.service = [`${res.data[0].total} total`, `${this.getPercentage(res.data[0].total, this.results.totalAssessments)}%`]
 				})
 				
-				this.$axios.post('/assessments/stats/reason', { condition: `${this.results.filterB} AND justificationtwo != ""` }).then(res => {
+				this.$axios.post('/assessments/stats/reason', { condition: `${this.results.filterB} AND justificationtwo != "" AND justificationtwo != 'null'` }).then(res => {
 					this.results.indicatorsCustom.reason = [`${res.data[0].totalR} total`, `${this.getPercentage(res.data[0].totalR, this.results.totalAssessments)}%`]
 				})
 			},
