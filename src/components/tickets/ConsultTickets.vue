@@ -1,238 +1,317 @@
 <template lang="pug">
-	v-container
-		v-flex(xs12)
-			div.pb-5
-				span.display-1 Tickets Registrados
-				v-divider
-			v-layout(row)
-				v-flex(xs12 sm4 offset-sm2)
-					v-menu(
-						lazy
-						:close-on-click="false"
-						v-model="menuDateSince"
-						transition="scale-transition"
-						offset-y
-						full-width
-						:nudge-right="40"
-						max-width="290px"
-						min-width="290px"
-					)
-						v-text-field(
-							slot="activator" 
-							label="Fecha Desde" 
-							v-model="dateSinceFormatted" 
-							prepend-icon="event" 
-							@click="activeDateMenus"
+	div
+		v-container
+			v-flex(xs12)
+				div.pb-5
+					span.display-1 Tickets Registrados
+					v-divider
+				v-layout(row)
+					v-flex(xs12 sm4 offset-sm2)
+						v-menu(
+							lazy
+							:close-on-click="false"
+							v-model="menuDateSince"
+							transition="scale-transition"
+							offset-y
+							full-width
+							:nudge-right="40"
+							max-width="290px"
+							min-width="290px"
 						)
-						v-date-picker(
-							locale="es-sp"
-							v-model="dateSince"
-							@input="dateSinceFormatted = formatDate($event)"
-							no-title
-							scrollable
-							actions
+							v-text-field(
+								slot="activator" 
+								label="Fecha Desde" 
+								v-model="dateSinceFormatted" 
+								prepend-icon="event" 
+								@click="activeDateMenus"
+							)
+							v-date-picker(
+								locale="es-sp"
+								v-model="dateSince"
+								@input="dateSinceFormatted = formatDate($event)"
+								no-title
+								scrollable
+								actions
+							)
+								template(slot-scope="{ save, cancel }")
+									v-card-actions
+										v-spacer
+										v-btn(flat color="primary" @click="save") Seleccionar
+										v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
+					v-flex(xs12 sm4)
+						v-menu(
+							lazy
+							:close-on-click="false"
+							v-model="menuDateUntil"
+							transition="scale-transition"
+							offset-y
+							full-width
+							:nudge-right="40"
+							max-width="290px"
+							min-width="290px"
 						)
-							template(slot-scope="{ save, cancel }")
-								v-card-actions
+							v-text-field(
+								slot="activator" 
+								label="Fecha Hasta" 
+								v-model="dateUntilFormatted" 
+								prepend-icon="event"
+							)
+							v-date-picker(
+								locale="es-sp" 
+								v-model="dateUntil" 
+								@input="dateUntilFormatted = formatDate($event)" 
+								no-title 
+								scrollable
+								actions
+							)
+								template(slot-scope="{ save, cancel }")
+									v-card-actions
+										v-spacer
+										v-btn(flat color="primary" @click="save") Seleccionar
+										v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
+				v-layout(row)
+					v-flex(xs12 sm4 offset-sm2)
+						v-menu(
+							lazy
+							:close-on-content-click="false"
+							v-model="menuTimeSince"
+							transition="scale-transition"
+							offset-y
+							full-width
+							:nudge-right="40"
+							max-width="290px"
+							min-width="290px"
+						)
+							v-text-field(
+								slot="activator"
+								label="Hora Desde"
+								v-model="timeSince"
+								prepend-icon="access_time"
+								readonly
+							)
+							v-time-picker(v-model="timeSince" autosave format="24hr")
+								template(slot-scope="{ save, cancel }")
+									v-card-actions
+										v-btn(flat color="primary" @click="desactiveTimeMenuSince") Cancelar
+					v-flex(xs12 sm4)
+						v-menu(
+							lazy
+							:close-on-content-click="false"
+							v-model="menuTimeUntil"
+							transition="scale-transition"
+							offset-y
+							full-width
+							:nudge-right="40"
+							max-width="290px"
+							min-width="290px"
+						)
+							v-text-field(
+								slot="activator"
+								label="Hora Hasta"
+								v-model="timeUntil"
+								prepend-icon="access_time"
+								readonly
+							)
+							v-time-picker(v-model="timeUntil" autosave format="24hr")
+								template(slot-scope="{ save, cancel }")
+									v-card-actions
+										v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
+				v-layout(row)
+					v-flex(xs12 sm4 offset-sm2)
+						v-select(
+							autocomplete
+							label="Elegí un Jefe Zonal"
+							v-model="zone"
+							:items="zonesSelect"
+						)
+					v-flex.ml-3(xs12 sm4)
+						v-select(
+							autocomplete
+							label="Elegí un Local"
+							v-model="local"
+							:items="localsSelect"
+						)
+				v-layout(row)
+					v-flex(xs12 sm1 offset-sm2)
+						v-checkbox(
+							v-model="read"
+							label="Leído"
+							type="checkbox"
+							style="position: relative; top: 20px"
+						)
+					v-flex(xs12 sm1)
+						v-checkbox(
+							v-model="unread"
+							label="No Leído"
+							type="checkbox"
+							style="position: relative; top: 20px"
+						)
+					v-flex.ml-4(xs12 sm1)
+						v-checkbox(
+							v-model="closed"
+							label="Cerrado"
+							type="checkbox"
+							style="position: relative; top: 20px"
+						)
+					v-flex.ml-3(xs12 sm1)
+						v-checkbox(
+							v-model="complain"
+							label="Queja"
+							type="checkbox"
+							style="position: relative; top: 20px"
+						)
+					v-flex.ml-1(xs12 sm2)
+						v-checkbox(
+							v-model="comment"
+							label="Com. Positivo"
+							type="checkbox"
+							style="position: relative; top: 20px"
+						)
+				v-layout(row).mb-5.mt-3
+					v-flex(xs12 sm4)
+						v-btn(block color="primary" :loading="loading" :disabled="loading" @click="searchTickets") Filtrar Tickets
+					v-flex(xs12 sm4).pl-2
+						v-btn(block color="primary" @click="clearFields") Limpiar
+					v-flex(xs12 sm4).pl-2
+						v-btn(block color="primary" @click="searchResults") Ver Detalles
+				v-flex.mb-5(xs12 sm12 v-if='tickets.length')
+					v-card
+						v-list
+							template(v-for="ticket in tickets")
+								v-list-tile(avatar).ticket-content
+									v-list-tile-avatar.pr-5(v-if="ticket.status == 2")
+										v-btn(color="green darken-4" small dark) Cerrado
+									v-list-tile-avatar.pr-5(v-else-if="ticket.status == 0")
+										v-btn(color="red darken-4" small dark) Sin Leer
+									v-list-tile-avatar.pr-5(v-else)
+										v-btn(color="amber darken-4" small dark) Leído
+									v-spacer(style="flex-grow: .1 !important")
+									v-list-tile-content.pl-5(ripple @click="viewTicket(ticket)")
+										v-list-tile-title.black-text {{ ticket.local }} - {{ ticket.email }} - ({{ convertDate(ticket.date) }})
+										v-list-tile-sub-title
+											span.grey--text.text--darken-2 {{ chunkString(ticket.description, 40) ? chunkString(ticket.description, 40)[0] : null }}...
 									v-spacer
-									v-btn(flat color="primary" @click="save") Seleccionar
-									v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
-				v-flex(xs12 sm4)
-					v-menu(
-						lazy
-						:close-on-click="false"
-						v-model="menuDateUntil"
-						transition="scale-transition"
-						offset-y
-						full-width
-						:nudge-right="40"
-						max-width="290px"
-						min-width="290px"
-					)
-						v-text-field(
-							slot="activator" 
-							label="Fecha Hasta" 
-							v-model="dateUntilFormatted" 
-							prepend-icon="event"
-						)
-						v-date-picker(
-							locale="es-sp" 
-							v-model="dateUntil" 
-							@input="dateUntilFormatted = formatDate($event)" 
-							no-title 
-							scrollable
-							actions
-						)
-							template(slot-scope="{ save, cancel }")
-								v-card-actions
-									v-spacer
-									v-btn(flat color="primary" @click="save") Seleccionar
-									v-btn(flat color="primary" @click="desactiveDateMenus") Cancelar
-			v-layout(row)
-				v-flex(xs12 sm4 offset-sm2)
-					v-menu(
-						lazy
-						:close-on-content-click="false"
-						v-model="menuTimeSince"
-						transition="scale-transition"
-						offset-y
-						full-width
-						:nudge-right="40"
-						max-width="290px"
-						min-width="290px"
-					)
-						v-text-field(
-							slot="activator"
-							label="Hora Desde"
-							v-model="timeSince"
-							prepend-icon="access_time"
-							readonly
-						)
-						v-time-picker(v-model="timeSince" autosave format="24hr")
-							template(slot-scope="{ save, cancel }")
-								v-card-actions
-									v-btn(flat color="primary" @click="desactiveTimeMenuSince") Cancelar
-				v-flex(xs12 sm4)
-					v-menu(
-						lazy
-						:close-on-content-click="false"
-						v-model="menuTimeUntil"
-						transition="scale-transition"
-						offset-y
-						full-width
-						:nudge-right="40"
-						max-width="290px"
-						min-width="290px"
-					)
-						v-text-field(
-							slot="activator"
-							label="Hora Hasta"
-							v-model="timeUntil"
-							prepend-icon="access_time"
-							readonly
-						)
-						v-time-picker(v-model="timeUntil" autosave format="24hr")
-							template(slot-scope="{ save, cancel }")
-								v-card-actions
-									v-btn(flat color="primary" @click="desactiveTimeMenuUntil") Cancelar
-			v-layout(row)
-				v-flex(xs12 sm4 offset-sm2)
-					v-select(
-						autocomplete
-						label="Elegí un Jefe Zonal"
-						v-model="zone"
-						:items="zonesSelect"
-					)
-				v-flex.ml-3(xs12 sm4)
-					v-select(
-						autocomplete
-						label="Elegí un Local"
-						v-model="local"
-						:items="localsSelect"
-					)
-			v-layout(row)
-				v-flex(xs12 sm1 offset-sm2)
-					v-checkbox(
-						v-model="read"
-						label="Leído"
-						type="checkbox"
-						style="position: relative; top: 20px"
-					)
-				v-flex(xs12 sm1)
-					v-checkbox(
-						v-model="unread"
-						label="No Leído"
-						type="checkbox"
-						style="position: relative; top: 20px"
-					)
-				v-flex.ml-4(xs12 sm1)
-					v-checkbox(
-						v-model="closed"
-						label="Cerrado"
-						type="checkbox"
-						style="position: relative; top: 20px"
-					)
-				v-flex.ml-3(xs12 sm1)
-					v-checkbox(
-						v-model="complain"
-						label="Queja"
-						type="checkbox"
-						style="position: relative; top: 20px"
-					)
-				v-flex.ml-1(xs12 sm2)
-					v-checkbox(
-						v-model="comment"
-						label="Com. Positivo"
-						type="checkbox"
-						style="position: relative; top: 20px"
-					)
-			v-layout(row).mb-5.mt-3
-				v-flex(xs12 sm4)
-					v-btn(block color="primary" :loading="loading" :disabled="loading" @click="searchTickets") Filtrar Tickets
-				v-flex(xs12 sm4).pl-2
-					v-btn(block color="primary" @click="clearFields") Limpiar
-				v-flex(xs12 sm4).pl-2
-					v-btn(block color="primary" @click="searchResults") Ver Detalles
-			v-flex.mb-5(xs12 sm12 v-if='tickets.length')
+									v-btn(v-if="ticket.complain == 1" color="error" small) Queja
+									v-btn(v-else color="success" small) Com. Positivo
+								v-divider
+				v-flex(xs12 sm12 v-else) 
+					span.message Los tickets que se registren en el sistema aparecerán aquí
+			v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
 				v-card
-					v-list
-						template(v-for="ticket in tickets")
-							v-list-tile(avatar).ticket-content
-								v-list-tile-avatar.pr-5(v-if="ticket.status == 2")
-									v-btn(color="green darken-4" small dark) Cerrado
-								v-list-tile-avatar.pr-5(v-else-if="ticket.status == 0")
-									v-btn(color="red darken-4" small dark) Sin Leer
-								v-list-tile-avatar.pr-5(v-else)
-									v-btn(color="amber darken-4" small dark) Leído
-								v-spacer(style="flex-grow: .1 !important")
-								v-list-tile-content.pl-5(ripple @click="viewTicket(ticket.id)")
-									v-list-tile-title.black-text {{ ticket.email }} - ({{ convertDate(ticket.date) }})
-									v-list-tile-sub-title
-										span.grey--text.text--darken-2 {{ chunkString(ticket.description, 40) ? chunkString(ticket.description, 40)[0] : null }}...
-								v-spacer
-								v-btn(v-if="ticket.complain == 1" color="error" small) Queja
-								v-btn(v-else color="success" small) Com. Positivo
-							v-divider
-			v-flex(xs12 sm12 v-else) 
-				span.message Los tickets que se registren en el sistema aparecerán aquí
-		v-dialog(v-model="dynamicDialogAct" fullscreen hide-overlay transition="dialog-bottom-transition")
-			v-card
+					v-toolbar(dark color="primary")
+						v-btn(icon dark @click="finalize")
+							v-icon close
+						v-toolbar-title Detalle - Comentarios
+						v-spacer
+						v-toolbar-items
+							v-btn(dark flat @click="finalize") Regresar
+					v-card-text
+						v-flex(xs9 offset-xs2)
+							v-layout(row)
+								v-flex(xs1 offset-xs1 v-if="tickets")
+								.images.ml-5(v-for="image in images")
+									img(height="200" width="220" :src="image.url")
+									span {{ image.value }} cant. | {{ image.percentage }}%
+						v-flex(xs12)
+							.py-5
+								span.display-1 Resumen por Jefe Zonal
+								v-divider
+						v-flex(xs9 offset-xs2)
+							Zone.pb-5(:data="tickets.stats")
+						v-flex(xs12)
+							.py-5
+								span.display-1 Resumen por Locales
+								v-divider
+						v-container
+							v-flex(xs12 sm12)
+								v-card
+									v-list
+										template(v-for="local in ticketsLocals")
+											v-list-tile(avatar).ticket-content
+												v-list-tile-content
+													v-list-tile-title.black-text {{ local.title }}
+												v-spacer(style="flex-grow: .1 !important")
+												v-btn(color="error" small) {{ local.complains }} Quejas
+												v-btn(color="success" small dark) {{ local.comments }} Comentarios
+											v-divider
+		v-dialog(v-model="dialogPreResults" fullscreen hide-overlay transition="dialog-bottom-transition")
+			v-card(v-if="currentTicket")
 				v-toolbar(dark color="primary")
-					v-btn(icon dark @click="finalize")
+					v-btn(icon dark @click="finalize2")
 						v-icon close
-					v-toolbar-title Detalle - Comentarios
+					v-toolbar-title Ticket Nro: {{ currentTicket.id }}
 					v-spacer
 					v-toolbar-items
-						v-btn(dark flat @click="finalize") Regresar
+						v-btn(dark flat @click="finalize2") Regresar
 				v-card-text
-					v-flex(xs9 offset-xs2)
-						v-layout(row)
-							v-flex(xs1 offset-xs1 v-if="tickets")
-							.images.ml-5(v-for="image in images")
-								img(height="200" width="220" :src="image.url")
-								span {{ image.value }} cant. | {{ image.percentage }}%
-					v-flex(xs12)
-						.py-5
-							span.display-1 Resumen por Jefe Zonal
-							v-divider
-					v-flex(xs9 offset-xs2)
-						Zone.pb-5(:data="tickets.stats")
-					v-flex(xs12)
-						.py-5
-							span.display-1 Resumen por Locales
-							v-divider
-					v-container
-						v-flex(xs12 sm12)
+					v-container(grid-list-md)
+						v-layout(row wrap)
+							v-flex(xs12)
+								div.pb-5
+									span.display-1
+										| Ticket Nro: {{ currentTicket.id }} -
+										v-btn(v-if="currentTicket.complain == 1" color="error") Queja
+										v-btn(v-else color="success") Com. Positivo
+							v-flex(xs12 md6)
+								v-text-field(
+									label="Email"
+									v-model.trim="currentTicket.email"
+									readonly
+								)
+							v-flex(xs12 md6)
+								v-text-field(
+									label="Teléfono"
+									v-model.trim="currentTicket.telephone"
+									readonly
+								)
+							v-flex(xs12 md6)
+								v-text-field(
+									label="Local"
+									v-model.trim="currentTicket.local"
+									readonly
+								)
+							v-flex(xs12 md6)
+								v-text-field(
+									label="Código de Encuesta"
+									v-model.trim="currentTicket.poll_id"
+									readonly
+								)
+							v-flex(xs12)
+								v-text-field(
+									label="Descripción"
+									v-model.trim="currentTicket.description"
+									multi-line
+									readonly
+								)
+						v-layout(row child-flex justify-center align-center wrap)
+							v-flex.py-5(fill-height xs12 offset-xs5)
+								v-btn.action(large outline @click.native="dialog = true" v-if="currentTicket.answer") Ver Comentario
+								v-btn.action(large outline @click.native="dialog = true" v-else) Comentar
+								v-btn.action(large outline @click.native="dialogPreResults = false") Regresar
+						v-dialog(v-model="dialog" persistent max-width="500")
 							v-card
-								v-list
-									template(v-for="local in ticketsLocals")
-										v-list-tile(avatar).ticket-content
-											v-list-tile-content
-												v-list-tile-title.black-text {{ local.title }}
-											v-spacer(style="flex-grow: .1 !important")
-											v-btn(color="error" small) {{ local.complains }} Quejas
-											v-btn(color="success" small dark) {{ local.comments }} Comentarios
-										v-divider
+								v-card-title(class="headline") Escribí tu comentario
+								v-card-text
+									v-flex(xs12)
+										v-text-field(
+											label="Comentario"
+											v-model.trim="currentTicket.answer"
+											:readonly="comment"
+											multi-line
+										)
+								v-card-actions
+									v-spacer
+										v-btn(v-if="!comment" color="green darken-1" flat :loading="loading" @click.native="uploadComment") Enviar
+											span.custom-loader(slot="loader")
+												v-icon(light) cached
+										v-btn(color="green darken-1" flat @click.native="dialog = false") Regresar
+						v-dialog(v-model="dialogConfirm" persistent max-width="500")
+							v-card
+								v-card-title(class="headline") ¡Enhorabuena!
+								v-card-text Tu comentario ha sido registrado
+								v-card-actions
+									v-spacer
+										v-btn(color="green darken-1" flat @click.native="finalize3") Entendido
 </template>
 
 <script>
@@ -249,6 +328,11 @@
 				ticketZones: [],
 				ticketsLocals: [],
 				complains: null,
+				currentTicket: null,
+				dialog: false,
+				comment: false,
+				dialogPreResults: false,
+				dialogConfirm: false,
 				comments: null,
 				dynamicDialogAct: false,
 				local: null,
@@ -311,6 +395,22 @@
 			this.getStats()
 		},
 		methods: {
+			finalize() {
+				this.dialogConfirm = false
+				this.dialog = false
+			},
+			async uploadComment() {
+				this.loader = 'loading'
+				
+				if (this.currentTicket.answer) {
+					this.$axios.post('tickets/addAnswer', { answer: this.currentTicket.answer, id: this.currentTicket.id }).then(res => {
+						this['loading'] = false
+						this.loader = null
+						this.dialogConfirm = true
+						this.comment = true
+					})
+				}
+			},
 			getStats() {
 				this.tickets.stats = {
 					zones: {
@@ -329,6 +429,14 @@
 			},
 			finalize() {
 				this.dynamicDialogAct = false
+			},
+			finalize2() {
+				this.dialogPreResults = false
+				this.currentTicket = null
+			},
+			finalize3() {
+				this.dialogConfirm = false
+				this.dialog = false
 			},
       formatDate (date) {
         if (!date) return null
@@ -368,8 +476,10 @@
 				this.menuTimeUntil = false
 			},
 
-			viewTicket(id) {
-				{ router.push('/ticket/' + id) }
+			viewTicket(ticket) {
+				this.currentTicket = ticket
+				this.dialogPreResults = true
+				//{ router.push('/ticket/' + id) }
 			},
 
 			convertDate(inputFormat) {
@@ -390,51 +500,51 @@
 				let filter = ''
 				
 				if (this.read || this.unread || this.closed) {
-					if (this.read && !this.unread) filter = `${filter} AND status = 1`
+					if (this.read && !this.unread) filter = `${filter} AND tickets.status = 1`
 					
 					if (this.unread && !this.read) filter = `${filter} AND status = 0`
-					if (this.unread && this.read) filter = `AND status in (0,1)`
-					if (this.read && this.closed) filter = `AND status in (1,2)`
-					if (this.unread && this.closed) filter = `AND status in (0,2)`
+					if (this.unread && this.read) filter = `AND tickets.status in (0,1)`
+					if (this.read && this.closed) filter = `AND tickets.status in (1,2)`
+					if (this.unread && this.closed) filter = `AND tickets.status in (0,2)`
 					
-					if (this.closed) filter = filter = `${filter} AND status = 2`
-					if (this.unread && this.read && this.closed) filter = `AND status in (0,1,2)`
+					if (this.closed) filter = filter = `${filter} AND tickets.status = 2`
+					if (this.unread && this.read && this.closed) filter = `AND tickets.status in (0,1,2)`
 				}
 
 				if (this.local) {
 					this.localID = (await this.$axios.post('locals/search', { title: this.local })).data[0].id
-					filter = `${filter} AND local_id = '${this.localID}'`
+					filter = `${filter} AND tickets.local_id = '${this.localID}'`
 				}
 				
 				if (this.zone) {
 					this.zoneID = (await this.$axios.post('zones/search', { responsable: this.zone })).data[0].id
-					filter = `${filter} AND zone_id = '${this.zoneID}'`
+					filter = `${filter} AND tickets.zone_id = '${this.zoneID}'`
 				}
 
 				if (this.complain && !this.comment) {
-					filter = `${filter} AND complain = 1`
+					filter = `${filter} AND tickets.complain = 1`
 				}
 
 				if (this.comment && !this.complain) {
-					filter = `${filter} AND comment = 1`
+					filter = `${filter} AND tickets.comment = 1`
 				}
 
 				if (this.comment && this.complain) {
-					filter = `${filter} AND comment = 1 OR complain = 1`
+					filter = `${filter} AND tickets.comment = 1 OR tickets.complain = 1`
 				}
 
 				if (this.dateSince) {
 					if (this.timeSince) {
-						filter = `${filter} AND DATE(date) BETWEEN '${this.dateSince} ${this.timeSince}' 
+						filter = `${filter} AND DATE(tickets.date) BETWEEN '${this.dateSince} ${this.timeSince}' 
 						AND '${this.dateUntil} ${this.timeUntil}'`
 					}
 					else {
-						filter = `${filter} AND DATE(date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
+						filter = `${filter} AND DATE(tickets.date) BETWEEN '${this.dateSince}' AND '${this.dateUntil}'`
 					}
 				}
 
 				if (this.timeSince && !this.dateSince) {
-					filter = `${filter} AND HOUR(date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
+					filter = `${filter} AND HOUR(tickets.date) BETWEEN '${this.timeSince}' AND '${this.timeUntil}'`					
 				}
 
 				filter = `${filter}`
@@ -459,19 +569,8 @@
 				this.complain = null
 				this.comment = null
 
-				let tickets = this.$firebase.firestore().collection("tickets")
-				tickets = tickets.where('business', '==', this.userStorage.business).orderBy("date")
-				tickets.onSnapshot(querySnapshot => {
-					let ticketsArray = []
-					querySnapshot.forEach(doc => {
-						let ticket = doc.data()
-						ticket.dateFormat = this.convertDate(doc.data().date)
-						ticket.id = doc.id
-						ticketsArray.unshift(ticket)
-					})
-					this.tickets = ticketsArray
-					if (!this.tickets.length) this.tickets = false
-				})
+				this.$axios.post('tickets/search',
+				{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 }` }).then(res => this.tickets = res.data)
 			},
 
 			updateTicket(ticket) {

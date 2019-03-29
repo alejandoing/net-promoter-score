@@ -5,7 +5,7 @@
 				div.pb-5
 					span.display-1 
 						| Ticket Nro: {{ this.$route.params.id }} -
-						v-btn(v-if="ticket.complain" color="error") Queja
+						v-btn(v-if="ticket.complain == 1" color="error") Queja
 						v-btn(v-else color="success") Com. Positivo
 			v-flex(xs12 md6)
 				v-text-field(
