@@ -82,14 +82,14 @@
               v-tabs-content(id="monthService")
                 v-flex.py-5(xs12)
                   Chart(type="columnStacked" title="Distribución General Mensual" :data="chartMonthGlobal")
-            //- v-flex(xs12)#reasonsService
-            //-   div.pb-5
-            //-     span.display-1 Aspectos Evaluados
-            //-   v-divider
-            //- v-flex(xs9 offset-xs2)
-            //-   Reason.pb-5(:data="statsReasonsService")
-            //- v-flex#weakPointsService(xs12)
-            //-   Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentService.weakPoints")
+            v-flex(xs12)#reasonsService
+              div.pb-5
+                span.display-1 Aspectos Evaluados
+              v-divider
+            v-flex(xs9 offset-xs2)
+              Reason.pb-5(:data="statsReasonsService")
+            v-flex#weakPointsService(xs12)
+              Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentService.weakPoints")
           
 </template>
 
@@ -425,9 +425,10 @@
         this.getChartGlobalDatesDay(data)
         this.getChartGlobalDatesMonth(data)
 
+      if (data.stats.filter) data.stats.filter = `${data.stats.filter} AND justification = '${data.ftitle}'`
+
       this.$axios.post('assessments/stats/reason', { 
-      condition: `${data.stats.filter ? data.stats.filter : ''} AND justification = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 }` 
-      || ` AND justification = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
+      condition: data.stats.filter || ` AND justification = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
 
         const { atencionDelCajero, atencionDelCajeroVeryGood, atencionDelCajeroGood, atencionDelCajeroBad,
         atencionDelCajeroVeryBad, estadoDelLocal, estadoDelLocalVeryGood, estadoDelLocalGood, 
@@ -442,8 +443,8 @@
               good: { face: 'good', value: atencionDelCajeroGood, percentage: this.getPercentage(atencionDelCajeroGood, atencionDelCajero) },
               bad: { face: 'bad', value: atencionDelCajeroBad, percentage: this.getPercentage(atencionDelCajeroBad, atencionDelCajero) },
               veryBad: { face: 'veryBad', value: atencionDelCajeroVeryBad, percentage: this.getPercentage(atencionDelCajeroVeryBad, atencionDelCajero) },
-              filter: `${data.stats.filter ? data.stats.filter : ''} AND justification = '${data.ftitle}'` || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
-              filterB: `${data.stats.filterB ? data.stats.filterB : ''} AND justification = '${data.ftitle}'` || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+              filter: data.stats.filter || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+              filterB: data.stats.filterB || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
               satisfaction: this.getIndicatorsReason(atencionDelCajero, atencionDelCajeroGood, atencionDelCajeroBad, atencionDelCajeroVeryBad)
             }
           ],
@@ -453,8 +454,8 @@
             good: { face: 'good', value: tiempoDeEsperaGood, percentage: this.getPercentage(tiempoDeEsperaGood, tiempoDeEspera) },
             bad: { face: 'bad', value: tiempoDeEsperaBad, percentage: this.getPercentage(tiempoDeEsperaBad, tiempoDeEspera) },
             veryBad: { face: 'veryBad', value: tiempoDeEsperaVeryBad, percentage: this.getPercentage(tiempoDeEsperaVeryBad, tiempoDeEspera) },
-            filter: `${data.stats.filter ? data.stats.filter : ''} AND justification = '${data.ftitle}'` || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
-            filterB: `${data.stats.filterB ? data.stats.filterB : ''} AND justification = '${data.ftitle}'` || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+            filter: data.stats.filter || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+            filterB: data.stats.filterB || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
             satisfaction: this.getIndicatorsReason(tiempoDeEspera, tiempoDeEsperaGood, tiempoDeEsperaBad, tiempoDeEsperaVeryBad)
           }],
           [
@@ -463,8 +464,8 @@
             good: { face: 'good', value: estadoDelLocalGood, percentage: this.getPercentage(estadoDelLocalGood, estadoDelLocal) },
             bad: { face: 'bad', value: estadoDelLocalBad, percentage: this.getPercentage(estadoDelLocalBad, estadoDelLocal) },
             veryBad: { face: 'veryBad', value: estadoDelLocalVeryBad, percentage: this.getPercentage(estadoDelLocalVeryBad, estadoDelLocal) },
-            filter: `${data.stats.filter ? data.stats.filter : ''} AND justification = '${data.ftitle}'` || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
-            filterB: `${data.stats.filterB ? data.stats.filterB : ''} AND justification = '${data.ftitle}'` || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+            filter: data.stats.filter || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+            filterB: data.stats.filterB || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
             satisfaction: this.getIndicatorsReason(estadoDelLocal, estadoDelLocalGood, estadoDelLocalBad, estadoDelLocalVeryBad)
           }],
           [
@@ -473,8 +474,8 @@
             good: { face: 'good', value: servicioUtilizadoGood, percentage: this.getPercentage(servicioUtilizadoGood, servicioUtilizado) },
             bad: { face: 'bad', value: servicioUtilizadoBad, percentage: this.getPercentage(servicioUtilizadoBad, servicioUtilizado) },
             veryBad: { face: 'veryBad', value: servicioUtilizadoVeryBad, percentage: this.getPercentage(servicioUtilizadoVeryBad, servicioUtilizado) },
-            filter: `${data.stats.filter ? data.stats.filter : ''} AND justification = '${data.ftitle}'` || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
-            filterB: `${data.stats.filterB ? data.stats.filterB : ''} AND justification = '${data.ftitle}'` || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+            filter: data.stats.filter || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
+            filterB: data.stats.filterB || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }`,
             satisfaction: this.getIndicatorsReason(servicioUtilizado, servicioUtilizadoGood, servicioUtilizadoBad, servicioUtilizadoVeryBad)
           }]
         ]

@@ -115,7 +115,7 @@
       chartDayGlobal: [],
       chartMonthGlobal: [],
       dynamicDialogAct: false,
-      currentReason: { stats: { indicatorsGlobal: { comment: [], complain: [] }}},
+      currentReason: { stats: { indicatorsGlobal: { satisfaction: null, comment: [], complain: [] }}},
       reasons: {
         0: { index: 0, ftitle: 'Atencion del Cajero', url: "./../../../static/reasons/atencion-cajero.png", title: 'Atención del Cajero', value: 0, percentage: 0, stats: {} },
         1: { index: 1, ftitle: 'Tiempo de Espera', url: "./../../../static/reasons/tiempo-espera.png", title: 'Tiempo de Espera', value: 0, percentage: 0, stats: {} },
@@ -617,16 +617,25 @@
       return isNaN(result) ? 0 : result
     },
     async dynamicDialog(data) {
-      this.statsFacesReason = (await this.$axios.post('reasons/stats/faces/value-prc', { 
-        reason:  data.ftitle, condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+      this.statsFacesReason = (await this.$axios.post('reasons/stats/faces/value-prc', 
+      { reason:  data.ftitle, condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `})).data
+
+      //console.log(data.stats.filter)
       
       this.dynamicDialogAct = !this.dynamicDialogAct
+
+      //console.log("STATS FACES REASON")
+      //console.log(this.statsFacesReason)
+      
       data.stats.indicatorsGlobal = { 
         faces: this.statsFacesReason,
         satisfaction: null,
         complain: [null, null],
         comment: [null, null]
       }
+      //console.log("DATA")
+      //console.log(data)
+
       this.currentReason = data
       // console.log(this.currentService.stats)
       this.getIndicatorsGlobal(data)
@@ -646,21 +655,36 @@
       
       const partials = partialGood + partialBad + partialVeryBad
 
-      if (!this.getPercentage(partials, total)) this.currentReason.stats.indicatorsGlobal.satisfaction = 0
-      else this.currentReason.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
-      
-      this.$axios.post('/reasons/stats/complain', { reason: data.ftitle,
-      condition: data.stats.filter || ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
-        this.currentReason.stats.indicatorsGlobal.complain = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
-      })
+      //console.log("CURRENT REASON")
 
-      this.$axios.post('/reasons/stats/comment', { reason: data.ftitle,
-      condition: data.stats.filter || ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
-        this.currentReason.stats.indicatorsGlobal.comment = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
-      })
-      
-      this.dynamicDialogAct = false
-      this.dynamicDialogAct = true
+      this.currentReason.stats.indicatorsGlobal = { 
+        faces: this.statsFacesReason,
+        satisfaction: null,
+        complain: [null, null],
+        comment: [null, null]
+      }
+
+      //console.log(this.currentReason.stats.indicatorsGlobal)
+
+      //console.log("------------------------------------------------------------------------")
+      if (this.currentReason.stats.indicatorsGlobal) {
+        if (!this.getPercentage(partials, total)) this.currentReason.stats.indicatorsGlobal.satisfaction = 0
+        else this.currentReason.stats.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, total)).toFixed(2)
+        
+        this.$axios.post('/reasons/stats/complain', { reason: data.ftitle,
+        condition: data.stats.filter || ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
+          this.currentReason.stats.indicatorsGlobal.complain = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
+        })
+
+        this.$axios.post('/reasons/stats/comment', { reason: data.ftitle,
+        condition: data.stats.filter || ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
+          //console.log(res)
+          //console.log(this.currentReason.stats)
+          this.currentReason.stats.indicatorsGlobal.comment = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
+          this.dynamicDialogAct = false
+          this.dynamicDialogAct = true
+        })
+      }
     },
     async getChartGlobalDatesDay(data) {
       this.$axios.post('/reasons/stats/day', { reason:  data.ftitle,
