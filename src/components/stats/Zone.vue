@@ -706,7 +706,7 @@
 
 					for (let i = 0; i < res.data.length; i++) {
 						this.chartDayWGlobal.push({
-							title: CATEGORIES[i],
+							title: CATEGORIES[res.data[i].dayw - 1],
 							total: res.data[i].total,
 							veryGood: this.getPercentage(res.data[i].veryGood, res.data[i].total),
 							good: this.getPercentage(res.data[i].good, res.data[i].total),
