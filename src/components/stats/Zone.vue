@@ -96,6 +96,8 @@
             Reason.pb-5(:data="statsReasonsZone")
           v-flex#weakPointsZones(xs12)
             Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentZone.weakPoints")
+          v-flex#topLocals(xs12)
+            Chart.pb-5(type="barStacked" title="Distribución General - Ranking de Locales" textSize='16px' :data="topLocals")
 </template>
 
 <script>
@@ -124,6 +126,8 @@
 				loader2: null,
 				loading3: false,
 				loading2: false,
+				topLocals: [],
+				badLocals: [],
 				locals: [],
 				zones2: [],
 				userStorage: JSON.parse(localStorage.getItem('user')),
@@ -426,6 +430,41 @@
 					})
 				}
 			},
+			getChartLocal(local) {
+				local.stats = {
+					title: local.title,
+					veryGood: this.getPercentage(local.veryGood, local.total),
+					good: this.getPercentage(local.good, local.total),
+					bad: this.getPercentage(local.bad, local.total),
+					veryBad: this.getPercentage(local.veryBad, local.total),
+					total: local.total,
+				}
+
+				local.indicatorsGlobal = {}
+
+				local.stats.satisfaction = this.getIndicatorsLocal(local).satisfaction
+
+				return local.stats
+			},
+			getIndicatorsLocal(local) {
+				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
+
+				const partialGood = local.good * PRC_GOOD
+				const partialBad = local.bad * PRC_BAD
+				const partialVeryBad = local.veryBad * PRC_VERY_BAD
+				
+				const partials = partialGood + partialBad + partialVeryBad
+
+				local.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, local.total)).toFixed(2)
+				if (this.getPercentage(partials, local.total) == 0) local.indicatorsGlobal.satisfaction = 100
+				
+				// local.indicatorsGlobal.complain = [complains, this.getPercentage(complains, total)]
+				// local.indicatorsGlobal.comment = [comments, this.getPercentage(comments, total)]
+				// local.indicatorsGlobal.service = [services, this.getPercentage(services, total)]
+				// local.indicatorsGlobal.reason = [reasons, this.getPercentage(reasons, total)]
+
+				return local.indicatorsGlobal
+			},
       finalize() {
         this.dynamicDialogAct = false
         this.chartHourGlobal = []
@@ -596,6 +635,17 @@
 				}]
 				
 				this.currentZone.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+				})
+
+				this.$axios.post('locals/stats/faces',
+				{ condition: data.stats.filter || ` AND assessments.zone_id = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(async res => {
+					
+					const statsLocals = res.data
+					let activeLocals = []
+
+					for (let local of statsLocals) activeLocals.push(this.getChartLocal(local))
+
+					this.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x)
 				})
 				
 				this.dynamicDialogAct = !this.dynamicDialogAct
