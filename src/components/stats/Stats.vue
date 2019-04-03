@@ -423,7 +423,9 @@
 					// v-flex#weakPointsCustom(xs12)
 						// Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPointsCustom")
 					v-flex#topLocalsCustom(xs12 v-if="results")
-						Chart.pb-5(type="barStacked" title="Distribución General - Ranking de Locales" textSize='16px' :data="results.topLocals")
+						Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" textSize='16px' :data="results.topLocals")
+					v-flex#badLocalsCustom(xs12 v-if="results")
+						Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" textSize='16px' :data="results.badLocals")
 		
 		Chart#weekChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobal")
 		Chart#dayChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobal")
@@ -2784,9 +2786,9 @@
 					activeLocals.push(this.getChartLocal(local))
 				}
 
-				this.results.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).slice(0,10)
+				this.results.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).slice(0,20)
 					
-				this.results.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,10)
+				this.results.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,20)
 
 				this.dialogResults = false
 				this.dialogResults = true
