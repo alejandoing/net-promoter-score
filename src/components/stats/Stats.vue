@@ -422,6 +422,8 @@
 						Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="results.weakPoints")
 					// v-flex#weakPointsCustom(xs12)
 						// Chart.pb-5(type="barStacked" title="Puntos Débiles" :data="weakPointsCustom")
+					v-flex#topLocalsCustom(xs12 v-if="results")
+						Chart.pb-5(type="barStacked" title="Distribución General - Ranking de Locales" textSize='16px' :data="results.topLocals")
 		
 		Chart#weekChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Semana)" :data="chartDayWGlobal")
 		Chart#dayChart(style="display: none" type="columnStacked" title="Distribución General Diaria (Visión Mes)" :data="chartDayGlobal")
