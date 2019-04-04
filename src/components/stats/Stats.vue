@@ -3081,33 +3081,6 @@
 				local.stats.satisfaction = this.getIndicatorsLocal(local).satisfaction
 
 				return local.stats
-
-				// const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
-				// let numVeryGood = 0, numGood = 0, numBad = 0, numVeryBad = 0, activeLocals = []
-				
-				// for (let local of this.locals) {
-				// 	for (let assessment of this.assessments) {
-				// 		if(assessment.local == local.id) {
-				// 			local.assessments.total++
-				// 			local.assessments[assessment.face]++
-				// 		}
-				// 	}
-
-				// 	if (local.assessments.total)
-				// 		activeLocals.push({
-				// 			title: local.title,
-				// 			veryGood: parseFloat(((local.assessments["veryGood"] * 100) / local.assessments.total).toFixed(2)),
-				// 			good: parseFloat(((local.assessments["good"] * 100) / local.assessments.total).toFixed(2)),
-				// 			bad: parseFloat(((local.assessments["bad"] * 100) / local.assessments.total).toFixed(2)),
-				// 			veryBad: parseFloat(((local.assessments["veryBad"] * 100) / local.assessments.total).toFixed(2)),
-				// 			total: local.assessments.total
-				// 		})
-
-				// 	this.topLocals = activeLocals.sort(sortByProperty('veryGood')).slice(0,5)
-
-				// 	localStorage.setItem('topLocals', JSON.stringify(this.topLocals))
-				// 	this.badLocals = activeLocals.sort(sortByProperty('veryBad'))
-				// }
 			},
 
 			selectLocal(local) {

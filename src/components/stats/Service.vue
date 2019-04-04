@@ -90,7 +90,10 @@
               Reason.pb-5(:data="statsReasonsService")
             v-flex#weakPointsService(xs12)
               Chart.pb-5(type="barStacked" title="Puntos Fuertes y Débiles" :data="currentService.weakPoints")
-          
+            v-flex#topLocalsService(xs12)
+              Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" textSize='16px' :data="currentService.topLocals")
+            v-flex#badLocalsService(xs12)
+              Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" textSize='16px' :data="currentService.badLocals")       
 </template>
 
 <script>
@@ -403,6 +406,20 @@
         this.chartDayGlobal = []
         this.chartMonthGlobal = []
       },
+			getIndicatorsLocal(local) {
+				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
+
+				const partialGood = local.good * PRC_GOOD
+				const partialBad = local.bad * PRC_BAD
+				const partialVeryBad = local.veryBad * PRC_VERY_BAD
+				
+				const partials = partialGood + partialBad + partialVeryBad
+
+				local.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, local.total)).toFixed(2)
+				if (this.getPercentage(partials, local.total) == 0) local.indicatorsGlobal.satisfaction = 100
+
+				return local.indicatorsGlobal
+			},
       async dynamicDialog(data) {
         const sortByProperty = (key) => (x, y) => ((x[key] === y[key]) ? 0 : ((x[key] < y[key]) ? 1 : -1))
 
@@ -428,7 +445,7 @@
       if (data.stats.filter) data.stats.filter = `${data.stats.filter} AND justification = '${data.ftitle}'`
 
       this.$axios.post('assessments/stats/reason', { 
-      condition: data.stats.filter || ` AND justification = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
+      condition: data.stats.filter || ` AND justification = '${data.ftitle}' AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(async res => {
 
         const { atencionDelCajero, atencionDelCajeroVeryGood, atencionDelCajeroGood, atencionDelCajeroBad,
         atencionDelCajeroVeryBad, estadoDelLocal, estadoDelLocalVeryGood, estadoDelLocalGood, 
@@ -515,8 +532,41 @@
           }]
           
           this.currentService.weakPoints = reasonChart.sort(sortByProperty('satisfaction')).map(x => x).reverse()
+          
+          this.$axios.post('locals/stats/faces',
+          { condition: data.stats.filter || ` AND justification = '${data.ftitle}' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 }` })
+          .then(res => {
+            let activeLocals = []
+
+            for (let local of res.data) activeLocals.push(this.getChartLocal(local))
+
+
+            this.currentService.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).slice(0,20)
+            this.currentService.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,20)
+
+            this.dynamicDialogAct = false
+            this.dynamicDialogAct = true
+          })
         })
       },
+
+			getChartLocal(local) {
+				local.stats = {
+					title: local.title,
+					veryGood: this.getPercentage(local.veryGood, local.total),
+					good: this.getPercentage(local.good, local.total),
+					bad: this.getPercentage(local.bad, local.total),
+					veryBad: this.getPercentage(local.veryBad, local.total),
+					total: local.total,
+				}
+
+				local.indicatorsGlobal = {}
+
+				local.stats.satisfaction = this.getIndicatorsLocal(local).satisfaction
+
+				return local.stats
+			},
+
       async getChartGlobalDatesHour(data) {
         this.$axios.post('/services/stats/hour', { service:  data.ftitle,
         condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
@@ -619,6 +669,7 @@
         let result = parseFloat(((part * 100) / universe).toFixed(2))
         return isNaN(result) ? 0 : result
       },
+
       async getIndicatorsGlobal(data) {
         const PRC_GOOD_R = 0.25, PRC_BAD_R = 0.50, PRC_VERY_BAD_R = 1
         
@@ -646,6 +697,7 @@
         this.dynamicDialogAct = false
         this.dynamicDialogAct = true
       },
+
       async getChartGlobalDatesDay(data) {
         this.$axios.post('/services/stats/day', { service:  data.ftitle,
         condition: data.stats.filter || ` AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
