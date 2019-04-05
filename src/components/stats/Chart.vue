@@ -116,7 +116,7 @@
                 }
             },
             legend: {
-                reversed: true
+              reversed: true
             },
             plotOptions: {
               series: {
@@ -135,19 +135,18 @@
               }
             },
             series: [{
-                name: 'Muy Bueno',
-                data: null
-            }, {
-                name: 'Bueno',
-                data: null
-            }, {
-                name: 'Malo',
-                data: null
-            }, {
-                name: 'Muy Malo',
-                data: null
-            }
-            ,{
+              name: 'Muy Bueno',
+              data: null
+            },{
+              name: 'Bueno',
+              data: null
+            },{
+              name: 'Malo',
+              data: null
+            },{
+              name: 'Muy Malo',
+              data: null
+            },{
               name: 'Satisfaccion',
               type: 'spline',
               data: null,
@@ -175,7 +174,7 @@
             this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp - ${x.satisfaction}% satis.`)
             if (this.$props.textSize) this.types[this.$props.type].xAxis.labels.style.fontSize = this.$props.textSize
           }
-          else this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp.`)
+          else this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp. - ${x.satisfaction}% satis.`)
           this.types[this.$props.type].series[0].data = this.$props.data.map(x => x.veryGood)
           this.types[this.$props.type].series[1].data = this.$props.data.map(x => x.good)
           this.types[this.$props.type].series[2].data = this.$props.data.map(x => x.bad)
