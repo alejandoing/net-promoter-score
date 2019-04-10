@@ -479,6 +479,7 @@
 			viewTicket(ticket) {
 				this.currentTicket = ticket
 				this.dialogPreResults = true
+				this.updateTicket(ticket)
 				//{ router.push('/ticket/' + id) }
 			},
 
@@ -580,6 +581,11 @@
 				})
 				.then(() => {
 					console.log('Actualizado correctamente')
+				})
+
+				this.$axios.post('tickets/update', { id: ticket.id }).then(res => {
+					let index = this.tickets.findIndex(item => item.id == ticket.id)
+					this.tickets[index].status = 1
 				})
 			}
 		},
