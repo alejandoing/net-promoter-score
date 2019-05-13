@@ -16,7 +16,6 @@ import Stats from '@/components/stats/Stats'
 import ConsultTickets from '@/components/tickets/ConsultTickets'
 import ViewTicket from '@/components/tickets/ViewTicket'
 
-
 Vue.use(Router)
 
 export default new Router({
@@ -36,7 +35,7 @@ export default new Router({
           path: '/polls/new', 
           component: CreatePoll,
           beforeEnter: (to, from, next) => {
-            if (JSON.parse(localStorage.getItem('user')).privileges == "Administrador") next()
+            if (JSON.parse(localStorage.getItem('user')).privileges === "Administrador") next()
             else location.href="/dashboard"
           },
         },
@@ -46,7 +45,7 @@ export default new Router({
           path: '/locals/new', 
           component: CreateLocal,
           beforeEnter: (to, from, next) => {
-            if (JSON.parse(localStorage.getItem('user')).privileges == "Administrador") next()
+            if (JSON.parse(localStorage.getItem('user')).privileges === "Administrador") next()
             else location.href="/dashboard"
           }, 
         },

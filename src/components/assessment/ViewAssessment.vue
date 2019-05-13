@@ -324,8 +324,8 @@
 			finalize() {
 				//console.log("FINALIZE")
 				clearInterval(this.timer)
-				this.dialog = false,
-				this.timer = null,
+				this.dialog = false
+				this.timer = null
 				this.step = 1
 				this.email = null
 				this.telephone = null
@@ -377,7 +377,6 @@
 					poll: this.$route.params.id
 				})
 				.then(res => {
-					console.log(res)
 					this.local = res.data.local
 					this.poll = res.data.poll
 				})

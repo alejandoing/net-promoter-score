@@ -1116,7 +1116,8 @@
 				cristinaMarigomezVeryGood, cristinaMarigomezGood, cristinaMarigomezBad, cristinaMarigomezVeryBad,
 				dardoRicci, dardoRicciVeryGood, dardoRicciGood, dardoRicciBad, dardoRicciVeryBad, diegoLongo, diegoLongoVeryGood,
 				diegoLongoGood, diegoLongoBad, diegoLongoVeryBad, florenciaCasa, florenciaCasaVeryGood, florenciaCasaGood,
-				florenciaCasaBad, florenciaCasaVeryBad, totalZ } = res.data[0]
+				florenciaCasaBad, florenciaCasaVeryBad, vanesaMauro, vanesaMauroVeryGood, vanesaMauroGood, vanesaMauroBad,
+				vanesaMauroVeryBad, totalZ } = res.data[0]
 
 				this.statsZones = [
 					[
@@ -1181,6 +1182,16 @@
 							veryBad: { face: 'veryBad', value: eduardoCesioVeryBad, percentage: this.getPercentage(eduardoCesioVeryBad, eduardoCesio) },
 							assessments: 0,
 							satisfaction: this.getIndicatorsReason(eduardoCesio, eduardoCesioGood, eduardoCesioBad, eduardoCesioVeryBad)
+						}
+					],
+					[
+						vanesaMauro, this.getPercentage(vanesaMauro, totalZ), {
+							veryGood: { face: 'veryGood', value: vanesaMauroVeryGood, percentage: this.getPercentage(vanesaMauroVeryGood, vanesaMauro) },
+							good: { face: 'good', value: vanesaMauroGood, percentage: this.getPercentage(vanesaMauroGood, vanesaMauro) },
+							bad: { face: 'bad', value: vanesaMauroBad, percentage: this.getPercentage(vanesaMauroBad, vanesaMauro) },
+							veryBad: { face: 'veryBad', value: vanesaMauroVeryBad, percentage: this.getPercentage(vanesaMauroVeryBad, vanesaMauro) },
+							assessments: 0,
+							satisfaction: this.getIndicatorsReason(vanesaMauro, vanesaMauroGood, vanesaMauroBad, vanesaMauroVeryBad)
 						}
 					]
 				]
@@ -2701,7 +2712,8 @@
 					cristinaMarigomezVeryGood, cristinaMarigomezGood, cristinaMarigomezBad, cristinaMarigomezVeryBad,
 					dardoRicci, dardoRicciVeryGood, dardoRicciGood, dardoRicciBad, dardoRicciVeryBad, diegoLongo, diegoLongoVeryGood,
 					diegoLongoGood, diegoLongoBad, diegoLongoVeryBad, florenciaCasa, florenciaCasaVeryGood, florenciaCasaGood,
-					florenciaCasaBad, florenciaCasaVeryBad, totalZ } = res.data[0]
+					florenciaCasaBad, florenciaCasaVeryBad, vanesaMauro, vanesaMauroVeryGood, vanesaMauroGood, vanesaMauroBad,
+					vanesaMauroVeryBad, totalZ } = res.data[0]
 
 					this.results.statsZones = [
 						[
@@ -2773,6 +2785,16 @@
 								filter,
 								filterB: this.results.filterB,
 								satisfaction: this.getIndicatorsReason(eduardoCesio, eduardoCesioGood, eduardoCesioBad, eduardoCesioVeryBad)
+							}
+						],
+						[
+							vanesaMauro, this.getPercentage(vanesaMauro, totalZ), {
+								veryGood: { face: 'veryGood', value: vanesaMauroVeryGood, percentage: this.getPercentage(vanesaMauroVeryGood, vanesaMauro) },
+								good: { face: 'good', value: vanesaMauroGood, percentage: this.getPercentage(vanesaMauroGood, vanesaMauro) },
+								bad: { face: 'bad', value: vanesaMauroBad, percentage: this.getPercentage(vanesaMauroBad, vanesaMauro) },
+								veryBad: { face: 'veryBad', value: vanesaMauroVeryBad, percentage: this.getPercentage(vanesaMauroVeryBad, vanesaMauro) },
+								assessments: 0,
+								satisfaction: this.getIndicatorsReason(vanesaMauro, vanesaMauroGood, vanesaMauroBad, vanesaMauroVeryBad)
 							}
 						]
 					]

@@ -167,26 +167,26 @@
     },
     watch: {
       data() {
-        try {
-          this.types[this.$props.type].title.text = this.$props.title
-          if (this.$props.type == "barStacked") {
-            if (this.$props.data.length > 4) this.types[this.$props.type].chart.height = '900px'
-            this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp - ${x.satisfaction}% satis.`)
-            if (this.$props.textSize) this.types[this.$props.type].xAxis.labels.style.fontSize = this.$props.textSize
-          }
-          else this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp. - ${x.satisfaction}% satis.`)
-          this.types[this.$props.type].series[0].data = this.$props.data.map(x => x.veryGood)
-          this.types[this.$props.type].series[1].data = this.$props.data.map(x => x.good)
-          this.types[this.$props.type].series[2].data = this.$props.data.map(x => x.bad)
-          this.types[this.$props.type].series[3].data = this.$props.data.map(x => x.veryBad)
-          this.types[this.$props.type].series[4].data = this.$props.data.map(x => parseFloat(x.satisfaction))
+      try {
+        this.types[this.$props.type].title.text = this.$props.title
+        if (this.$props.type == "barStacked") {
+          if (this.$props.data.length > 4) this.types[this.$props.type].chart.height = '900px'
+          this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp - ${x.satisfaction}% satis.`)
+          if (this.$props.textSize) this.types[this.$props.type].xAxis.labels.style.fontSize = this.$props.textSize
         }
-        catch(e) {
-          e = null
-        }
+        else this.types[this.$props.type].xAxis.categories = this.$props.data.map(x => `${x.title} - ${x.total} resp. - ${x.satisfaction}% satis.`)
+        this.types[this.$props.type].series[0].data = this.$props.data.map(x => x.veryGood)
+        this.types[this.$props.type].series[1].data = this.$props.data.map(x => x.good)
+        this.types[this.$props.type].series[2].data = this.$props.data.map(x => x.bad)
+        this.types[this.$props.type].series[3].data = this.$props.data.map(x => x.veryBad)
+        this.types[this.$props.type].series[4].data = this.$props.data.map(x => parseFloat(x.satisfaction))
+      }
+      catch(e) {
+        e = null
       }
     }
-	}
+  }
+}
 </script>
 
 <style lang="sass" scoped>
