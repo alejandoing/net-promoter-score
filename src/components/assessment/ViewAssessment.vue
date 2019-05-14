@@ -70,6 +70,15 @@
 				v-card-actions
 					v-spacer
 						v-btn(color="green darken-1" flat @click.native="finalize") Entendido
+		v-dialog(v-model="dialogError" persistent max-width="500")
+			v-card
+				v-card-title(class="headline") ¡Error de Conexión!
+				v-card-text.text-xs-center
+					div No hemos podido registrar tu valoración debido a un problema de conexión a internet.
+					img.mt-3(src="./../../../static/error.jpg" height="140" width="140")
+				v-card-actions
+					v-spacer
+						v-btn(color="green darken-1" flat @click.native="finalize") Entendido
 </template>
 
 <script>
@@ -85,6 +94,7 @@
 		data() {
 			return {
 				i: 0,
+				y: 0,
 				userStorage: JSON.parse(localStorage.getItem('user')),
 				timer: null,
 				loader: null,
@@ -133,7 +143,9 @@
 				},
 				dialog: false,
 				local: null,
-				wrote: true
+				wrote: true,
+				active: false,
+				dialogError: false
 			}
 		},
 		watch: {
@@ -152,10 +164,12 @@
 				if (this.step == 1) {
 					clearInterval(this.timer)
 					this.timer = null
+					this.active = false
 				}
 				else {
 					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
 					this.step == 4 ? STEPPER.style.height = '100%' : STEPPER.style.height = '500px'
+					this.active = true
 				}
 			},
 			email() { this.i = 0 },
@@ -178,7 +192,7 @@
 		methods: {
 			async waiting(i) {
 				i++
-				//console.log(i)
+				console.log(i)
 				if (i == 25) {
 					this.wrote = false
 					clearInterval(this.timer)
@@ -189,6 +203,16 @@
 				}
 				this.i = i
 			},
+
+			async refresh(y) {
+				y++
+				console.log(y)
+				if (y == 300 && !this.active) {
+					location.reload()
+				}
+
+				this.y = y
+			},			
 			
 			getAssessment(option) {
 				this.step = 2
@@ -258,7 +282,8 @@
 					})
 					.catch(err => {
 						console.log(err)
-						location.reload()
+						this.dialogError = true
+						setTimeout(() => location.reload(), 5000)
 					})
 				}
 
@@ -317,7 +342,8 @@
 				})
 				.catch((error) => { 
 					console.log(error)
-					location.reload()
+					this.dialogError = true
+					setTimeout(() => location.reload(), 5000)
 				})			
 			},
 
@@ -404,6 +430,11 @@
 					else if (!this.$v.$invalid && this.description)
 						this.createAssessment()
 			})
+
+			if (this.$route.params.localId == 'gABw3iWnvchan9xMlSKU') {
+				setInterval(() => { this.refresh(this.y) }, 1000)
+			}
+
 		}
 	}
 </script>
