@@ -431,9 +431,9 @@
 						this.createAssessment()
 			})
 
-			if (this.$route.params.localId == 'gABw3iWnvchan9xMlSKU') {
+			//if (this.$route.params.localId == 'gABw3iWnvchan9xMlSKU') {
 				setInterval(() => { this.refresh(this.y) }, 1000)
-			}
+			//}
 
 		}
 	}

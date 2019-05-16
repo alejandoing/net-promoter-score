@@ -1466,7 +1466,7 @@
 				pdf.text('Todas las unidades combinadas - Distribución horaria', 33, 163)
 
 				async function getCanvas(ID) {
-					return await html2canvas(document.getElementById(ID), {scale: 1})
+					return await html2canvas(document.getElementById(ID), { width: '300', height: '100' })
 				}
 				
 				const hour = await getCanvas('hour')
@@ -1850,7 +1850,7 @@
 				pdf.text('Todas las unidades combinadas - Distribución horaria', 33, 163)
 
 				async function getCanvas(ID) {
-					return await html2canvas(document.getElementById(ID), {scale: 1})
+					return await html2canvas(document.getElementById(ID), { scale: 0.8 })
 				}
 				
 				const hourCustom = await getCanvas('hourCustom')
