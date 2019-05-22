@@ -291,9 +291,9 @@
 				div.pb-5
 					span.display-1 Locales
 					v-divider
-			v-flex#topLocals(xs12 v-if="assessments")
+			v-flex#topLocalsX(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Mejores Locales" textSize='16px' :data="topLocals")
-			v-flex#badLocals(xs12 v-if="assessments")
+			v-flex#badLocalsX(xs12 v-if="assessments")
 				Chart.pb-5(type="barStacked" title="Distribución General - Peores Locales" textSize='16px' :data="badLocals")
 		v-dialog(v-model="dialogPreResults" persistent max-width="500")
 			v-card
@@ -1466,7 +1466,7 @@
 				pdf.text('Todas las unidades combinadas - Distribución horaria', 33, 163)
 
 				async function getCanvas(ID) {
-					return await html2canvas(document.getElementById(ID), { width: '300', height: '100' })
+					return await html2canvas(document.getElementById(ID), { scale: 1 })
 				}
 				
 				const hour = await getCanvas('hour')
@@ -1692,15 +1692,15 @@
 				pdf.setFontStyle('bold')
 				pdf.text('Todas las unidades combinadas - Mejores 10 locales', 28, 30)
 
-				const topLocals = await getCanvas('topLocals')
-				pdf.addImage(topLocals.toDataURL('image/png'), 'PNG', 10, 45, 190, 100)
+				const topLocalsPDF = await getCanvas('topLocalsX')
+				pdf.addImage(topLocalsPDF.toDataURL('image/png'), 'PNG', 10, 45, 190, 100)
 
 				pdf.addImage(YELLOW_TOP, 'JPEG', 0, 145, 230, 10)
 				pdf.setFontSize(16)
 				pdf.setFontStyle('bold')
 				pdf.text('Todas las unidades combinadas - Peores 10 locales', 28, 152)
 
-				const badLocals = await getCanvas('badLocals')
+				const badLocals = await getCanvas('badLocalsX')
 				pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 167, 190, 100)
 				
 				pdf.save(FILENAME)
@@ -2055,7 +2055,37 @@
 				pdf.text('Eduardo Cesio', 110, 243)
 				pdf.setFontStyle('normal')
 				pdf.setFontSize(9)
-				pdf.text(`${this.results.statsZones[6][0]} resp. | ${this.results.statsZones[6][2].satisfaction}% satis.`, 106, 248)			
+				pdf.text(`${this.results.statsZones[6][0]} resp. | ${this.results.statsZones[6][2].satisfaction}% satis.`, 106, 248)
+
+				pdf.addPage('a4', 'portrait')
+				pdf.addImage(YELLOW_TOP, 'JPEG', 0, 0, 230, 22)
+				pdf.setFontSize(20)
+				pdf.setFontStyle('bold')
+				pdf.text('Informe Mensual', 5, 10)
+				pdf.setFontStyle('normal')
+				pdf.setFontSize(14)
+				pdf.text(`${MONTHS[new Date().getMonth()]} 2019`, 5, 18)
+				pdf.setFontStyle('bold')
+				pdf.text('NPS', 195, 10)
+				pdf.setFontSize(14)
+				pdf.setFontStyle('normal')
+				pdf.text(`${activeLocalsPDF} sitios`, 188, 18)
+
+				pdf.addImage(YELLOW_TOP, 'JPEG', 0, 23, 230, 10)
+				pdf.setFontSize(16)
+				pdf.setFontStyle('bold')
+				pdf.text('Todas las unidades combinadas - Mejores 10 locales', 28, 30)
+
+				const topLocalsPDF = await getCanvas('topLocalsCustom')
+				pdf.addImage(topLocalsPDF.toDataURL('image/png'), 'PNG', 10, 45, 190, 100)
+
+				pdf.addImage(YELLOW_TOP, 'JPEG', 0, 145, 230, 10)
+				pdf.setFontSize(16)
+				pdf.setFontStyle('bold')
+				pdf.text('Todas las unidades combinadas - Peores 10 locales', 28, 152)
+
+				const badLocals = await getCanvas('badLocalsCustom')
+				pdf.addImage(badLocals.toDataURL('image/png'), 'PNG', 10, 167, 190, 100)
 
 				pdf.save(FILENAME)
 				weekChartCustom.style.display = dayChartCustom.style.display = monthChartCustom.style.display = "none"
@@ -2808,9 +2838,9 @@
 					activeLocals.push(this.getChartLocal(local))
 				}
 
-				this.results.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).slice(0,20)
+				this.results.topLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).slice(0,10)
 					
-				this.results.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,20)
+				this.results.badLocals = activeLocals.sort(sortByProperty('satisfaction')).map(x => x).reverse().slice(0,10)
 
 				this.dialogResults = false
 				this.dialogResults = true
