@@ -207,12 +207,12 @@
 			async refresh(y) {
 				y++
 				console.log(y)
-				if (y == 300 && !this.active) {
+				if (y == 7200 && !this.active) {
 					location.reload()
 				}
 
 				this.y = y
-			},			
+			},
 			
 			getAssessment(option) {
 				this.step = 2
@@ -543,9 +543,9 @@
 	@media (max-height: 600px)
 		.stepper
 			height: 85% !important
-	@media (min-height: 730px)
+	@media (min-height: 580px) and (max-height: 700px)
 		.stepper
-			height: 70% !important
+			height: 90% !important
 </style>
 
 <style lang="sass">
