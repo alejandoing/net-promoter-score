@@ -33,7 +33,7 @@
 					v-card.contact
 						v-container
 							v-layout(row wrap)
-								v-flex(xs12 md6)
+								v-flex(xs6)
 									v-text-field(
 										label=" Email"
 										prepend-icon="email"
@@ -42,7 +42,7 @@
 										ref="email"
 										id="email"
 									)
-								v-flex(xs12 md6)
+								v-flex(xs6)
 									v-text-field(
 										label="Teléfono"
 										prepend-icon="phone"
@@ -50,7 +50,7 @@
 										ref="telephone"
 										id="telephone"
 									)
-								v-flex.pb-3(xs12)
+								v-flex.pb-3.textarea(xs12)
 									v-text-field(
 										label="Mensaje"
 										v-model.trim="description"
@@ -168,7 +168,7 @@
 				}
 				else {
 					if (!this.timer) this.timer = setInterval(() => { this.waiting(this.i) }, 1000)
-					this.step == 4 ? STEPPER.style.height = '100%' : STEPPER.style.height = '500px'
+					this.step == 4 ? STEPPER.style.height = '100% !important' : STEPPER.style.height = '500px'
 					this.active = true
 				}
 			},
@@ -543,7 +543,7 @@
 	@media (max-height: 600px)
 		.stepper
 			height: 85% !important
-	@media (min-height: 580px) and (max-height: 700px)
+	@media (min-height: 400px) and (max-height: 700px)
 		.stepper
 			height: 90% !important
 </style>
