@@ -265,7 +265,7 @@
 						justificationTwo: this.justificationTwo,
 						poll: 'D2KzOzdiM8dCmUw7idIW',
 						zone: this.local.zone_id,
-						region: this.local.region_id,
+						region: this.local.region_id || '0l5DtjJ6UQ1J4DxX0fdY',
 						business: 'laYzKoQfYSawreFPJHTx',
 						local: this.$route.params.localId,
 						complain: this.complain,
@@ -320,7 +320,7 @@
 				 	answer: null,
 					status: 0,
 					zone: this.local.zone_id,
-					region: this.local.region_id,
+					region: this.local.region_id || '0l5DtjJ6UQ1J4DxX0fdY',
 				 	business: 'laYzKoQfYSawreFPJHTx',
 				 	local: this.$route.params.localId,
 					poll: 'D2KzOzdiM8dCmUw7idIW',
@@ -403,6 +403,7 @@
 				})
 				.then(res => {
 					this.local = res.data.local
+					console.log(this.local)
 					this.poll = res.data.poll
 				})
 				.catch(err => console.log(err))
