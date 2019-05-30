@@ -206,7 +206,6 @@
 
 			async refresh(y) {
 				y++
-				console.log(y)
 				if (y == 7200 && !this.active) {
 					location.reload()
 				}
