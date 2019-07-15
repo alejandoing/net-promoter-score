@@ -2849,38 +2849,40 @@
 			async getIndicatorsGlobal() {
 				const PRC_GOOD = 0.25, PRC_BAD = 0.50, PRC_VERY_BAD = 1
 
-				const partialGood = this.statsFaces[1].value * PRC_GOOD
-				const partialBad = this.statsFaces[0].value * PRC_BAD
-				const partialVeryBad = this.statsFaces[2].value * PRC_VERY_BAD
-				
-				const partials = partialGood + partialBad + partialVeryBad
-				
-				this.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, this.totalAssessments)).toFixed(2) + '%'
+				try {
+					const partialGood = this.statsFaces[1].value * PRC_GOOD
+					const partialBad = this.statsFaces[0].value * PRC_BAD
+					const partialVeryBad = this.statsFaces[2].value * PRC_VERY_BAD
+					
+					const partials = partialGood + partialBad + partialVeryBad
+					
+					this.indicatorsGlobal.satisfaction = (100 - this.getPercentage(partials, this.totalAssessments)).toFixed(2) + '%'
 
-				this.$axios.post('/assessments/stats/complain',
-				{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
-					this.indicatorsGlobal.complain = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
-				})
-				
-				this.$axios.post('/assessments/stats/comment',
-				{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
-					this.indicatorsGlobal.comment = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
-				})
-				
-				this.$axios.post('/assessments/stats/complainUnread',
-				{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
-					this.indicatorsGlobal.complainUnread = [`${res.data[0].value} total`, `${res.data[0].percentage || 0}%`]
-				})
+					this.$axios.post('/assessments/stats/complain',
+					{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
+						this.indicatorsGlobal.complain = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
+					})
+					
+					this.$axios.post('/assessments/stats/comment',
+					{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
+						this.indicatorsGlobal.comment = [`${res.data[0].value} total`, `${res.data[0].percentage}%`]
+					})
+					
+					this.$axios.post('/assessments/stats/complainUnread',
+					{ condition: ` AND MONTH(date) = ${new Date().getMonth() + 1 } `}).then(res => {
+						this.indicatorsGlobal.complainUnread = [`${res.data[0].value} total`, `${res.data[0].percentage || 0}%`]
+					})
 
-				this.$axios.post('/assessments/stats/service',
-				{ condition: ` AND justification != '' AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
-					this.indicatorsGlobal.service = [`${res.data[0].total} total`, `${this.getPercentage(res.data[0].total, this.totalAssessments)}%`]
-				})
-				
-				this.$axios.post('/assessments/stats/reason',
-				{ condition: ` AND justificationtwo != '' AND justificationtwo != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
-					this.indicatorsGlobal.reason = [`${res.data[0].totalR} total`, `${this.getPercentage(res.data[0].totalR, this.totalAssessments)}%`]
-				})
+					this.$axios.post('/assessments/stats/service',
+					{ condition: ` AND justification != '' AND justification != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
+						this.indicatorsGlobal.service = [`${res.data[0].total} total`, `${this.getPercentage(res.data[0].total, this.totalAssessments)}%`]
+					})
+					
+					this.$axios.post('/assessments/stats/reason',
+					{ condition: ` AND justificationtwo != '' AND justificationtwo != 'null' AND MONTH(assessments.date) = ${new Date().getMonth() + 1 } `}).then(res => {
+						this.indicatorsGlobal.reason = [`${res.data[0].totalR} total`, `${this.getPercentage(res.data[0].totalR, this.totalAssessments)}%`]
+					})
+				} catch(error) { setTimeout(() => { location.reload() }, 20000) }
 			},
 
 			getIndicatorsLocal(local) {

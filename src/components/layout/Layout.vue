@@ -28,15 +28,28 @@
 			HeaderApp
 		},
 		data() {
-			return {
-				totalAssessments: null,
-				totalAssessmentsMonth: null,
-				dialog: true,
-				veryGood: JSON.parse(localStorage.getItem('statsFaces'))[3].value,
-				good: JSON.parse(localStorage.getItem('statsFaces'))[1].value,
-				bad: JSON.parse(localStorage.getItem('statsFaces'))[0].value,
-				veryBad: JSON.parse(localStorage.getItem('statsFaces'))[2].value,
-				userStorage: JSON.parse(localStorage.getItem('user'))
+			try {
+				return {
+					totalAssessments: null,
+					totalAssessmentsMonth: null,
+					dialog: true,
+					veryGood: JSON.parse(localStorage.getItem('statsFaces'))[3].value,
+					good: JSON.parse(localStorage.getItem('statsFaces'))[1].value,
+					bad: JSON.parse(localStorage.getItem('statsFaces'))[0].value,
+					veryBad: JSON.parse(localStorage.getItem('statsFaces'))[2].value,
+					userStorage: JSON.parse(localStorage.getItem('user'))
+				}
+			} catch(error) {
+				return {
+					totalAssessments: null,
+					totalAssessmentsMonth: null,
+					dialog: true,
+					veryGood: 0,
+					good: 0,
+					bad: 0,
+					veryBad: 0,
+					userStorage: JSON.parse(localStorage.getItem('user'))
+				}
 			}
 		},
 		async created() {
