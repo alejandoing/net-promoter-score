@@ -28,13 +28,13 @@
 			}
 		},
 		created() {
-			if (JSON.parse(localStorage.getItem('totalAssessments'))) {
+		//	if (JSON.parse(localStorage.getItem('totalAssessments'))) {
 				this.$firebase.firestore().doc('business/' + this.userStorage.business)
 				.onSnapshot(doc => {
 					this.contexts.push(doc.data().contexts)
 					if (!this.contexts[0].length) this.dialog = true
 				})
-			} else location.reload()
+			//} else location.reload()
 
 		// 	this.$firebase.firestore().collection("assessments").where('local', '==', 'PSSLifj164EnEEGMGlSp').get().then(querySnapshot => {
 		// 		querySnapshot.forEach(doc => {
