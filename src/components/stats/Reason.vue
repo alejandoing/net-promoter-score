@@ -123,7 +123,7 @@
       reasons: {
         0: { index: 0, ftitle: 'Atencion del Cajero', url: "./../../../static/reasons/atencion-cajero.png", title: 'Atención del Cajero', value: 0, percentage: 0, stats: {} },
         1: { index: 1, ftitle: 'Tiempo de Espera', url: "./../../../static/reasons/tiempo-espera.png", title: 'Tiempo de Espera', value: 0, percentage: 0, stats: {} },
-        2: { index: 2, ftitle: 'Estado del Local', url: "./../../../static/reasons/estado-local.png", title: 'Estado del Local', value: 0, percentage: 0, stats: {} },
+        2: { index: 2, ftitle: 'Imagen del Local', url: "./../../../static/reasons/estado-local.png", title: 'Imagen del Local', value: 0, percentage: 0, stats: {} },
         3: { index: 3, ftitle: 'Servicio Utilizado', url: "./../../../static/reasons/servicio-utilizado.png", title: 'Servicio Utilizado', value: 0, percentage: 0, stats: {} },
       },
     }
