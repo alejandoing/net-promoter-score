@@ -145,7 +145,8 @@
 				local: null,
 				wrote: true,
 				active: false,
-				dialogError: false
+				dialogError: false,
+				finish: false
 			}
 		},
 		watch: {
@@ -182,6 +183,23 @@
 				else {
 					this.timer = null
 				}
+			},
+			finish () {
+				if (this.finish) {
+					setTimeout(() => {
+						const urlLog = 'http://174.36.119.3:8080/log/'
+						axios.post(urlLog, {
+							message: `${new Date()} - ${this.local.title} - Error luego de 10 segundos`
+						})
+						.then(res => {
+							this.dialogError = true
+							setTimeout(() => location.reload(), 1000)
+						})
+					}, 15000)
+				}
+				else {
+					this.timer = null
+				}				
 			}
 		},
 
@@ -257,6 +275,8 @@
 					// const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
 					this.loader = 'loading'
 
+					this.finish = true
+
 					const urlAssessment = 'http://174.36.119.3:8080/firestore/assessment/add/'
 					axios.post(urlAssessment, {
 						face: this.assessment,
@@ -274,8 +294,6 @@
 					.then(res => {
 						if (this.flow.contact && this.email && this.wrote) this.createTicket(res.data)
 						else {
-							//this['loading'] = false
-							//this.loader = null
 							this.dialog = true
 						}
 					})
