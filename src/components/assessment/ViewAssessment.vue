@@ -189,7 +189,7 @@
 					setTimeout(() => {
 						const urlLog = 'http://174.36.119.3:8080/log/'
 						axios.post(urlLog, {
-							message: `${new Date()} - ${this.local.title} - Error luego de 10 segundos`
+							message: `${this.local.title} - Error luego de 10 segundos`
 						})
 						.then(res => {
 							this.dialogError = true
