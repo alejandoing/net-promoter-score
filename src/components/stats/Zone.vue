@@ -148,6 +148,7 @@
 					5: { index: 5, ftitle: 'wk77ITDgnPYUjZ28MxJK', url: "./../../../static/zones/florencia-casa.png", title: 'Florencia Casa', value: 0, percentage: 0, stats: { satisfaction: null }  },
 					6: { index: 6, ftitle: '9O2CXPk2PFzaNV2JBpRL', url: "./../../../static/zones/eduardo-cesio.png", title: 'Eduardo Cesio', value: 0, percentage: 0, stats: { satisfaction: null }  },
 					7: { index: 7, ftitle: 'VYvyZi7stLc4tUebyOQyx9dqXlc2', url: "./../../../static/zones/vanesa-mauro.png", title: 'Vanesa Mauro', value: 0, percentage: 0, stats: { satisfaction: null }  },
+					8: { index: 8, ftitle: 'aBTQrenxV4syftsJBlr9', url: "./../../../static/zones/cecilia-pereira.png", title: 'Cecilia Pereira', value: 0, percentage: 0, stats: { satisfaction: null }  }
 				},
       }
 		},

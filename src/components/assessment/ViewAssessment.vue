@@ -210,7 +210,6 @@
 		methods: {
 			async waiting(i) {
 				i++
-				console.log(i)
 				if (i == 25) {
 					this.wrote = false
 					clearInterval(this.timer)
@@ -258,50 +257,54 @@
 			},
 
 			createAssessment() {
-				if (this.loader !== 'loading') {
-					clearInterval(this.timer)
-					this.i = 0
-					if (this.description) { 
-						this.flow.contact = true
-						if (this.assessment == "bad" || this.assessment == "veryBad") {
-							this.complain = 1
-							this.comment = 0
+				try {
+					if (this.loader !== 'loading') {
+						clearInterval(this.timer)
+						this.i = 0
+						if (this.description) { 
+							this.flow.contact = true
+							if (this.assessment == "bad" || this.assessment == "veryBad") {
+								this.complain = 1
+								this.comment = 0
+							}
+							if (this.assessment == "veryGood" || this.assessment == "good") {
+								this.comment = 1
+								this.complain = 0
+							}
 						}
-						if (this.assessment == "veryGood" || this.assessment == "good") {
-							this.comment = 1
-							this.complain = 0
-						}
+						// const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
+						this.loader = 'loading'
+
+						this.finish = true
+
+						const urlAssessment = 'http://174.36.119.3:8080/firestore/assessment/add/'
+						axios.post(urlAssessment, {
+							face: this.assessment,
+							flow: this.flow,
+							justification: this.justification,
+							justificationTwo: this.justificationTwo,
+							poll: 'D2KzOzdiM8dCmUw7idIW',
+							zone: this.local.zone_id,
+							region: this.local.region_id || '0l5DtjJ6UQ1J4DxX0fdY',
+							business: 'laYzKoQfYSawreFPJHTx',
+							local: this.$route.params.localId,
+							complain: this.complain,
+							comment: this.comment					
+						})
+						.then(res => {
+							if (this.flow.contact && this.email && this.wrote) this.createTicket(res.data)
+							else {
+								this.dialog = true
+							}
+						})
+						.catch(err => {
+							console.log(err)
+							this.dialogError = true
+							setTimeout(() => location.reload(), 5000)
+						})
 					}
-					// const ASSESSMENT_COLLECTION = this.$firebase.firestore().collection('assessments')
-					this.loader = 'loading'
-
-					this.finish = true
-
-					const urlAssessment = 'http://174.36.119.3:8080/firestore/assessment/add/'
-					axios.post(urlAssessment, {
-						face: this.assessment,
-						flow: this.flow,
-						justification: this.justification,
-						justificationTwo: this.justificationTwo,
-						poll: 'D2KzOzdiM8dCmUw7idIW',
-						zone: this.local.zone_id,
-						region: this.local.region_id || '0l5DtjJ6UQ1J4DxX0fdY',
-						business: 'laYzKoQfYSawreFPJHTx',
-						local: this.$route.params.localId,
-						complain: this.complain,
-						comment: this.comment					
-					})
-					.then(res => {
-						if (this.flow.contact && this.email && this.wrote) this.createTicket(res.data)
-						else {
-							this.dialog = true
-						}
-					})
-					.catch(err => {
-						console.log(err)
-						this.dialogError = true
-						setTimeout(() => location.reload(), 5000)
-					})
+				} catch (e) {
+					console.log(e)
 				}
 
 				// ASSESSMENT_COLLECTION.add({
