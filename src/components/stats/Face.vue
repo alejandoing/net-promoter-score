@@ -46,8 +46,10 @@
     created() {
       if (this.$props.data) {
         for (let data of this.$props.data) {
-          this.faces[data.face].value = data.value
-          this.faces[data.face].percentage = data.percentage
+          if (this.faces[data.face]) {
+            this.faces[data.face].value = data.value
+            this.faces[data.face].percentage = data.percentage
+          }
         }
       }
     }
