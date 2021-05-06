@@ -19,7 +19,7 @@
     "file-saver": "^2.0.0",
     "firebase": "^5.7.1",
     "fs": "0.0.1-security",
-    "highcharts": "^6.0.4",
+    "highcharts": "^9.0.0",
     "html2canvas": "^1.0.0-alpha.12",
     "jspdf": "^1.5.3",
     "mysql": "^2.16.0",
